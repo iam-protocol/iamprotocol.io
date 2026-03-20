@@ -11,7 +11,7 @@ const buttonVariants = cva(
         default:
           "bg-cyan/10 text-cyan border border-cyan/30 hover:bg-cyan/20",
         secondary:
-          "border border-white/10 text-white/60 hover:border-white/20 hover:text-white",
+          "border border-border text-muted hover:border-border-hover hover:text-foreground",
         ghost:
           "hover:bg-surface-hover hover:text-foreground",
         link: "text-cyan underline-offset-4 hover:underline",

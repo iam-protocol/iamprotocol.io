@@ -24,7 +24,7 @@ export function GlowCard({ children, className }: GlowCardProps) {
         borderWidth={2}
         disabled={false}
       />
-      <div className="relative flex h-full flex-col rounded-xl border border-white/[0.06] bg-white/[0.03] p-8 backdrop-blur-[12px]">
+      <div className="relative flex h-full flex-col rounded-xl border border-border bg-surface/50 p-8 backdrop-blur-[12px]">
         {children}
       </div>
     </div>

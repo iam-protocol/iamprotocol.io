@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { mainNav } from "@/data/navigation";
 import { MobileNav } from "./mobile-nav";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function Navbar() {
   return (
@@ -37,7 +38,10 @@ export function Navbar() {
           ))}
         </ul>
 
-        <MobileNav items={mainNav} />
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <MobileNav items={mainNav} />
+        </div>
       </div>
     </nav>
   );
