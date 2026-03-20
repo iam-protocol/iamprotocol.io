@@ -1,11 +1,20 @@
 import Link from "next/link";
 import { SpecialText } from "@/components/ui/special-text";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { EtherealShadow } from "@/components/ui/ethereal-shadow";
 
 export function HeroSection() {
   return (
     <section className="relative flex min-h-[90vh] flex-col items-center justify-center px-6 pt-24 pb-20">
-      <div className="grid-background absolute inset-0" />
+      {/* Ethereal background — extends 40% below the hero for bleed into next section */}
+      <div className="pointer-events-none absolute inset-0 bottom-[-40%] overflow-hidden">
+        <EtherealShadow
+          color="rgba(0, 240, 255, 0.18)"
+          animation={{ scale: 60, speed: 70 }}
+          noise={{ opacity: 0.3, scale: 1 }}
+          sizing="fill"
+        />
+      </div>
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         <h1 className="text-glow-cyan font-mono text-4xl font-bold tracking-[0.02em] md:text-6xl lg:text-7xl">
           <SpecialText inView speed={30} className="text-4xl md:text-6xl lg:text-7xl">
@@ -32,7 +41,7 @@ export function HeroSection() {
           </Link>
           <a
             href="/technology"
-            className="rounded-full border border-white/10 px-6 py-3 text-sm text-white/60 transition-all duration-200 hover:border-white/20 hover:text-white"
+            className="rounded-full border border-border px-6 py-3 text-sm text-muted transition-all duration-200 hover:border-border-hover hover:text-foreground"
           >
             Read the Paper
           </a>
