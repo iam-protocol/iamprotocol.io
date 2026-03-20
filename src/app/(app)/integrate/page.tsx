@@ -1,10 +1,21 @@
-import { PageWrapper } from "@/components/layout/page-wrapper";
+import { SubpageHero } from "@/components/sections/subpage-hero";
+import { IntegrateGuide } from "@/components/sections/integrate-guide";
+
+export const metadata = {
+  title: "Integrate",
+  description: "Add IAM proof-of-humanity verification to your app in 5 lines of code.",
+};
 
 export default function Integrate() {
   return (
-    <PageWrapper>
-      <h1 className="font-mono text-4xl font-bold">Integrate</h1>
-      <p className="mt-4 text-muted">Add IAM verification to your app in 5 lines of code.</p>
-    </PageWrapper>
+    <>
+      <SubpageHero
+        title="Integrate"
+        subtitle="Add IAM verification to your app in 5 lines of code."
+      />
+      <div className="mx-auto max-w-5xl px-6 pb-16">
+        <IntegrateGuide />
+      </div>
+    </>
   );
 }

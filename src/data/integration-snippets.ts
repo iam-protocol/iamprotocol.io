@@ -10,7 +10,7 @@ export const integrationSnippets: IntegrationSnippet[] = [
 
 const pulse = new PulseSDK({ cluster: 'devnet' });
 
-// User completes 7-second challenge on your site
+// User completes Pulse challenge on your site
 const result = await pulse.verify();
 
 if (result.success) {
@@ -25,19 +25,20 @@ if (result.success) {
     description:
       "For DeFi and DAO users who want self-custody. The user signs the verification transaction with their own wallet.",
     code: `import { PulseSDK } from '@iam-protocol/pulse-sdk';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 
 const pulse = new PulseSDK({ cluster: 'devnet' });
-const { publicKey, signTransaction } = useWallet();
+const { wallet } = useWallet();
+const { connection } = useConnection();
 
-// Generate proof + build transaction
-const proof = await pulse.generateProof();
-const tx = pulse.buildVerifyTransaction(proof, publicKey);
+// User completes challenge, signs tx with wallet
+const result = await pulse.verify(
+  touchElement, wallet.adapter, connection
+);
 
-// User signs with their wallet
-const signed = await signTransaction(tx);
-const sig = await connection.sendRawTransaction(
-  signed.serialize()
-);`,
+if (result.success) {
+  // result.txSignature — Solana transaction signature
+  grantAccess(result.commitment);
+}`,
   },
 ];
