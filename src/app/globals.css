@@ -45,10 +45,29 @@
       transform: translateZ(0) rotate(360deg);
     }
   }
+
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
 }
 
 body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+}
+
+.grid-background {
+  background-image: radial-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+::selection {
+  background: rgba(0, 240, 255, 0.2);
+  color: var(--color-foreground);
 }
