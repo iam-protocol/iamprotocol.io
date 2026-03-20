@@ -1,3 +1,20 @@
+/**
+ * Hero variant: Cascade Pattern + Liquid Glass Panel
+ *
+ * Background: CSS-only falling cascade of gradient lines/dots (zero JS animation overhead).
+ * Subheading and CTAs wrapped in a liquid glass panel with SVG distortion filter,
+ * frosted blur, specular highlights, and edge refraction.
+ *
+ * Required UI components:
+ *   - src/components/ui/falling-pattern.tsx (CSS keyframe cascade)
+ *   - src/components/ui/glass-panel.tsx (liquid glass container)
+ *
+ * Required CSS variables:
+ *   - --color-effect (light: rgba(0,160,180,0.6), dark: rgba(0,240,255,0.6))
+ *
+ * To activate: copy this file's content into src/components/sections/hero-section.tsx
+ */
+
 import Link from "next/link";
 import { SpecialText } from "@/components/ui/special-text";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
