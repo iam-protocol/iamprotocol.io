@@ -19,6 +19,6 @@ export const solanaStats: Stat[] = [
   },
   {
     label: "ZK stack",
-    value: "Rust-native",
+    value: "Rust",
   },
 ];

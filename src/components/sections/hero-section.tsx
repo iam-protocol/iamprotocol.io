@@ -28,9 +28,9 @@ export function HeroSection() {
 
         <GlassPanel className="mx-auto mt-10 max-w-2xl rounded-2xl px-8 py-6">
           <p className="text-base text-foreground/80 leading-relaxed md:text-lg">
-            The IAM Protocol verifies liveness through behavioral
-            dynamics — voice prosody, hand tremor, touch patterns. Built on
-            Solana. Privacy by architecture.
+            Seven seconds of voice, motion, and touch. Hashed into a ZK
+            proof on your device. Nothing stored. Nothing transmitted.
+            Verified on Solana in under a second.
           </p>
           <div className="mt-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link href="/verify">
@@ -43,7 +43,7 @@ export function HeroSection() {
             </Link>
             <a
               href="/technology"
-              className="rounded-full border border-border px-6 py-3 text-sm text-muted transition-all duration-200 hover:border-border-hover hover:text-foreground"
+              className="rounded-full border border-foreground/20 px-6 py-3 text-sm text-foreground/70 transition-all duration-200 hover:border-foreground/40 hover:text-foreground"
             >
               Read the Paper
             </a>
