@@ -13,7 +13,7 @@ export default function Verify() {
     <>
       <SubpageHero
         title="Prove You Are Human"
-        subtitle={"Seven seconds of voice, motion, and touch.\nChoose walletless mode or connect your Solana wallet."}
+        subtitle={"Voice, motion, and touch.\nChoose walletless mode or connect your Solana wallet."}
       />
       <section className="mx-auto max-w-7xl px-6 pb-24">
         <VerifyFlow />

@@ -17,7 +17,7 @@ export default function Technology() {
     <>
       <SubpageHero
         title="How It Works"
-        subtitle={"Seven seconds of voice, motion, and touch. Processed on your device.\nVerified on Solana. Nothing stored, nothing transmitted."}
+        subtitle={"Voice, motion, and touch. Processed on your device.\nVerified on Solana. Nothing stored, nothing transmitted."}
       />
       <VerificationTimelineSection />
       <ProtocolComponentsSection />
@@ -25,7 +25,7 @@ export default function Technology() {
       <section className="mx-auto max-w-3xl px-6 py-24 text-center">
         <hr className="mx-auto mb-16 w-24 border-t border-foreground/[0.06]" />
         <p className="font-mono text-xl tracking-[0.02em] text-foreground md:text-2xl">
-          Seven seconds. Zero data. On-chain proof.
+          Zero data. On-chain proof.
         </p>
         <div className="mt-8 flex justify-center">
           <Link href="/verify">
