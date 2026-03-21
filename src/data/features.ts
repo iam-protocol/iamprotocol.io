@@ -5,24 +5,24 @@ export const features: Feature[] = [
     icon: "pulse",
     title: "The Pulse",
     description:
-      "Voice, motion, and touch. Hashed on-device, then destroyed.",
+      "Voice, motion, and touch captured on your device. Dynamic challenges adapt mid-session to prevent pre-computation.",
     benefit:
-      "Deepfake-resistant liveness without storing biometrics.",
+      "Behavioral entropy scoring detects synthetic data patterns. Raw data never leaves your phone.",
   },
   {
     icon: "proof",
     title: "The Proof",
     description:
-      "A ZK proof that you're the same human as last time. No biometric data crosses the wire.",
+      "A ZK proof that your behavioral fingerprint is consistent with your previous verification. No biometric data crosses the wire.",
     benefit:
-      "Groth16 proof verified on-chain in under 200K compute units.",
+      "Groth16 proof with minimum distance constraint blocks perfect replay attacks.",
   },
   {
     icon: "anchor",
     title: "The Anchor",
     description:
-      "A non-transferable Solana token. This wallet belongs to a verified human.",
+      "A non-transferable Solana token tied to your wallet. Trust Score grows with consistent re-verification over time.",
     benefit:
-      "SPL Token-2022 with NonTransferable extension. One per wallet.",
+      "Progressive scoring rewards months of genuine use. Bot farms can't fast-track trust.",
   },
 ];

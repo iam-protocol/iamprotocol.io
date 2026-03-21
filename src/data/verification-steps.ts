@@ -4,33 +4,33 @@ export const verificationSteps: VerificationStep[] = [
   {
     title: "01 — Challenge",
     description:
-      "User speaks a phonetically-balanced nonsense phrase and traces a gesture on screen.",
+      "Dynamic phrases and curves generated per session. Challenges switch mid-capture to force real-time adaptation.",
     detail:
-      "The phrase is randomly generated and non-sensical (e.g., 'Oro rura lamo ree see') to prevent dictionary-based deepfake attacks. The gesture is a continuous 2D curve. Together they form a Liveness Interlock that captures involuntary behavioral signals.",
+      "Each session generates multiple nonsense phrases from different syllable subsets, switching every few seconds. The Lissajous tracing curve also changes mid-session. This prevents pre-computed responses — a bot would need to generate matching behavioral data for an unpredictable challenge in real time.",
     icon: "mic",
   },
   {
     title: "02 — Capture",
     description:
-      "Three sensor streams record simultaneously: audio at 16kHz, motion (IMU) at 100Hz, touch at 120Hz.",
+      "Three sensor streams: audio, motion, and touch. Each stage captured independently under user control.",
     detail:
-      "The Pulse SDK accesses the device microphone, accelerometer, gyroscope, and touch digitizer. All three streams capture data during the session. The raw data stays in memory on the device and never touches a network interface.",
+      "The Pulse SDK accesses the device microphone, accelerometer, gyroscope, and touch digitizer. Each sensor captures until the user signals completion. Raw data stays in device memory and never touches a network interface. On desktop, motion falls back to cursor tracking.",
     icon: "activity",
   },
   {
-    title: "03 — Extract",
+    title: "03 — Extract + Score",
     description:
-      "MFCCs from audio. Jerk and jounce from motion. Fractal dimension from touch. Statistical condensing.",
+      "MFCC, jerk, fractal dimension, statistical condensing. Plus entropy scoring to detect synthetic data.",
     detail:
-      "Audio features: 13 MFCC coefficients per 25ms frame, plus delta and delta-delta. Motion and touch: 3rd-derivative (jerk) and 4th-derivative (jounce) analysis, Higuchi fractal dimension. Each stream is condensed to a fixed-length vector via mean, variance, skewness, and kurtosis.",
+      "Audio features: 13 MFCC coefficients plus delta and delta-delta, with per-coefficient entropy to detect TTS artifacts. Motion and touch: jerk and jounce analysis with jitter variance scoring — real human tremor fluctuates over time, synthetic data stays constant. Features that look too clean are flagged.",
     icon: "scan",
   },
   {
     title: "04 — Hash",
     description:
-      "SimHash projects features into a bitstring. Same-user fingerprints cluster; imposters diverge.",
+      "SimHash projects features into a 256-bit fingerprint. Same-user fingerprints cluster; imposters diverge.",
     detail:
-      "The feature vectors are concatenated and passed through SimHash, a locality-sensitive hashing algorithm that uses random hyperplane projections. The output is a Temporal Fingerprint (F_T). Two F_T values from the same person have small Hamming distance. An imposter's F_T lands far away in Hamming space.",
+      "The expanded feature vector (including entropy and jitter metrics) is passed through SimHash using random hyperplane projections. The output is a Temporal Fingerprint. Two fingerprints from the same person have small Hamming distance. The entropy features mean synthetic data produces a different fingerprint than real behavioral data.",
     icon: "hash",
   },
   {
@@ -38,23 +38,23 @@ export const verificationSteps: VerificationStep[] = [
     description:
       "Poseidon(fingerprint || salt) produces the TBH commitment. The fingerprint and salt stay on-device.",
     detail:
-      "A large cryptographically-secure salt is generated. The Poseidon hash function (chosen for ZK-circuit efficiency over BN254 field elements) takes the fingerprint concatenated with the salt to produce H_TBH. This commitment is the only value that leaves the device. The raw fingerprint and salt remain private.",
+      "A large cryptographically-secure salt is generated. The Poseidon hash function (chosen for ZK-circuit efficiency over BN254 field elements) takes the fingerprint concatenated with the salt to produce H_TBH. This commitment is the only value that leaves the device.",
     icon: "lock",
   },
   {
     title: "06 — Prove",
     description:
-      "Groth16 ZK proof: 'My new TBH is within Hamming distance t of my previous TBH.' Generated on-device.",
+      "Groth16 ZK proof: distance is within the valid range. Not too similar (replay), not too different (imposter).",
     detail:
-      "The user's device generates a Groth16 proof that verifies three things: the new commitment was built from a valid fingerprint, the previous commitment was built from a valid fingerprint, and the Hamming distance between the two fingerprints falls below the protocol threshold. The verifier learns nothing about the actual fingerprints.",
+      "The proof verifies four things: both commitments are valid Poseidon hashes of real fingerprints, the Hamming distance falls below the maximum threshold (natural human variation), and the distance exceeds a minimum threshold (blocks perfect replay where a bot submits identical data). The verifier learns nothing about the actual fingerprints.",
     icon: "proof",
   },
   {
     title: "07 — Verify",
     description:
-      "Proof submitted to Solana. Verified in under 200K compute units. Anchor updated. Trust Score increases.",
+      "Proof verified on Solana. Anchor updated. Progressive Trust Score recalculated from verification history.",
     detail:
-      "The proof and public inputs are submitted via the IAM relayer (walletless mode) or the user's wallet (wallet-connected mode). The iam-verifier program checks the Groth16 proof on-chain. On success, the iam-registry updates the user's IAM Anchor: verification_count increments, last_verification_timestamp refreshes, and Trust Score recalculates.",
+      "The proof is submitted via the IAM relayer (walletless) or the user's wallet (wallet-connected). The verifier checks the Groth16 proof on-chain. On success, the Anchor stores the verification timestamp in a rolling history. Trust Score recalculates using recency weighting and regularity analysis — consistent verifications over weeks score higher than rapid bursts.",
     icon: "check-circle",
   },
 ];

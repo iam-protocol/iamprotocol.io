@@ -4,6 +4,7 @@ import { SubpageHero } from "@/components/sections/subpage-hero";
 import { VerificationTimelineSection } from "@/components/sections/verification-timeline-section";
 import { ProtocolComponentsSection } from "@/components/sections/protocol-components-section";
 import { PrivacySection } from "@/components/sections/privacy-section";
+import { SecurityModelSection } from "@/components/sections/security-model-section";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default function Technology() {
       <VerificationTimelineSection />
       <ProtocolComponentsSection />
       <PrivacySection />
+      <SecurityModelSection />
       <section className="mx-auto max-w-3xl px-6 py-24 text-center">
         <hr className="mx-auto mb-16 w-24 border-t border-foreground/[0.06]" />
         <p className="font-mono text-xl tracking-[0.02em] text-foreground md:text-2xl">
