@@ -5,7 +5,7 @@ export const mainNav: NavItem[] = [
   { label: "Technology", href: "/technology" },
   { label: "Solutions", href: "/solutions" },
   { label: "Docs", href: "/docs", external: true },
-  { label: "Paper", href: "/paper", external: true },
+  { label: "Paper", href: "/paper" },
 ];
 
 export const appNav: NavItem[] = [

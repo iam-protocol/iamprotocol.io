@@ -1,6 +1,9 @@
 "use client";
 
+import { useRef } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useConnection } from "@solana/wallet-adapter-react";
+import type { PulseSession } from "@iam-protocol/pulse-sdk";
 import type { VerifyState, VerifyAction } from "@/components/verify/types";
 import { PulseChallenge } from "@/components/verify/pulse-challenge";
 import {
@@ -11,11 +14,17 @@ import {
 } from "@/components/verify/step-views";
 import { WalletConnectButton } from "@/components/ui/wallet-connect-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
-import {
-  generateMockCommitment,
-  generateMockTxSignature,
-} from "@/components/verify/mock-utils";
+import { usePulse } from "@/components/providers/pulse-provider";
 import { Wallet } from "lucide-react";
+
+function commitmentToHex(bytes: Uint8Array): string {
+  return (
+    "0x" +
+    Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
 
 export function VerifyWalletConnected({
   state,
@@ -24,31 +33,66 @@ export function VerifyWalletConnected({
   state: VerifyState;
   dispatch: React.ActionDispatch<[action: VerifyAction]>;
 }) {
-  const { connected } = useWallet();
+  const { connected, wallet } = useWallet();
+  const { connection } = useConnection();
+  const pulse = usePulse();
+  const touchRef = useRef<HTMLDivElement>(null);
+  const sessionRef = useRef<PulseSession | null>(null);
 
   function handleStart() {
-    dispatch({ type: "START_CHALLENGE" });
+    const session = pulse.createSession(touchRef.current ?? undefined);
+    sessionRef.current = session;
+    dispatch({ type: "START_AUDIO" });
+    session.startAudio().catch(() => session.skipAudio());
   }
 
-  function handleChallengeComplete() {
-    dispatch({ type: "CHALLENGE_COMPLETE" });
-    setTimeout(() => {
-      dispatch({ type: "PROOF_COMPLETE" });
+  async function handleNext() {
+    const session = sessionRef.current;
+    if (!session || state.step !== "capturing") return;
+
+    if (state.stage === "audio") {
+      await session.stopAudio();
+      dispatch({ type: "NEXT_STAGE" });
+      session.startMotion().catch(() => session.skipMotion());
+    } else if (state.stage === "motion") {
+      await session.stopMotion();
+      dispatch({ type: "NEXT_STAGE" });
+      session.startTouch().catch(() => session.skipTouch());
+    } else if (state.stage === "touch") {
+      await session.stopTouch();
+      dispatch({ type: "CAPTURE_DONE" });
+
       setTimeout(() => {
-        dispatch({
-          type: "VERIFICATION_SUCCESS",
-          commitment: generateMockCommitment(),
-          txSignature: generateMockTxSignature(),
-        });
-      }, 1000);
-    }, 1500);
-  }
+        dispatch({ type: "PROOF_COMPLETE" });
+      }, 2000);
 
-  function handleTick(remaining: number) {
-    dispatch({ type: "TICK", timeRemaining: remaining });
+      session
+        .complete(wallet?.adapter, connection)
+        .then((result) => {
+          if (result.success) {
+            dispatch({
+              type: "VERIFICATION_SUCCESS",
+              commitment: commitmentToHex(result.commitment),
+              txSignature: result.txSignature,
+            });
+          } else {
+            dispatch({
+              type: "VERIFICATION_FAILED",
+              error: result.error ?? "Verification failed",
+            });
+          }
+        })
+        .catch((err: Error) => {
+          dispatch({
+            type: "VERIFICATION_FAILED",
+            error: err.message ?? "Unexpected error",
+          });
+        });
+    }
   }
 
   function handleReset() {
+    sessionRef.current = null;
     dispatch({ type: "RESET" });
   }
 
@@ -82,17 +126,17 @@ export function VerifyWalletConnected({
     );
   }
 
-  if (state.step === "challenge") {
+  if (state.step === "capturing") {
     return (
       <PulseChallenge
-        timeRemaining={state.timeRemaining}
-        onComplete={handleChallengeComplete}
-        onTick={handleTick}
+        stage={state.stage}
+        onNext={handleNext}
+        touchRef={touchRef}
       />
     );
   }
 
-  if (state.step === "proving") return <ProvingView />;
+  if (state.step === "processing") return <ProvingView />;
   if (state.step === "signing") return <SigningView />;
 
   if (state.step === "verified") {
