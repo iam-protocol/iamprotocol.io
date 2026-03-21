@@ -219,3 +219,16 @@ The original Anonymity Ring MPC protocol (Section 3.3) — while theoretically s
 This eliminates: the MPC coordination problem, peer-to-peer latency, Paillier encryption overhead, and Garbled Circuit complexity. The Anonymity Ring is preserved but its role is simplified to: (a) issuing challenge nonces (preventing replay), (b) vouching for verification witnesses, and (c) attesting on-chain via aggregate signature. Ring members no longer compute on biometric data.
 
 The mathematical framework for the TBH (Section 2), the game-theoretic incentive model (Section 4), and the IAM Anchor DID architecture (Section 5) remain unchanged. See `IAM_V2_RESEARCH_AND_ANALYSIS.md` for the full strategic and technical rationale.
+
+**3. Security Hardening (v2.1)**
+The v2.1 update adds four layers of bot resistance:
+
+- **Minimum Hamming distance constraint**: The ZK circuit now enforces `min_distance <= HammingDistance(F_T_new, F_T_prev) < threshold`. Perfect replay (distance 0) and near-replay (distance 1-2) are rejected at the proof level. Real human behavioral drift produces 5-20 bits of natural variation between sessions.
+
+- **Behavioral entropy scoring**: The feature extraction pipeline computes Shannon entropy per MFCC coefficient and jitter variance (variance of windowed jerk variance) for motion and touch axes. Real human data has moderate, fluctuating entropy. Synthetic data from TTS engines or scripted inputs produces suspiciously uniform distributions that shift the SimHash fingerprint away from the baseline.
+
+- **Progressive Trust Score**: The Trust Score formula uses recency-weighted verification count (30-day decay half-life), regularity bonuses (consistent weekly verification scores higher than 100 verifications in one day), and diminishing-returns age bonus (sqrt scaling). The Anchor stores the last 10 verification timestamps for rolling computation.
+
+- **Dynamic mid-session challenges**: Phrases and Lissajous curves change during a single capture session. Each phrase draws from a different syllable subset. This forces real-time behavioral adaptation that pre-computed or scripted responses cannot handle.
+
+These defenses do not claim cryptographic proof of humanness. They make Sybil attacks economically irrational by increasing the cost and time required to build and maintain fake identities at scale.
