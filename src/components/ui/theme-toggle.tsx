@@ -24,7 +24,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
   const mounted = useMounted();
 
   if (!mounted) {
-    return <div className={cn("h-8 w-16", className)} />;
+    return <div className={cn("h-8 w-16 rounded-full border border-white/10 bg-surface", className)} />;
   }
 
   const isDark = resolvedTheme === "dark";
