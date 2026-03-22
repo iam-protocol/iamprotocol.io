@@ -1,95 +1,170 @@
 "use client";
 
-import type React from "react";
-import { useId } from "react";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
-type FallingPatternProps = React.ComponentProps<"div"> & {
-  color?: string;
-  backgroundColor?: string;
-  duration?: number;
-  blurIntensity?: string;
-  density?: number;
-};
+const SQUARE_SIZE = 4;
+const GRID_GAP = 6;
+const FLICKER_CHANCE = 0.3;
+const OPACITY_BUCKETS = 32;
 
-const START_POSITIONS =
-  "0px 220px, 3px 220px, 151.5px 337.5px, 25px 24px, 28px 24px, 176.5px 150px, 50px 16px, 53px 16px, 201.5px 91px, 75px 224px, 78px 224px, 226.5px 230.5px, 100px 19px, 103px 19px, 251.5px 121px, 125px 120px, 128px 120px, 276.5px 187px, 150px 31px, 153px 31px, 301.5px 120.5px, 175px 235px, 178px 235px, 326.5px 384.5px, 200px 121px, 203px 121px, 351.5px 228.5px, 225px 224px, 228px 224px, 376.5px 364.5px, 250px 26px, 253px 26px, 401.5px 105px, 275px 75px, 278px 75px";
-
-const END_POSITIONS =
-  "0px 6800px, 3px 6800px, 151.5px 6917.5px, 25px 13632px, 28px 13632px, 176.5px 13758px, 50px 5416px, 53px 5416px, 201.5px 5491px, 75px 17175px, 78px 17175px, 226.5px 17301.5px, 100px 5119px, 103px 5119px, 251.5px 5221px, 125px 8428px, 128px 8428px, 276.5px 8495px, 150px 9876px, 153px 9876px, 301.5px 9965.5px, 175px 13391px, 178px 13391px, 326.5px 13540.5px, 200px 14741px, 203px 14741px, 351.5px 14848.5px, 225px 18770px, 228px 18770px, 376.5px 18910.5px, 250px 5082px, 253px 5082px, 401.5px 5161px, 275px 6375px, 278px 6375px";
-
-const BG_SIZES =
-  "300px 235px, 300px 235px, 300px 235px, 300px 252px, 300px 252px, 300px 252px, 300px 150px, 300px 150px, 300px 150px, 300px 253px, 300px 253px, 300px 253px, 300px 204px, 300px 204px, 300px 204px, 300px 134px, 300px 134px, 300px 134px, 300px 179px, 300px 179px, 300px 179px, 300px 299px, 300px 299px, 300px 299px, 300px 215px, 300px 215px, 300px 215px, 300px 281px, 300px 281px, 300px 281px, 300px 158px, 300px 158px, 300px 158px, 300px 210px, 300px 210px";
-
-function generatePatterns(color: string): string {
-  const rows = [
-    [235, 117.5],
-    [252, 126],
-    [150, 75],
-    [253, 126.5],
-    [204, 102],
-    [134, 67],
-    [179, 89.5],
-    [299, 149.5],
-    [215, 107.5],
-    [281, 140.5],
-    [158, 79],
-    [210, 105],
-  ];
-
-  return rows
-    .flatMap(([h, dotY]) => [
-      `radial-gradient(4px 100px at 0px ${h}px, ${color}, transparent)`,
-      `radial-gradient(4px 100px at 300px ${h}px, ${color}, transparent)`,
-      `radial-gradient(1.5px 1.5px at 150px ${dotY}px, ${color} 100%, transparent 150%)`,
-    ])
-    .join(", ");
+function buildPalette(maxOpacity: number): string[] {
+  const isDark = document.documentElement.classList.contains("dark");
+  const [r, g, b] = isDark ? [232, 230, 224] : [26, 26, 31];
+  const styles: string[] = new Array(OPACITY_BUCKETS);
+  for (let i = 0; i < OPACITY_BUCKETS; i++) {
+    const a = (i / (OPACITY_BUCKETS - 1)) * maxOpacity;
+    styles[i] = `rgba(${r},${g},${b},${a})`;
+  }
+  return styles;
 }
 
-export function FallingPattern({
-  color = "var(--color-effect)",
-  backgroundColor = "var(--color-background)",
-  duration = 120,
-  blurIntensity = "0.3em",
-  density = 1,
-  className,
-}: FallingPatternProps) {
-  const rawId = useId();
-  const animName = `cascade-${rawId.replace(/:/g, "")}`;
+function getMaxOpacity(): number {
+  return document.documentElement.classList.contains("dark") ? 0.35 : 0.2;
+}
+
+export function FallingPattern({ className }: { className?: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let inView = false;
+    let lastTime = 0;
+    let maxOp = getMaxOpacity();
+    let palette = buildPalette(maxOp);
+
+    // Grid state
+    let cols = 0;
+    let rows = 0;
+    let squares: Uint8Array;
+    let dpr = 1;
+
+    const setup = () => {
+      dpr = window.devicePixelRatio || 1;
+      const { width, height } = container.getBoundingClientRect();
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+
+      const step = SQUARE_SIZE + GRID_GAP;
+      cols = Math.floor(width / step);
+      rows = Math.floor(height / step);
+      squares = new Uint8Array(cols * rows);
+
+      for (let i = 0; i < squares.length; i++) {
+        squares[i] = Math.floor(Math.random() * OPACITY_BUCKETS);
+      }
+    };
+
+    // Pre-allocate bucket index arrays (reused every frame)
+    const bucketIndices: number[][] = new Array(OPACITY_BUCKETS);
+    for (let b = 0; b < OPACITY_BUCKETS; b++) {
+      bucketIndices[b] = [];
+    }
+
+    const animate = (time: number) => {
+      if (!inView) return;
+
+      const deltaTime = Math.min((time - lastTime) / 1000, 0.1);
+      lastTime = time;
+
+      const flickerThreshold = FLICKER_CHANCE * deltaTime;
+      const total = cols * rows;
+
+      // Update flickering squares (Uint8 bucket indices, no float math)
+      for (let i = 0; i < total; i++) {
+        if (Math.random() < flickerThreshold) {
+          squares[i] = Math.floor(Math.random() * OPACITY_BUCKETS);
+        }
+      }
+
+      // Sort dots into opacity buckets
+      for (let b = 0; b < OPACITY_BUCKETS; b++) {
+        bucketIndices[b]!.length = 0;
+      }
+      for (let i = 0; i < total; i++) {
+        bucketIndices[squares[i]!]!.push(i);
+      }
+
+      // Draw: one fillStyle + one batched fill() per bucket
+      const step = (SQUARE_SIZE + GRID_GAP) * dpr;
+      const size = SQUARE_SIZE * dpr;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let b = 0; b < OPACITY_BUCKETS; b++) {
+        const indices = bucketIndices[b]!;
+        if (indices.length === 0) continue;
+
+        ctx.fillStyle = palette[b]!;
+        ctx.beginPath();
+        for (let k = 0; k < indices.length; k++) {
+          const idx = indices[k]!;
+          const col = (idx / rows) | 0;
+          const row = idx - col * rows;
+          ctx.rect(col * step, row * step, size, size);
+        }
+        ctx.fill();
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    setup();
+
+    const resizeObserver = new ResizeObserver(() => {
+      setup();
+      if (inView) {
+        lastTime = performance.now();
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    });
+    resizeObserver.observe(container);
+
+    const intersectionObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        const wasInView = inView;
+        inView = entry.isIntersecting;
+        if (!wasInView && inView) {
+          lastTime = performance.now();
+          animationFrameId = requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0 },
+    );
+    intersectionObserver.observe(canvas);
+
+    const themeObserver = new MutationObserver(() => {
+      maxOp = getMaxOpacity();
+      palette = buildPalette(maxOp);
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
+      themeObserver.disconnect();
+    };
+  }, []);
 
   return (
-    <div className={cn("relative h-full w-full", className)}>
-      {/* CSS keyframes — browser-native animation, zero JS per frame */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-            @keyframes ${animName} {
-              from { background-position: ${START_POSITIONS}; }
-              to { background-position: ${END_POSITIONS}; }
-            }
-          `,
-        }}
-      />
-
-      <div
-        className="relative z-0 size-full"
-        style={{
-          backgroundColor,
-          backgroundImage: generatePatterns(color),
-          backgroundSize: BG_SIZES,
-          animation: `${animName} ${duration}s linear infinite`,
-          willChange: "background-position",
-        }}
-      />
-
-      <div
-        className="absolute inset-0 z-[1]"
-        style={{
-          backdropFilter: `blur(${blurIntensity})`,
-          backgroundImage: `radial-gradient(circle at 50% 50%, transparent 0, transparent 2px, ${backgroundColor} 2px)`,
-          backgroundSize: `${8 * density}px ${8 * density}px`,
-        }}
-      />
+    <div ref={containerRef} className={cn("relative h-full w-full", className)}>
+      <div className="hero-glow" />
+      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
     </div>
   );
 }

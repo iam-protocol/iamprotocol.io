@@ -26,9 +26,6 @@ export function HeroSection() {
     <section className="relative flex min-h-[90vh] flex-col items-center justify-center px-6 pt-24 pb-20">
       <div className="pointer-events-none absolute inset-0 bottom-[-40%] overflow-hidden">
         <FallingPattern
-          duration={120}
-          density={1}
-          blurIntensity="0.3em"
           className="h-full [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]"
         />
       </div>
@@ -60,7 +57,7 @@ export function HeroSection() {
             </Link>
             <a
               href="/technology"
-              className="rounded-full border border-border px-6 py-3 text-sm text-muted transition-all duration-200 hover:border-border-hover hover:text-foreground"
+              className="rounded-full border border-border px-6 py-3 text-sm text-muted transition-colors duration-200 hover:border-border-hover hover:text-foreground"
             >
               Read the Paper
             </a>
