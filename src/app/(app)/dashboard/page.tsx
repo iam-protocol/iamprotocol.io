@@ -14,7 +14,7 @@ export default function Dashboard() {
     <>
       <SubpageHero
         title="Your IAM Anchor"
-        subtitle="Trust Score, verification history, and on-chain identity status."
+        subtitle={"Trust Score, verification history,\nand on-chain identity status."}
       />
       <section className="mx-auto max-w-7xl px-6 pb-24">
         <DashboardAnchorView />

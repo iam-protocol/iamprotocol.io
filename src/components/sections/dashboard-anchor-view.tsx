@@ -55,10 +55,12 @@ export function DashboardAnchorView() {
             Connect your wallet
           </p>
           <p className="mt-2 text-sm text-muted">
-            View your IAM Anchor, Trust Score, and verification history.
+            View your IAM Anchor, Trust Score,
+            <br className="md:hidden" />
+            {" "}and verification history.
           </p>
         </div>
-        <WalletConnectButton className="!rounded-full !border !border-border !bg-surface !text-foreground !font-mono !text-sm" />
+        <WalletConnectButton />
       </div>
     );
   }
