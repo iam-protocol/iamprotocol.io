@@ -17,17 +17,17 @@ export function MobileNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="md:hidden">
+    <div className="md:hidden flex items-center">
       <button
         onClick={() => setOpen(!open)}
-        className="text-muted transition-colors hover:text-foreground"
+        className="flex h-8 w-8 items-center justify-center text-muted transition-colors hover:text-foreground"
         aria-label={open ? "Close menu" : "Open menu"}
       >
-        {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
       </button>
 
       {open && (
-        <div className="absolute left-0 top-16 w-full border-b border-border bg-background/95 backdrop-blur-md">
+        <div className="absolute left-0 top-16 w-full border-b border-border bg-background">
           <ul className="flex flex-col gap-1 px-6 py-4">
             {mobileItems.map((item) => (
               <li key={item.href}>
