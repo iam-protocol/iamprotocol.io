@@ -27,7 +27,7 @@ export function ForDevelopersSection() {
 
       <a
         href="/integrate"
-        className="mt-8 inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm text-muted transition-all duration-200 hover:border-border-hover hover:text-foreground"
+        className="mt-8 inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm text-muted transition-colors duration-200 hover:border-border-hover hover:text-foreground"
       >
         Read the Docs
         <ArrowRight className="h-4 w-4" />

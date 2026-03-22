@@ -9,20 +9,17 @@ export function HeroSection() {
     <section className="relative flex min-h-[90vh] flex-col items-center justify-center px-6 pt-24 pb-20">
       <div className="pointer-events-none absolute inset-0 bottom-[-40%] overflow-hidden">
         <FallingPattern
-          duration={120}
-          density={1}
-          blurIntensity="0.3em"
           className="h-full [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]"
         />
       </div>
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         <h1 className="text-glow-cyan font-mono text-4xl font-bold tracking-[0.02em] md:text-6xl lg:text-7xl overflow-hidden">
           <SpecialText inView speed={30} className="text-4xl md:text-6xl lg:text-7xl">
-            PROVE YOU&apos;RE HUMAN,
+            Prove you&apos;re human,
           </SpecialText>
           <br />
           <SpecialText inView speed={30} delay={1.5} className="text-4xl md:text-6xl lg:text-7xl">
-            NOT WHO YOU ARE.
+            not who you are.
           </SpecialText>
         </h1>
 
@@ -43,7 +40,7 @@ export function HeroSection() {
             </Link>
             <a
               href="/technology"
-              className="rounded-full border border-foreground/20 px-6 py-3 text-sm text-foreground/70 transition-all duration-200 hover:border-foreground/40 hover:text-foreground"
+              className="rounded-full border border-foreground/20 bg-foreground/5 px-6 py-3 text-sm font-medium text-foreground/80 transition-colors duration-200 hover:border-foreground/40 hover:bg-foreground/10 hover:text-foreground"
             >
               Read the Paper
             </a>
