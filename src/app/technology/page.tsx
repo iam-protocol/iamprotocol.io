@@ -18,7 +18,7 @@ export default function Technology() {
     <>
       <SubpageHero
         title="How It Works"
-        subtitle={"Voice, motion, and touch. Processed on your device.\nVerified on Solana. Nothing stored, nothing transmitted."}
+        subtitle={"Voice, motion, and touch.\nProcessed on your device.\nVerified on Solana.\nNothing stored, nothing transmitted."}
       />
       <VerificationTimelineSection />
       <ProtocolComponentsSection />

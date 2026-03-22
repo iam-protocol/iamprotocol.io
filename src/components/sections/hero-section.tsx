@@ -13,12 +13,12 @@ export function HeroSection() {
         />
       </div>
       <div className="relative z-10 mx-auto max-w-4xl text-center">
-        <h1 className="text-glow-cyan font-mono text-4xl font-bold tracking-[0.02em] md:text-6xl lg:text-7xl overflow-hidden">
-          <SpecialText inView speed={30} className="text-4xl md:text-6xl lg:text-7xl">
+        <h1 className="text-glow-cyan font-mono text-3xl font-bold tracking-[0.02em] md:text-6xl lg:text-7xl overflow-hidden">
+          <SpecialText inView speed={30} className="text-3xl md:text-6xl lg:text-7xl">
             Prove you&apos;re human,
           </SpecialText>
           <br />
-          <SpecialText inView speed={30} delay={1.5} className="text-4xl md:text-6xl lg:text-7xl">
+          <SpecialText inView speed={30} delay={1.5} className="text-3xl md:text-6xl lg:text-7xl">
             not who you are.
           </SpecialText>
         </h1>
