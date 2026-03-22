@@ -13,7 +13,7 @@ export default function Integrate() {
         title="Integrate"
         subtitle="Add IAM verification to your app in 5 lines of code."
       />
-      <div className="mx-auto max-w-5xl px-6 pb-16">
+      <div className="mx-auto max-w-5xl px-6 pb-16 overflow-x-hidden">
         <IntegrateGuide />
       </div>
     </>

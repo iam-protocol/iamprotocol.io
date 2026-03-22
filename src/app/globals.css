@@ -187,8 +187,8 @@ body {
 }
 
 .dark {
-  --glass-tint: rgba(10, 10, 15, 0.08);
-  --glass-specular: linear-gradient(to bottom, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 40%, transparent 100%);
+  --glass-tint: rgba(15, 20, 30, 0.55);
+  --glass-specular: linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 40%, transparent 100%);
   --glass-shadow:
     0 8px 32px rgba(0,0,0,0.3),
     0 2px 8px rgba(0,0,0,0.2),
