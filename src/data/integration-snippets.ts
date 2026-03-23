@@ -15,7 +15,6 @@ const result = await pulse.verify();
 
 if (result.success) {
   // result.commitment — the on-chain TBH hash
-  // result.trustScore — current Trust Score
   grantAccess(result.commitment);
 }`,
   },
