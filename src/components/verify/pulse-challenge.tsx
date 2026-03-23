@@ -141,9 +141,10 @@ export function PulseChallenge({
 
   useEffect(() => {
     if (touchRef && "current" in touchRef && svgContainerRef.current) {
-      (touchRef as any).current = svgContainerRef.current;
+      const mutableRef = touchRef as React.MutableRefObject<HTMLDivElement | null>;
+      mutableRef.current = svgContainerRef.current;
     }
-  });
+  }, [touchRef, captureStarted]);
 
   // --- Countdown screen ---
   if (!captureStarted) {
