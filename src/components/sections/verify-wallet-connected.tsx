@@ -69,7 +69,9 @@ export function VerifyWalletConnected({
       return;
     }
 
-    session.startMotion().catch(() => session.skipMotion());
+    // Motion permission must be awaited — on iOS the dialog blocks and capture
+    // time is lost if we proceed before the user approves.
+    try { await session.startMotion(); } catch { session.skipMotion(); }
     session.startTouch().catch(() => session.skipTouch());
 
     dispatch({ type: "START_CAPTURE" });
@@ -112,6 +114,7 @@ export function VerifyWalletConnected({
 
   function handleReset() {
     sessionRef.current = null;
+    (touchRef as React.MutableRefObject<HTMLDivElement | null>).current = null;
     setAudioLevel(0);
     dispatch({ type: "RESET" });
   }
