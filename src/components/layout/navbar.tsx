@@ -11,7 +11,7 @@ const solutionsDropdown = [
 
 export function Navbar() {
   return (
-    <nav className="fixed top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
+    <nav className="fixed top-0 z-50 w-full border-b border-border bg-background md:bg-background/80 md:backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center px-6">
         <Link
           href="/"
