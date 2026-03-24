@@ -48,8 +48,8 @@ const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
       >
         <div
           className={cn(
-            "-z-30 blur-[2px]",
-            "absolute inset-0 overflow-hidden [container-type:size]"
+            "-z-30",
+            "absolute inset-0 overflow-hidden [border-radius:inherit] [container-type:size]"
           )}
         >
           <div className="absolute inset-0 h-[100cqh] animate-shimmer-slide [aspect-ratio:1] [border-radius:0] [mask:none]">
