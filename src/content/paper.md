@@ -7,7 +7,7 @@
 
 #### Abstract
 
-This paper presents the IAM Protocol, a decentralized Proof-of-Humanity framework built on Solana. The protocol proves humanness through temporal consistency: the observation that a person's behavioral signature (voice prosody, hand tremor, touch dynamics) varies within a bounded range across sessions, while synthetic or replayed data falls outside that range. During each verification, the user's device captures multi-modal sensor data, extracts a 134-dimensional feature vector, and compresses it into a 256-bit Temporal Fingerprint via SimHash. A Groth16 zero-knowledge proof demonstrates that the Hamming distance between the current fingerprint and a previous one falls within an acceptable range, without revealing either fingerprint. The proof is verified on-chain by a Solana program. Successful verifications update a non-transferable identity token (the IAM Anchor) with a progressive Trust Score that rewards consistent re-verification over time. The protocol requires no wallet, no payment, and no crypto knowledge from the end user. Raw biometric data never leaves the device.
+This paper presents the IAM Protocol — a decentralized Proof-of-Humanity framework built on Solana. The protocol proves humanness through temporal consistency: the observation that a person's behavioral signature — voice prosody, hand tremor, touch dynamics — varies within a bounded range across sessions, while synthetic or replayed data falls outside that range. During each verification, the user's device captures multi-modal sensor data, extracts a 134-dimensional feature vector, and compresses it into a 256-bit Temporal Fingerprint via SimHash. A Groth16 zero-knowledge proof demonstrates that the Hamming distance between the current fingerprint and a previous one falls within an acceptable range, without revealing either fingerprint. The proof is verified on-chain by a Solana program. Successful verifications update a non-transferable identity token (the IAM Anchor) with a progressive Trust Score that rewards consistent re-verification over time. The protocol requires no wallet, no payment, and no crypto knowledge from the end user. Raw biometric data never leaves the device.
 
 **Keywords:** Proof-of-Humanity, Behavioral Biometrics, Zero-Knowledge Proofs, Groth16, SimHash, Temporal Consistency, Solana, Decentralized Identity.
 
@@ -15,9 +15,9 @@ This paper presents the IAM Protocol, a decentralized Proof-of-Humanity framewor
 
 ### 1. Introduction
 
-Sybil attacks cost Solana protocols hundreds of millions of dollars annually. A single adversary creates thousands of wallet addresses to claim airdrops, manipulate DAO votes, or extract MEV. Existing defenses fall into three categories: static biometrics (Worldcoin's iris scanning), social graph analysis (BrightID), and CAPTCHA-style cognitive tests (hCaptcha). Each has a structural weakness. Static biometrics create permanent identifiers that cannot be revoked if compromised. Social graphs are vulnerable to collusion. Cognitive tests are solved by modern AI systems.
+Sybil attacks cost Solana protocols hundreds of millions of dollars annually. A single adversary creates thousands of wallet addresses to claim airdrops, manipulate DAO votes, or extract MEV. Existing defenses fall into three categories: static biometrics (Worldcoin's iris scanning), social graph analysis (BrightID), and CAPTCHA-style cognitive tests (hCaptcha). Each has a structural weakness. Static biometrics create permanent identifiers — if compromised once, compromised forever. Social graphs are vulnerable to collusion. Cognitive tests are solved by modern AI systems.
 
-The IAM Protocol takes a different approach. A human is a continuous dynamic process, not a static data point. Voice prosody shifts between utterances. Hand tremor varies with fatigue. Touch pressure changes with posture. These micro-variations follow a bounded pattern unique to each person. A bot can mimic a single sample, but producing consistent temporal drift across multiple sessions requires modeling the full complexity of human neuromuscular control.
+The IAM Protocol takes a different approach. A human is a continuous dynamic process — not a static data point. Voice prosody shifts between utterances. Hand tremor varies with fatigue. Touch pressure changes with posture. These micro-variations follow a bounded pattern unique to each person. A bot can mimic a single sample, but producing consistent temporal drift across multiple sessions requires modeling the full complexity of human neuromuscular control.
 
 The protocol exploits this property through three mechanisms:
 
@@ -33,7 +33,7 @@ Users verify through a web browser. The proof is submitted to Solana via a relay
 
 #### 2.1 Data Acquisition
 
-Each verification session presents the user with a unique challenge: a randomly generated nonsense phrase and a Lissajous curve to trace on screen. The challenge elicits involuntary behavioral signatures rather than testing cognitive ability. A bot cannot precompute responses for an unknown prompt.
+Each verification session presents the user with a unique challenge: a randomly generated nonsense phrase and a Lissajous curve to trace on screen. The challenge elicits involuntary behavioral signatures — prosody, tremor, touch dynamics — rather than testing cognitive ability. A bot cannot precompute responses for an unknown prompt.
 
 Three data streams are captured simultaneously:
 
@@ -47,7 +47,7 @@ Raw sensor data is distilled into a 134-dimensional feature vector through three
 
 **Speaker features (44 dimensions).** The audio stream yields: fundamental frequency (F0) statistics and delta, jitter measures (local, RAP, PPQ5, DDP), shimmer measures (local, APQ3, APQ5, DDA), harmonics-to-noise ratio (HNR) statistics, formant frequency ratios (F1/F2, F2/F3) via LPC analysis, long-term average spectrum (LTAS) statistics (spectral centroid, rolloff, flatness, spread), voicing ratio, and amplitude statistics with entropy. These features characterize the physiological properties of the vocal tract and are stable within a speaker but vary across individuals.
 
-Each speaker feature presents a distinct challenge to synthesis. F0 is trivial to match with text-to-speech engines. Formant ratios encode vocal tract geometry specific to each person. Jitter and shimmer measure involuntary micro-perturbations in pitch period and amplitude that TTS engines produce with unnaturally low or uniform values. HNR catches synthetic audio because TTS produces unnaturally clean signals without the breath noise present in real speech.
+Each speaker feature presents a distinct challenge to synthesis. F0 is trivial to match with text-to-speech engines. Formant ratios encode vocal tract geometry specific to each person. Jitter and shimmer measure involuntary micro-perturbations in pitch period and amplitude — perturbations that TTS engines produce with unnaturally low or uniform values. HNR catches synthetic audio because TTS produces unnaturally clean signals — without the breath noise present in real speech.
 
 **Kinematic features (54 dimensions).** On mobile devices with IMU and touch data available, pointer dynamics from finger tracing provide the kinematic features: path curvature, directional entropy, speed and acceleration profiles, jerk magnitude, micro-correction frequency, pause ratios, path efficiency, segment lengths, speed jitter variance, normalized path length, and angle autocorrelation. On desktop (no IMU), mouse pointer dynamics fill this role. Finger tracing has natural inter-session variance because no two paths are identical.
 
@@ -86,7 +86,7 @@ Re-verification requires proving that the current fingerprint is similar to (but
 **Public inputs:** `commitment_new`, `commitment_prev`, `threshold`, `min_distance`
 **Private witnesses:** `F_T_new[256]`, `F_T_prev[256]`, `salt_new`, `salt_prev`
 
-The minimum distance constraint (`min_distance = 3`) prevents exact replay attacks. The threshold constraint (`threshold = 96`) rejects fingerprints from different people. The circuit computes Hamming distance via bitwise XOR and popcount, all expressed as R1CS constraints verified by the Groth16 verifier.
+The minimum distance constraint (`min_distance = 3`) prevents exact replay attacks — a replayed fingerprint has distance 0. The threshold constraint (`threshold = 96`) rejects fingerprints from different people. The circuit computes Hamming distance via bitwise XOR and popcount, all expressed as R1CS constraints verified by the Groth16 verifier.
 
 #### 3.2 Proof Generation and On-Chain Verification
 
@@ -101,7 +101,7 @@ On-chain verification uses the `groth16-solana` crate, which implements the BN25
 
 #### 3.3 Trusted Setup
 
-The Groth16 circuit requires a structured reference string produced by a trusted setup ceremony. Phase 1 uses the Hermez community Powers of Tau ceremony (multi-contributor, production-grade, circuit-agnostic). Phase 2 currently has a single contributor with entropy from system randomness. A multi-party computation ceremony with 10+ independent contributors will precede mainnet deployment. The toxic waste is compromised only if all contributors collude.
+The Groth16 circuit requires a structured reference string produced by a trusted setup ceremony. Phase 1 uses the Hermez community Powers of Tau ceremony — multi-contributor, production-grade, circuit-agnostic. Phase 2 currently has a single contributor with entropy from system randomness. A multi-party computation ceremony with 10+ independent contributors will precede mainnet deployment. The toxic waste is compromised only if all contributors collude.
 
 ---
 
@@ -109,7 +109,7 @@ The Groth16 circuit requires a structured reference string produced by a trusted
 
 #### 4.1 On-Chain Identity
 
-Each verified user receives a non-transferable identity token implemented as an SPL Token-2022 mint with the NonTransferable extension. The token is a Program Derived Address (PDA) derived from the user's wallet public key, enforcing a one-to-one mapping between wallets and identities.
+Each verified user receives a non-transferable identity token — an SPL Token-2022 mint with the NonTransferable extension. The token is a Program Derived Address (PDA) derived from the user's wallet public key, enforcing a one-to-one mapping between wallets and identities.
 
 The identity state stores:
 
@@ -175,7 +175,7 @@ The ZK circuit enforces `min_distance >= 3`. An exact replay (distance 0) or nea
 
 #### 6.2 Synthetic Data
 
-A bot must simultaneously fake voice prosody, motion dynamics, and touch pressure across 12 seconds of parallel capture. Spoofing one modality is feasible. Spoofing all three with consistent behavioral entropy is not. The 134-dimensional feature vector projects through SimHash into a 256-bit fingerprint where each bit depends on all modalities combined. TTS engines produce unnaturally low jitter and shimmer values. Scripted mouse movement lacks the directional entropy and micro-correction patterns of real cursor paths.
+A bot must simultaneously fake voice prosody, motion dynamics, and touch pressure across 12 seconds of parallel capture. Spoofing one modality is feasible. Spoofing all three — with consistent behavioral entropy across 12 seconds of simultaneous capture — is not. The 134-dimensional feature vector projects through SimHash into a 256-bit fingerprint where each bit depends on all modalities combined. TTS engines produce unnaturally low jitter and shimmer values. Scripted mouse movement lacks the directional entropy and micro-correction patterns of real cursor paths.
 
 #### 6.3 Sybil Attacks
 
@@ -207,11 +207,11 @@ The Groth16 trusted setup uses a single-contributor Phase 2. A multi-contributor
 
 ### 8. Related Work
 
-**Worldcoin** uses iris scanning to create a unique biometric identifier per person. The approach requires custom hardware (the Orb), stores a permanent biometric template (the iris code), and has been banned or restricted in 12+ jurisdictions over privacy concerns. IAM captures behavioral signals (not anatomical) that change over time and are processed entirely on-device.
+**Worldcoin** uses iris scanning to create a unique biometric identifier per person. The approach requires custom hardware (the Orb), stores a permanent biometric template (the iris code), and has been banned or restricted in 12+ jurisdictions over privacy concerns — a consequence of collecting anatomical data that cannot be revoked. IAM captures behavioral signals (not anatomical) that change over time and are processed entirely on-device.
 
 **BrightID** verifies uniqueness through social graph analysis. Users vouch for each other in verification parties. The system is vulnerable to coordinated collusion and requires social coordination that limits adoption.
 
-**Reclaim Protocol** proves ownership of existing web2 accounts via TLS session proofs. It answers "do you control this account?" not "are you human?" IAM and Reclaim are complementary: Reclaim proves account ownership, IAM proves the account owner is a living person.
+**Reclaim Protocol** proves ownership of existing web2 accounts via TLS session proofs. It answers "do you control this account?" — not "are you human?" IAM and Reclaim are complementary: Reclaim proves account ownership, IAM proves the account owner is a living person.
 
 **hCaptcha** and similar CAPTCHA systems test cognitive ability. Modern AI solves most CAPTCHA variants faster than humans. CAPTCHAs verify task completion, not identity persistence across sessions.
 
