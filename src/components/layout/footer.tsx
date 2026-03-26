@@ -34,22 +34,6 @@ export function Footer() {
           >
             GitHub
           </a>
-          <a
-            href="https://twitter.com/iam_protocol"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-colors hover:text-foreground"
-          >
-            Twitter
-          </a>
-          <a
-            href="https://discord.gg/iam-protocol"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-colors hover:text-foreground"
-          >
-            Discord
-          </a>
         </div>
       </div>
     </footer>
