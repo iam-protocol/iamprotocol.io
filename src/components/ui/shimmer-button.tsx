@@ -15,7 +15,7 @@ export interface ShimmerButtonProps
 const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
   (
     {
-      shimmerColor = "rgba(255, 255, 255, 0.5)",
+      shimmerColor = "rgba(255, 255, 255, 0.1)",
       shimmerSize = "0.05em",
       shimmerDuration = "3s",
       borderRadius = "100px",
@@ -46,16 +46,6 @@ const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
         ref={ref}
         {...props}
       >
-        <div
-          className={cn(
-            "-z-30",
-            "absolute inset-0 overflow-hidden [border-radius:inherit] [container-type:size]"
-          )}
-        >
-          <div className="absolute inset-0 h-[100cqh] animate-shimmer-slide [aspect-ratio:1] [border-radius:0] [mask:none]">
-            <div className="animate-spin-around absolute -inset-full w-auto rotate-0 [background:conic-gradient(from_calc(270deg-(var(--spread)*0.5)),transparent_0,var(--shimmer-color)_var(--spread),transparent_var(--spread))] [translate:0_0]" />
-          </div>
-        </div>
         {children}
 
         <div

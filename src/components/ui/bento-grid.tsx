@@ -63,7 +63,7 @@ const BentoCard = ({
     </div>
 
     <div className="flex w-full items-center border-t border-border px-6 py-3 opacity-100 lg:opacity-60 transition-opacity duration-200 lg:group-hover:opacity-100">
-      <a href={href} className="inline-flex items-center text-sm text-foreground/70 transition-colors hover:text-foreground">
+      <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm text-foreground/70 transition-colors hover:text-foreground">
         {cta}
         <ArrowRight className="ml-2 h-4 w-4" />
       </a>

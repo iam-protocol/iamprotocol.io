@@ -1,6 +1,7 @@
 import { HeroSection } from "@/components/sections/hero-section";
 import { ProblemSection } from "@/components/sections/problem-section";
 import { HowItWorksSection } from "@/components/sections/how-it-works-section";
+import { TemporalConsistencySection } from "@/components/sections/temporal-consistency-section";
 import { WhySolanaSection } from "@/components/sections/why-solana-section";
 import { UseCasesSection } from "@/components/sections/use-cases-section";
 import { ForDevelopersSection } from "@/components/sections/for-developers-section";
@@ -13,6 +14,7 @@ export default function Home() {
       <HeroSection />
       <ProblemSection />
       <HowItWorksSection />
+      <TemporalConsistencySection />
       <WhySolanaSection />
       <UseCasesSection />
       <ForDevelopersSection />
