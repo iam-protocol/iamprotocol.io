@@ -113,6 +113,59 @@ export function IntegrateGuide() {
           </p>
         </GlowCard>
       </section>
+
+      <section>
+        <TextShimmer
+          as="span"
+          className="font-mono text-sm tracking-widest uppercase"
+          duration={3}
+        >
+          {"// ABUSE PREVENTION"}
+        </TextShimmer>
+
+        <h3 className="mt-4 font-mono text-xl font-bold text-foreground">
+          Your escrow, your rules.
+        </h3>
+        <p className="mt-3 text-sm text-foreground/70 leading-relaxed max-w-2xl">
+          Walletless mode follows the same model as reCAPTCHA Enterprise and
+          hCaptcha: the integrator pays per verification, not the user. You
+          control cost exposure and trust requirements through four mechanisms.
+        </p>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <GlowCard>
+            <p className="font-mono text-sm font-semibold text-foreground">Rate limiting</p>
+            <p className="mt-2 text-sm text-foreground/70 leading-relaxed">
+              Cap verifications per IP, per session, or per time window. The
+              relayer enforces limits before a transaction reaches the chain.
+            </p>
+          </GlowCard>
+          <GlowCard>
+            <p className="font-mono text-sm font-semibold text-foreground">Trust Score thresholds</p>
+            <p className="mt-2 text-sm text-foreground/70 leading-relaxed">
+              Require a minimum Trust Score to access protected features. New
+              identities start at zero. High-value actions (airdrops, governance)
+              can require weeks of consistent verification history.
+            </p>
+          </GlowCard>
+          <GlowCard>
+            <p className="font-mono text-sm font-semibold text-foreground">Escrow budgets</p>
+            <p className="mt-2 text-sm text-foreground/70 leading-relaxed">
+              Set a deposit limit. When it runs out, verifications pause
+              automatically. No surprise bills. Top up when ready.
+            </p>
+          </GlowCard>
+          <GlowCard>
+            <p className="font-mono text-sm font-semibold text-foreground">Graduated trust tiers</p>
+            <p className="mt-2 text-sm text-foreground/70 leading-relaxed">
+              First walletless verification is a liveness check. Returning
+              verifications build device-bound consistency. Wallet-connected
+              mode builds portable, on-chain Trust Score. Match the tier to
+              the sensitivity of the action.
+            </p>
+          </GlowCard>
+        </div>
+      </section>
     </div>
   );
 }

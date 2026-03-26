@@ -220,6 +220,24 @@ Each wallet maps to exactly one IAM Anchor. Creating multiple identities require
 
 Raw biometric data never leaves the user's device. The ZK proof is the only output transmitted. The biometric fingerprint stored locally for re-verification is encrypted with AES-256-GCM using a non-extractable CryptoKey in IndexedDB. On-chain, only the Poseidon commitment is stored—a one-way hash that cannot be reversed to recover the fingerprint.
 
+#### **6.5. Economic Sustainability of Attacks**
+
+The protocol does not claim to make spoofing impossible. It claims to make sustained spoofing economically irrational relative to the value it extracts. The defense is layered: feature-level difficulty (realistic multi-modal sensor data across 134 dimensions is hard to synthesize), circuit-level rejection (replays and imposters fail the Hamming distance check), entropy scoring (low-entropy synthetic data is flagged before hashing), and economic cost (each verification requires SOL, each wallet requires funding, Trust Score rewards months of consistency over bursts).
+
+#### **6.6. Graduated Trust and Walletless Mode**
+
+First-time verification, whether walletless or wallet-connected, establishes a behavioral baseline. With no prior fingerprint to compare against, the Hamming distance circuit does not fire. The protocol functions as a multi-modal liveness check on first use, relying on feature extraction quality to distinguish human from synthetic data.
+
+The temporal consistency thesis applies from the second verification onward. Each returning verification checks behavioral drift against the stored fingerprint, strengthening the signal. In walletless mode, this consistency is device-bound and ephemeral (encrypted in localStorage, lost on browser clear). In wallet-connected mode, it is persistent and portable (on-chain Anchor with Trust Score visible to all integrators).
+
+This creates a graduated trust model:
+
+* **First walletless verification** — liveness check. Signal strength: low. Suitable for captcha-equivalent use cases.
+* **Returning walletless verification** — temporal consistency against device-bound fingerprint. Signal strength: medium. Suitable for session authentication, content gating.
+* **Wallet-connected with Trust Score** — persistent, cross-application identity with months of behavioral consistency. Signal strength: high. Suitable for airdrop eligibility, DAO governance, DeFi access.
+
+In walletless mode, the integrator funds verifications via escrow deposit, following the same pricing model as reCAPTCHA Enterprise and hCaptcha. The integrator controls exposure through per-IP rate limiting, minimum Trust Score requirements, and escrow budget caps. The protocol provides the signal. The integrator sets the threshold.
+
 ---
 
 ### **7. Related Work**
