@@ -118,8 +118,13 @@ export function VerifyWalletConnected({
 
     dispatch({ type: "CAPTURE_DONE" });
 
-    session
-      .complete(wallet?.adapter, connection)
+    const PROOF_TIMEOUT_MS = 60_000;
+    const proofPromise = session.complete(wallet?.adapter, connection);
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Proof generation timed out. Please try again.")), PROOF_TIMEOUT_MS)
+    );
+
+    Promise.race([proofPromise, timeoutPromise])
       .then((result) => {
         dispatch({ type: "PROOF_COMPLETE" });
         if (result.success) {

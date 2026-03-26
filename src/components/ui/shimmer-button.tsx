@@ -54,8 +54,8 @@ const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
             "inset-0 absolute size-full",
             "rounded-[inherit] shadow-[inset_0_-8px_10px_#ffffff1f]",
             "transition-shadow duration-300 ease-in-out",
-            "group-hover:shadow-[inset_0_-6px_10px_#ffffff3f]",
-            "group-active:shadow-[inset_0_-10px_10px_#ffffff3f]"
+            "group-[:not(:disabled)]:hover:shadow-[inset_0_-6px_10px_#ffffff3f]",
+            "group-[:not(:disabled)]:active:shadow-[inset_0_-10px_10px_#ffffff3f]"
           )}
         />
 

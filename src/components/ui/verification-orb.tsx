@@ -62,6 +62,12 @@ export function VerificationOrb() {
     canvas.style.height = `${size}px`;
     ctx.scale(dpr, dpr);
 
+    // Pre-create soul orb gradient (constant — avoid allocating per frame)
+    const soulGlow = ctx.createRadialGradient(center, center, 0, center, center, 12);
+    soulGlow.addColorStop(0, "rgba(0, 240, 255, 0.35)");
+    soulGlow.addColorStop(0.4, "rgba(0, 240, 255, 0.08)");
+    soulGlow.addColorStop(1, "rgba(0, 240, 255, 0)");
+
     function project(v: [number, number, number]): [number, number, number] {
       const perspective = focalLength / (focalLength + v[2]);
       return [
@@ -101,13 +107,9 @@ export function VerificationOrb() {
       }
 
       // Soul orb — steady glowing core
-      const glow = ctx.createRadialGradient(center, center, 0, center, center, 12);
-      glow.addColorStop(0, "rgba(0, 240, 255, 0.35)");
-      glow.addColorStop(0.4, "rgba(0, 240, 255, 0.08)");
-      glow.addColorStop(1, "rgba(0, 240, 255, 0)");
       ctx.beginPath();
       ctx.arc(center, center, 12, 0, Math.PI * 2);
-      ctx.fillStyle = glow;
+      ctx.fillStyle = soulGlow;
       ctx.fill();
 
       ctx.beginPath();
@@ -127,7 +129,7 @@ export function VerificationOrb() {
   }, []);
 
   return (
-    <div className="mx-auto flex justify-center">
+    <div className="mx-auto flex justify-center -mt-10 -mb-10">
       <canvas
         ref={canvasRef}
         className="pointer-events-none"

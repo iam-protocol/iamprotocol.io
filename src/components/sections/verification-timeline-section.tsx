@@ -29,7 +29,7 @@ export function VerificationTimelineSection() {
   });
 
   return (
-    <section className="mx-auto max-w-7xl px-6 pt-6 pb-20">
+    <section className="mx-auto max-w-7xl px-6 py-20">
       <div className="mx-auto max-w-2xl text-center">
         <TextShimmer
           as="span"
