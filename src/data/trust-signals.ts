@@ -15,7 +15,7 @@ export const trustSignals: TrustSignal[] = [
     description: "Scheduled for mainnet launch.",
     detail: "Anchor constraints, PDA validation, and compute-budget tested. External firm review before mainnet.",
     href: "/technology",
-    cta: "Learn more",
+    cta: "View security details",
     gridArea: "lg:col-start-1 lg:col-end-2 lg:row-start-1 lg:row-end-3",
   },
   {
