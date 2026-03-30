@@ -197,7 +197,7 @@ export function TemporalConsistencySection() {
             <h3 className="mt-3 font-sans text-lg font-semibold text-foreground">
               {phase.title}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-foreground/50">
+            <p className="mt-2 text-sm leading-relaxed text-foreground/60">
               {phase.description}
             </p>
           </GlowCard>

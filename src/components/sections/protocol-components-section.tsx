@@ -40,7 +40,7 @@ export function ProtocolComponentsSection() {
                 {component.highlights.map((highlight) => (
                   <li
                     key={highlight}
-                    className="flex items-start gap-2 text-sm text-foreground/40"
+                    className="flex items-start gap-2 text-sm text-foreground/60"
                   >
                     <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-cyan" />
                     {highlight}
@@ -55,7 +55,7 @@ export function ProtocolComponentsSection() {
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm text-foreground/50 transition-colors hover:text-foreground"
+                      className="inline-flex items-center gap-1.5 text-sm text-foreground/70 transition-colors hover:text-foreground"
                     >
                       {link.label}
                       <span className="text-xs" aria-hidden="true">↗</span>

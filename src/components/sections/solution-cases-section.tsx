@@ -48,7 +48,7 @@ export function SolutionCasesSection() {
                 <Icon
                   className={cn(
                     "h-5 w-5 shrink-0 transition-colors",
-                    isExpanded ? "text-cyan" : "text-foreground/40"
+                    isExpanded ? "text-cyan" : "text-foreground/60"
                   )}
                   strokeWidth={1.5}
                 />

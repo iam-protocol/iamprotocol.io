@@ -31,7 +31,7 @@ export function Navbar() {
                 {item.external ? (
                   <a
                     href={item.href}
-                    className="text-sm text-foreground/60 transition-colors duration-200 hover:text-foreground"
+                    className="text-sm text-foreground/70 transition-colors duration-200 hover:text-foreground py-2"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -40,7 +40,7 @@ export function Navbar() {
                 ) : (
                   <Link
                     href={item.href}
-                    className="text-sm text-foreground/60 transition-colors duration-200 hover:text-foreground"
+                    className="text-sm text-foreground/70 transition-colors duration-200 hover:text-foreground py-2"
                   >
                     {item.label}
                   </Link>

@@ -90,7 +90,7 @@ export function DashboardHistory() {
                 <p className="text-xs text-muted">
                   {formatTimestamp(entry.timestamp)}
                 </p>
-                <p className="mt-0.5 text-xs font-mono text-foreground/40 truncate max-w-[100px]">
+                <p className="mt-0.5 text-xs font-mono text-foreground/60 truncate max-w-[100px]">
                   {entry.id.slice(0, 8)}...
                 </p>
               </div>

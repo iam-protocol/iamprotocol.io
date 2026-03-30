@@ -52,18 +52,18 @@ const BentoCard = ({
     <div>{background}</div>
 
     <div className="z-10 flex flex-col gap-1.5 p-6">
-      <Icon className="mb-1 h-7 w-7 text-foreground/40" strokeWidth={1.5} />
+      <Icon className="mb-1 h-7 w-7 text-foreground/60" strokeWidth={1.5} />
       <h3 className="text-lg font-semibold text-foreground">{name}</h3>
       <p className="max-w-lg text-sm text-foreground/60">{description}</p>
       {detail && (
-        <p className="mt-1 max-w-lg text-sm leading-relaxed text-foreground/45 opacity-100 lg:opacity-0 transition-opacity duration-300 lg:group-hover:opacity-100">
+        <p className="mt-1 max-w-lg text-sm leading-relaxed text-foreground/60 opacity-100 lg:opacity-0 transition-opacity duration-300 lg:group-hover:opacity-100">
           {detail}
         </p>
       )}
     </div>
 
     <div className="flex w-full items-center border-t border-border px-6 py-3 opacity-100 lg:opacity-60 transition-opacity duration-200 lg:group-hover:opacity-100">
-      <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm text-foreground/70 transition-colors hover:text-foreground">
+      <a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm text-foreground transition-colors hover:text-cyan">
         {cta}
         <ArrowRight className="ml-2 h-4 w-4" />
       </a>
