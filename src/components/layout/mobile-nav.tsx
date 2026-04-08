@@ -9,10 +9,10 @@ const mobileItems = [
   { label: "Solutions", href: "/solutions" },
   { label: "Agent Anchor", href: "/agents" },
   { label: "Integrate", href: "/integrate" },
+  { label: "Stats", href: "/stats" },
   { label: "Paper", href: "/paper" },
   { label: "Verify", href: "/verify" },
   { label: "Dashboard", href: "/dashboard" },
-  { label: "Stats", href: "/stats" },
 ];
 
 export function MobileNav() {
