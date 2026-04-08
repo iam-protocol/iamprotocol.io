@@ -93,7 +93,7 @@ export function IAMBadge({ walletAddress, connection, className }: IAMBadgeProps
       className={cn(
         "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-xs transition-colors",
         invalid
-          ? "border-destructive/30 bg-destructive/10 text-destructive"
+          ? "border-danger/30 bg-danger/10 text-danger"
           : loading 
             ? "border-border bg-surface/30 text-muted"
             : trustScore !== null
@@ -104,7 +104,7 @@ export function IAMBadge({ walletAddress, connection, className }: IAMBadgeProps
     >
       {invalid ? (
         <>
-          <span className="h-2 w-2 rounded-full bg-destructive/50" />
+          <span className="h-2 w-2 rounded-full bg-danger/50" />
           <span>Invalid Address</span>
         </>
       ) : loading ? (
