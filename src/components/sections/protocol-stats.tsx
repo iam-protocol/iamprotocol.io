@@ -1,0 +1,218 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useConnection } from "@solana/wallet-adapter-react";
+import { PublicKey } from "@solana/web3.js";
+import { PROGRAM_IDS } from "@iam-protocol/pulse-sdk";
+import { GlowCard } from "@/components/ui/glow-card";
+import { TextShimmer } from "@/components/ui/text-shimmer";
+import { Loader2, ShieldAlert } from "lucide-react";
+
+// sha256("account:IdentityState")[0..8] encoded as base58
+const IDENTITY_STATE_DISC_B58 = "T7d2447Yv5U";
+
+interface OnChainStats {
+  totalAnchors: number;
+  averageTrustScore: number;
+  highestTrustScore: number;
+  totalVerifications: number;
+  mostRecentTimestamp: number | null;
+}
+
+function formatTimestamp(unix: number): string {
+  return new Date(unix * 1000).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function StatCard({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: React.ReactNode;
+  sub?: string;
+}) {
+  return (
+    <GlowCard>
+      <p className="text-xs font-mono uppercase tracking-widest text-muted">
+        {label}
+      </p>
+      <p className="mt-3 text-4xl font-mono font-bold text-foreground break-all">
+        {value}
+      </p>
+      {sub && <p className="mt-2 text-xs text-muted">{sub}</p>}
+    </GlowCard>
+  );
+}
+
+export function ProtocolStats() {
+  const { connection } = useConnection();
+  const [stats, setStats] = useState<OnChainStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+
+    (async () => {
+      const programId = new PublicKey(PROGRAM_IDS.iamAnchor);
+
+      // Fetch all IdentityState PDAs filtered by discriminator.
+      // We fetch enough bytes to read: trust_score (u16 @ 60) and
+      // last_verification_timestamp (i64 @ 48) and verification_count (u32 @ 56).
+      // The full slice we need spans offset 48..62 = 14 bytes.
+      const accounts = await connection.getProgramAccounts(programId, {
+        filters: [
+          { memcmp: { offset: 0, bytes: IDENTITY_STATE_DISC_B58 } },
+        ],
+        dataSlice: { offset: 48, length: 14 }, // lastVerif(8) + count(4) + trust(2)
+      });
+
+      if (accounts.length === 0) {
+        setStats({
+          totalAnchors: 0,
+          averageTrustScore: 0,
+          highestTrustScore: 0,
+          totalVerifications: 0,
+          mostRecentTimestamp: null,
+        });
+        return;
+      }
+
+      let totalTrust = 0;
+      let highestTrust = 0;
+      let totalVerifications = 0;
+      let mostRecentTimestamp = 0;
+
+      for (const { account } of accounts) {
+        const data = account.data;
+        if (data.length < 14) continue;
+
+        const view = new DataView(
+          data.buffer,
+          data.byteOffset,
+          data.byteLength
+        );
+
+        // Offsets are relative to our dataSlice start (48)
+        const lastVerif = Number(view.getBigInt64(0, true));   // original offset 48
+        const count = view.getUint32(8, true);                 // original offset 56
+        const trust = view.getUint16(12, true);                // original offset 60
+
+        totalTrust += trust;
+        if (trust > highestTrust) highestTrust = trust;
+        totalVerifications += count + 1; // +1 for initial mint
+        if (lastVerif > mostRecentTimestamp) mostRecentTimestamp = lastVerif;
+      }
+
+      setStats({
+        totalAnchors: accounts.length,
+        averageTrustScore:
+          accounts.length > 0
+            ? Math.round(totalTrust / accounts.length)
+            : 0,
+        highestTrustScore: highestTrust,
+        totalVerifications,
+        mostRecentTimestamp: mostRecentTimestamp > 0 ? mostRecentTimestamp : null,
+      });
+    })()
+      .catch(() => setError("Failed to fetch on-chain stats. The RPC may be rate-limited — try again shortly."))
+      .finally(() => setLoading(false));
+  }, [connection]);
+
+  return (
+    <div>
+      <TextShimmer
+        as="span"
+        className="font-mono text-base tracking-widest uppercase"
+        duration={3}
+      >
+        {"// PROTOCOL METRICS"}
+      </TextShimmer>
+
+      {loading && (
+        <div className="mt-12 flex flex-col items-center justify-center gap-4 py-16">
+          <Loader2 className="h-8 w-8 text-cyan animate-spin" />
+          <p className="font-mono text-xs text-muted tracking-widest uppercase">
+            Reading from Solana devnet…
+          </p>
+        </div>
+      )}
+
+      {error && (
+        <div className="mt-12 flex flex-col items-center justify-center gap-4 py-16">
+          <ShieldAlert className="h-8 w-8 text-danger" strokeWidth={1.5} />
+          <p className="text-sm text-muted text-center max-w-sm">{error}</p>
+        </div>
+      )}
+
+      {!loading && !error && stats && (
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <StatCard
+            label="IAM Anchors minted"
+            value={stats.totalAnchors.toLocaleString()}
+            sub="Total IdentityState PDAs on devnet"
+          />
+          <StatCard
+            label="Total verifications"
+            value={stats.totalVerifications.toLocaleString()}
+            sub="Cumulative across all anchors"
+          />
+          <StatCard
+            label="Average trust score"
+            value={stats.averageTrustScore}
+            sub="Mean across all active anchors"
+          />
+          <StatCard
+            label="Highest trust score"
+            value={stats.highestTrustScore}
+            sub="Top anchor on the network"
+          />
+          <GlowCard className="sm:col-span-2 lg:col-span-2">
+            <p className="text-xs font-mono uppercase tracking-widest text-muted">
+              Most recent verification
+            </p>
+            {stats.mostRecentTimestamp ? (
+              <>
+                <p className="mt-3 text-2xl font-mono font-bold text-foreground">
+                  {formatTimestamp(stats.mostRecentTimestamp)}
+                </p>
+                <div className="mt-4 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-cyan animate-pulse" />
+                  <span className="font-mono text-xs text-cyan">
+                    Live · Solana devnet
+                  </span>
+                </div>
+              </>
+            ) : (
+              <p className="mt-3 text-sm text-muted">No verifications recorded yet</p>
+            )}
+          </GlowCard>
+        </div>
+      )}
+
+      {!loading && !error && stats && (
+        <div className="mt-8 rounded-xl border border-border bg-surface/30 px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <span className="h-2 w-2 rounded-full bg-cyan animate-pulse shrink-0" />
+            <p className="font-mono text-xs text-muted">
+              Data read live from{" "}
+              <span className="text-cyan">
+                GZYwTp2o…q4b2
+              </span>{" "}
+              · iam-anchor program
+            </p>
+          </div>
+          <p className="font-mono text-xs text-muted">Solana devnet</p>
+        </div>
+      )}
+    </div>
+  );
+}

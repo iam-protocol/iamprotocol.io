@@ -8,6 +8,7 @@ const solutionsDropdown = [
   { label: "Use Cases", href: "/solutions" },
   { label: "Agent Anchor", href: "/agents" },
   { label: "Integrate", href: "/integrate" },
+  { label: "Stats", href: "/stats" },
 ];
 
 export function Navbar() {
