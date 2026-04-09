@@ -8,6 +8,7 @@ const mobileItems = [
   { label: "Technology", href: "/technology" },
   { label: "Solutions", href: "/solutions" },
   { label: "Agent Anchor", href: "/agents" },
+  { label: "Governance", href: "/governance" },
   { label: "Integrate", href: "/integrate" },
   { label: "Stats", href: "/stats" },
   { label: "Paper", href: "/paper" },

@@ -4,14 +4,14 @@ export const integrationPartners: IntegrationPartner[] = [
   {
     name: "Jupiter",
     category: "DeFi",
-    description: "Sybil-resistant airdrops and governance participation.",
+    description: "Bot-resistant airdrops with Trust Score gating.",
     icon: "airdrop",
     logoUrl: "https://github.com/jup-ag.png",
   },
   {
     name: "Marinade",
     category: "DeFi / DAO",
-    description: "One-person-one-vote for MNDE governance proposals.",
+    description: "Human-verified governance for MNDE proposals.",
     icon: "vote",
     logoUrl: "https://github.com/marinade-finance.png",
   },
