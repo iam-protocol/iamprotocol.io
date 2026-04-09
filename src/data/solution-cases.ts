@@ -3,25 +3,25 @@ import type { SolutionCase } from "./types";
 export const solutionCases: SolutionCase[] = [
   {
     icon: "airdrop",
-    title: "Sybil-Proof Airdrops",
+    title: "Sybil-Resistant Airdrops",
     category: "DeFi",
     problem:
       "Jupiter's 2024 airdrop was farmed by bot networks. In one presale, 1,100 of 1,530 wallets belonged to a single entity.",
     solution:
       "Gate airdrop claims on IAM Anchor with a minimum Trust Score (e.g., 50+). Trust Score requires weeks of consistent re-verification, making bot farming slow and expensive. Progressive scoring means 100 verifications in one day scores less than weekly verifications over 3 months.",
     example:
-      "Jupiter gates JUP claims with IAM. Each wallet needs Trust Score 50+ (roughly 8 weeks of regular verification). Farming one identity costs time; farming thousands costs months of sustained bot operation.",
+      "Jupiter gates JUP claims with IAM. Each wallet needs Trust Score 200+ (at least two re-verifications with recent history). Farming one identity costs time; farming thousands costs months of sustained bot operation.",
   },
   {
     icon: "vote",
-    title: "One-Person-One-Vote",
+    title: "Verified Governance",
     category: "DAOs",
     problem:
-      "DAO governance where a whale with 1,000 wallets outvotes an entire community. Token-weighted voting amplifies concentration.",
+      "DAO governance where bots, scripts, and dormant wallets vote without a human present. No liveness check at the moment of voting.",
     solution:
-      "Voters must hold an IAM Anchor with minimum Trust Score. Each human gets one vote per verified wallet. The minimum distance constraint prevents bot replay, and entropy scoring flags synthetic behavioral data.",
+      "Voters must hold an IAM Anchor with minimum Trust Score and recent verification. The voter weight plugin checks liveness before every governance action. Bots and automated scripts are excluded.",
     example:
-      "Realms adds an IAM gate to proposal voting. MNDE holders still submit proposals, but vote weight is capped at 1x per verified human with Trust Score 30+.",
+      "Realms adds an IAM liveness gate to proposal voting. MNDE holders still submit proposals, but voters must prove human presence with Trust Score 100+ and verification within the last 30 days.",
   },
   {
     icon: "gamepad",
@@ -54,6 +54,6 @@ export const solutionCases: SolutionCase[] = [
     solution:
       "Require IAM verification at account creation or reward claim. Entropy scoring and minimum Hamming distance constraints detect the synthetic inputs that scripted bots produce. Walletless mode works as a drop-in captcha replacement for web platforms.",
     example:
-      "DRiP gates referral rewards on IAM Anchors. Helium requires hotspot operators to prove unique humanity, preventing one entity from running thousands of nodes.",
+      "DRiP gates referral rewards on IAM Anchors. Helium requires hotspot operators to prove human operation, raising the cost of running bot networks.",
   },
 ];
