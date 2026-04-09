@@ -3,19 +3,19 @@ import type { UseCase } from "./types";
 export const useCases: UseCase[] = [
   {
     icon: "airdrop",
-    title: "Sybil-Proof Airdrops",
+    title: "Sybil-Resistant Airdrops",
     problem:
       "Wallet farmers claim thousands of allocations meant for real users.",
     solution:
-      "One claim per verified human. No farming. No multi-accounting.",
+      "Gate claims on Trust Score. Farming requires sustained behavioral verification per wallet.",
   },
   {
     icon: "vote",
-    title: "One-Person-One-Vote",
+    title: "Verified Governance",
     problem:
-      "DAO governance where whales with 50 wallets outvote communities.",
+      "DAO governance where bots and dormant wallets vote without a human present.",
     solution:
-      "One human, one vote. Token-weighted governance with a humanity gate.",
+      "Verified humans only. Token-weighted governance with a liveness gate.",
   },
   {
     icon: "bot",
