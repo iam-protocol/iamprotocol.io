@@ -1,8 +1,8 @@
 # IAM Protocol: A Framework for Temporally-Consistent, Decentralized Proof-of-Humanity
 
-**Document Version:** 3.0 (Updated for Solana / ZK Self-Proof Architecture)
+**Document Version:** 3.0
 **Original Date:** June 27, 2025
-**Updated:** March 27, 2026
+**Updated:** April 10, 2026
 **Word Count:** Approx. 5000
 
 ---
@@ -297,6 +297,32 @@ In walletless mode, the integrator funds verifications via escrow and controls a
 
 A bot that clears local storage before each walletless verification is perpetually at Tier 1—a liveness check with no temporal history. High-value integrations can require Tier 2 or Tier 3, making this strategy ineffective for anything beyond basic captcha equivalence.
 
+#### **6.8. Browser Trust Model and Server-Side Validation**
+
+The current implementation executes the entire verification pipeline—sensor capture, feature extraction, SimHash computation, Poseidon commitment, and Groth16 proof generation—within the browser. This architecture maximizes privacy: raw biometric data never leaves the device, and the ZK proof is the only artifact transmitted. However, the browser is an untrusted execution environment. An adversary controlling the browser can override sensor APIs (injecting synthetic audio via getUserMedia, dispatching fabricated PointerEvents), manipulate the feature extraction pipeline, or submit pre-computed proofs generated from optimized synthetic data.
+
+The ZK proof provides a deterministic guarantee: the Hamming distance either falls within [δ_min, δ_max) or the proof is invalid. This is necessary but not sufficient. A valid proof confirms the *mathematical relationship* between two fingerprints but cannot confirm the *provenance* of the underlying sensor data.
+
+We identify a two-level validation architecture as a natural hardening path:
+
+**Level 1 (client-side, deterministic).** The Groth16 proof, as currently implemented. Provides mathematical certainty that the Hamming distance constraint is satisfied.
+
+**Level 2 (server-side, statistical).** The 134-dimensional feature vector is transmitted alongside the proof to a validation server. The server applies statistical analysis using models inaccessible to the client: cross-modality correlation coefficients (real humans exhibit involuntary correlations between voice, motion, and touch that independent synthetic generators do not reproduce), per-feature entropy distributions (synthetic data exhibits entropy profiles outside expected human ranges), and jitter variance ratio analysis (text-to-speech engines produce unnaturally low jitter variance compared to natural speech [11]). The server-side models constitute a shared secret: the adversary cannot reverse-engineer the validation criteria.
+
+This architecture preserves the core privacy property. The feature vector is a fixed-size statistical summary (means, variances, spectral coefficients)—not raw time-series data. It cannot be used to reconstruct the original audio, motion, or touch signals. The ZK proof continues to ensure the fingerprint itself is never revealed. The feature vector provides a complementary signal for provenance validation without compromising the zero-knowledge property of the identity proof.
+
+The feature vector could alternatively be processed within a Trusted Execution Environment (TEE) where even the server operator cannot inspect individual feature vectors, providing an additional privacy guarantee for high-sensitivity deployments.
+
+#### **6.9. Device Attestation**
+
+Browser-based sensor APIs provide no guarantee that captured data originates from physical hardware. A complementary defense is device attestation: verifying the integrity of the execution environment before behavioral capture begins.
+
+A native mobile application can perform deterministic checks unavailable to browser JavaScript: whether the device is rooted or jailbroken, whether the application binary has been tampered with or instrumented (e.g., Frida, Xposed), whether the execution environment is an emulator rather than physical hardware, and whether sensor APIs are being intercepted by hooking frameworks. Hardware attestation APIs (Android's Play Integrity, iOS's DeviceCheck) provide cryptographic proof of device integrity signed by the platform vendor.
+
+This constitutes a *positive security model*: rather than detecting characteristics of bots (negative model, probabilistic), the system verifies characteristics known to be genuine (positive model, deterministic). Device attestation forms the foundation layer. Behavioral biometric verification with ZK proofs operates on top of it. The combination addresses both the provenance question (did this data come from a real device?) and the identity question (is this behavioral pattern consistent with the claimed identity?).
+
+A native application also unlocks sensor modalities that browsers restrict: persistent accelerometer access with a single permission grant on iOS (browsers re-prompt each session), pressure-sensitive touch data on supported Android devices, and background re-verification without requiring the user to open a web page.
+
 ---
 
 ### **7. Related Work**
@@ -354,6 +380,10 @@ The protocol is honest about its limitations. First-time verification is a liven
 * IAM utility token: SPL Token-2022 with Confidential Balances for validator staking, capacity tiers, and governance.
 * Cross-chain deployment to Ethereum L2s after Solana mainnet stabilizes.
 * Formal analysis of SimHash collision probability bounds under adversarial feature distributions.
+* Cross-wallet fingerprint comparison. The current protocol enforces one IAM Anchor per wallet via PDA derivation but does not prevent the same individual from creating Anchors on multiple wallets with independent behavioral profiles. A cross-identity layer at the executor node would maintain a registry of SimHash fingerprints and compare each new verification against existing entries. If the Hamming distance between a new fingerprint and any existing entry falls below δ_max, the verification is flagged as a potential duplicate identity. The effectiveness of this approach depends on the persistence of involuntary behavioral features (jitter, shimmer, formant ratios, jerk derivatives) across sessions where the user deliberately modifies their behavior—a question we identify for empirical investigation.
+* Server-side feature validation. A second verification gate where the server analyzes the 134-dimensional feature vector for statistical properties inconsistent with genuine human behavior, using models inaccessible to the client (Section 6.8).
+* Device attestation via native application. Hardware integrity verification before behavioral capture, implementing a positive security model as described in Section 6.9.
+* Adversarial testing program. A structured five-phase penetration testing methodology: (1) exact replay attacks to verify δ_min enforcement, (2) perturbed replays with controlled noise injection, (3) text-to-speech with scripted pointer input to test multi-modal synthesis, (4) sustained synthetic re-verification to measure whether a synthetic identity can accumulate Trust Score across multiple sessions, and (5) black-box optimization using the open-source feature extraction pipeline to search for synthetic inputs that produce valid proofs. Results will quantify the computational cost per synthetic identity and inform threshold calibration.
 
 The protocol is open source and published as a defensive disclosure to establish prior art. Source code, circuit definitions, and SDK are available at `github.com/iam-protocol`.
 

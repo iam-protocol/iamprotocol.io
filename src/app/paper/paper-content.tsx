@@ -9,7 +9,7 @@ export function PaperContent({ content }: { content: string }) {
     <PageWrapper>
       <div className="mx-auto max-w-3xl mb-8 flex justify-end">
         <a
-          href="/IAM-Protocol-Paper.pdf"
+          href="/iam-protocol-2026.pdf"
           download
           className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2 text-sm font-mono text-foreground/70 transition-colors hover:text-foreground hover:border-border-hover"
         >
