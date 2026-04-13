@@ -44,7 +44,7 @@ class VerifyErrorBoundary extends Component<
 }
 
 export function VerifyFlow() {
-  const [mode, setMode] = useState<VerifyMode>("walletless");
+  const [mode, setMode] = useState<VerifyMode>("wallet-connected");
   const [state, dispatch] = useReducer(verifyReducer, initialState);
 
   function handleModeChange(newMode: VerifyMode) {

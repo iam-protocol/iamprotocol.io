@@ -13,17 +13,6 @@ export function VerifyModeToggle({
   return (
     <div className="inline-flex rounded-full border border-border bg-background p-1">
       <button
-        onClick={() => onChange("walletless")}
-        className={cn(
-          "rounded-full px-5 py-2 text-sm font-medium transition-colors",
-          mode === "walletless"
-            ? "bg-surface text-cyan"
-            : "text-muted hover:text-foreground"
-        )}
-      >
-        Walletless
-      </button>
-      <button
         onClick={() => onChange("wallet-connected")}
         className={cn(
           "rounded-full px-5 py-2 text-sm font-medium transition-colors",
@@ -33,6 +22,17 @@ export function VerifyModeToggle({
         )}
       >
         Wallet
+      </button>
+      <button
+        onClick={() => onChange("walletless")}
+        className={cn(
+          "rounded-full px-5 py-2 text-sm font-medium transition-colors",
+          mode === "walletless"
+            ? "bg-surface text-cyan"
+            : "text-muted hover:text-foreground"
+        )}
+      >
+        Walletless
       </button>
     </div>
   );
