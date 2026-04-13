@@ -24,6 +24,7 @@ export function DashboardHistory() {
   const [error, setError] = useState<string | null>(null);
   const [mintTimestamp, setMintTimestamp] = useState<number | null>(null);
   const [reVerifications, setReVerifications] = useState<number[]>([]);
+  const [verificationCount, setVerificationCount] = useState(0);
 
   useEffect(() => {
     if (!publicKey || !connected) {
@@ -51,10 +52,14 @@ export function DashboardHistory() {
       const view = new DataView(account.data.buffer, account.data.byteOffset, account.data.byteLength);
       setMintTimestamp(Number(view.getBigInt64(40, true)));
 
-      // recent_timestamps: 10 x i64 at offset 127 (newest at index 0)
+      // verification_count: u32 at offset 80 (8 disc + 32 owner + 8 created + 8 last_verified + 4)
+      setVerificationCount(view.getUint32(80, true));
+
+      // recent_timestamps: 52 x i64 at offset 127 (newest at index 0)
       // Only written by successful updateAnchor calls
       const timestamps: number[] = [];
-      for (let i = 0; i < 10; i++) {
+      const slotCount = account.data.length >= 543 ? 52 : 10;
+      for (let i = 0; i < slotCount; i++) {
         const ts = Number(view.getBigInt64(127 + i * 8, true));
         if (ts > 0) timestamps.push(ts);
       }
@@ -102,7 +107,7 @@ export function DashboardHistory() {
               <CheckCircle className="h-5 w-5 shrink-0 text-solana-green" />
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-medium text-foreground">
-                  Re-verification #{reVerifications.length - i}
+                  Re-verification #{verificationCount - i}
                 </span>
                 <p className="mt-0.5 text-xs text-muted">
                   Behavioral consistency confirmed within threshold
