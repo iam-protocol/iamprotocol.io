@@ -1,6 +1,6 @@
 # IAM Protocol — Security & Quality Audit Tracker
 
-Last updated: 2026-04-11
+Last updated: 2026-04-14
 
 ---
 
@@ -51,10 +51,17 @@ Test harness at `pulse-sdk/test/pentest.test.ts`. 60/60 tests pass.
 
 **Required hardening (informed by pen test results):**
 - Server-generated challenges (prevent pre-computation)
-- Server-side feature validation with hidden models (attacker can't see checks)
-- Cross-wallet fingerprint registry (detect Sybil clustering in feature space)
+- ~~Server-side feature validation with hidden models (attacker can't see checks)~~ — DONE: iam-validation microservice deployed on Railway with proprietary detection models, bearer token auth, internal networking. 2026-04-13.
+- ~~Cross-wallet fingerprint registry (detect Sybil clustering in feature space)~~ — DONE: SimHash registry with server-side secret seed, Mutex-guarded check-and-register, 24h TTL eviction. 2026-04-13. See Sybil Registry section above for scale limitations.
 - Tighter Hamming distance threshold (96 bits too generous, need empirical human data)
 - Raw audio TTS detection (spectral artifacts, breath patterns)
+
+### Sybil Registry (added 2026-04-14)
+
+- [ ] **Sybil registry 1:N matching does not scale beyond small populations** — The SimHash-based cross-wallet fingerprint comparison is a 1:N identification problem. At 30M users (450 trillion pairs), even a 0.01% FMR produces thousands of false Sybil matches per user. Behavioral biometrics lack the discriminability required for global deduplication at scale. At 1,000-10,000 users, the current design is functional. Beyond that, the binary pass/fail gate must be replaced with probabilistic Sybil scoring, scoped comparison, and ensemble signals. See `docs/BLUEPRINT-sybil-at-scale.md` for full analysis, math, and phased implementation plan. **CRITICAL ARCHITECTURAL LIMITATION.**
+- [ ] **No wallet migration mechanism** — If a wallet is compromised or lost, the user cannot verify with a new wallet because the Sybil registry flags them as a duplicate. Current mitigation: 24-hour TTL evicts old fingerprints. Production requires an on-chain `migrate_identity` instruction with proof of old wallet ownership. See `docs/BLUEPRINT-sybil-at-scale.md`.
+- [ ] **In-memory registry lost on service restart** — The Sybil registry is stored in process memory. Service restart or redeployment clears all fingerprints. Production requires persistent storage (database-backed registry). Acceptable for devnet/hackathon.
+- [ ] **24-hour TTL allows spaced Sybil farming** — An attacker can register one wallet, wait 24 hours for eviction, then register another. The TTL that enables wallet recovery also enables slow Sybil farming. Production needs persistent registry with longer retention and explicit migration flow.
 
 ### Low
 
@@ -94,7 +101,7 @@ These items directly affect the on-chain verification flow. Fixing any one of th
 
 - [x] **Recency score integer truncation** — `(recency_score / 100) * increment` discarded fractional multiplier, creating dead zones where additional unique verification days contributed zero points. Reordered to `(recency_score * increment) / 100` to preserve precision. Fixed 2026-04-10.
 - [ ] **`challenge_expiry` config unused** — Deferred: changes instruction interface, needs coordinated executor/SDK update.
-- [ ] **`recent_timestamps` capped at 10 entries** — IdentityState stores verification history in a fixed `[i64; 10]` array. The 11th successful verification overwrites the oldest. The dashboard relies on this array for history display. Users with >10 verifications lose visible history. The `verification_count` field tracks the true total, but individual timestamps are lost. Requires either expanding the on-chain array (higher rent), a separate dynamic history account, or off-chain indexing from transaction logs.
+- [x] **`recent_timestamps` capped at 10 entries** — Expanded to 52 timestamp slots with transparent migration for existing accounts. Dashboard updated to read all 52 slots. Fixed 2026-04-12.
 - [x] **No `close` instructions for Challenge/VerificationResult accounts** — Added close_challenge and close_verification_result with ownership validation. Fixed.
 
 ---
