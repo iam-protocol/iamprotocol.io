@@ -92,11 +92,11 @@ export function IAMBadge({ walletAddress, connection, className }: IAMBadgeProps
         "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-xs transition-colors",
         invalid
           ? "border-danger/30 bg-danger/10 text-danger"
-          : loading 
+          : loading
             ? "border-border bg-surface/30 text-muted"
             : trustScore !== null
-              ? "border-solana-green/30 bg-solana-green/10 text-solana-green"
-              : "border-border bg-surface/30 text-muted",
+              ? "border-cyan/30 bg-cyan/10 text-cyan"
+              : "border-danger/30 bg-danger/10 text-danger",
         className
       )}
     >
@@ -112,15 +112,15 @@ export function IAMBadge({ walletAddress, connection, className }: IAMBadgeProps
         </>
       ) : trustScore !== null ? (
         <>
-          <span className="h-2 w-2 rounded-full bg-solana-green animate-pulse" />
+          <span className="h-2 w-2 rounded-full bg-cyan animate-pulse" />
           <span>
-            Verified <span className="text-solana-green/50">·</span> Trust:{" "}
+            Verified <span className="text-cyan/50">·</span> Trust:{" "}
             <span className="font-bold">{trustScore}</span>
           </span>
         </>
       ) : (
         <>
-          <span className="h-2 w-2 rounded-full bg-muted" />
+          <span className="h-2 w-2 rounded-full bg-danger/50" />
           <span>Not Verified</span>
         </>
       )}
