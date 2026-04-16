@@ -1,3 +1,4 @@
+import type { ComponentType, SVGProps } from "react";
 import {
   Activity,
   ArrowRight,
@@ -31,10 +32,12 @@ import {
   Users,
   Vote,
   Waves,
-  type LucideIcon,
 } from "lucide-react";
+import { SolanaIcon } from "./solana-icon";
 
-const iconMap: Record<string, LucideIcon> = {
+type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { strokeWidth?: number }>;
+
+const iconMap: Record<string, IconComponent> = {
   pulse: Waves,
   proof: Fingerprint,
   anchor: BadgeCheck,
@@ -66,8 +69,9 @@ const iconMap: Record<string, LucideIcon> = {
   smartphone: Smartphone,
   database: Database,
   "file-lock": FileLock,
+  solana: SolanaIcon,
 };
 
-export function getIcon(key: string): LucideIcon {
+export function getIcon(key: string): IconComponent {
   return iconMap[key] ?? Shield;
 }

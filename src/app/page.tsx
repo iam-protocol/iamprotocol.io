@@ -6,6 +6,7 @@ import { WhySolanaSection } from "@/components/sections/why-solana-section";
 import { UseCasesSection } from "@/components/sections/use-cases-section";
 import { ForDevelopersSection } from "@/components/sections/for-developers-section";
 import { TrustSignalsSection } from "@/components/sections/trust-signals-section";
+import { MobileRoadmapSection } from "@/components/sections/mobile-roadmap-section";
 import { FooterCTASection } from "@/components/sections/footer-cta-section";
 
 export default function Home() {
@@ -19,6 +20,7 @@ export default function Home() {
       <UseCasesSection />
       <ForDevelopersSection />
       <TrustSignalsSection />
+      <MobileRoadmapSection />
       <FooterCTASection />
     </>
   );
