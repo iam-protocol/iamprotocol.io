@@ -2,8 +2,8 @@ import Link from "next/link";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 import { GlowCard } from "@/components/ui/glow-card";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { SolanaIcon } from "@/lib/solana-icon";
 import {
-  Coins,
   Shield,
   Vote,
   Layers,
@@ -38,7 +38,7 @@ export function TokenContent() {
 
         <GlowCard className="mt-6">
           <div className="flex items-start gap-4">
-            <Coins className="mt-1 h-6 w-6 shrink-0 text-cyan" />
+            <SolanaIcon className="mt-1 h-6 w-6 shrink-0 text-cyan" />
             <div>
               <p className="font-mono text-lg font-semibold text-foreground">
                 {protocolFee.amount}
@@ -106,7 +106,7 @@ export function TokenContent() {
         </TextShimmer>
 
         <h2 className="mt-4 font-mono text-xl font-bold text-foreground md:text-2xl">
-          Fair launch. Community first.
+          The governance and staking token of the IAM Protocol.
         </h2>
 
         <div className="mt-8 grid gap-3">
@@ -217,7 +217,7 @@ export function TokenContent() {
                 <p className="mt-1 text-sm text-foreground/70">
                   The protocol generates SOL revenue before the token launches.
                   Treasury accumulates real value. The token amplifies the
-                  flywheel—it doesn&apos;t create it.
+                  flywheel.
                 </p>
               </div>
             </div>
