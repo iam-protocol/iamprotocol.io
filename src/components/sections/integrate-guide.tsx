@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { ArrowRight, BadgeCheck, ShieldCheck } from "lucide-react";
 import { integrationSnippets, useCaseSnippets } from "@/data/integration-snippets";
 import { CodeBlock } from "@/components/ui/code-block";
 import { GlowCard } from "@/components/ui/glow-card";
@@ -94,6 +96,70 @@ export function IntegrateGuide() {
               <CodeBlock code={snippet.code} />
             </GlowCard>
           ))}
+        </div>
+      </section>
+
+      <section>
+        <TextShimmer
+          as="span"
+          className="font-mono text-base tracking-widest uppercase"
+          duration={3}
+        >
+          {"// DROP-IN COMPONENTS"}
+        </TextShimmer>
+
+        <h2 className="mt-4 font-mono text-xl font-bold text-foreground">
+          Self-contained React components.
+        </h2>
+        <p className="mt-3 text-sm text-foreground/70 leading-relaxed max-w-2xl">
+          Copy the source, paste into your Tailwind project, render anywhere. No
+          custom UI dependencies, no IAM backend. Each component reads directly
+          from Solana via your existing wallet connection.
+        </p>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <GlowCard>
+            <div className="flex items-start gap-3">
+              <BadgeCheck className="h-6 w-6 text-cyan shrink-0 mt-0.5" strokeWidth={1.5} />
+              <div>
+                <p className="font-mono text-base font-semibold text-foreground">
+                  &lt;IAMBadge /&gt;
+                </p>
+                <p className="mt-1 text-sm text-muted">
+                  Pill that displays any wallet&apos;s Trust Score. Use in profiles,
+                  comments, leaderboards, anywhere humanness matters.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/badge-demo"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm text-cyan hover:text-foreground transition-colors"
+            >
+              Live demo + source <ArrowRight className="h-4 w-4" />
+            </Link>
+          </GlowCard>
+
+          <GlowCard>
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="h-6 w-6 text-cyan shrink-0 mt-0.5" strokeWidth={1.5} />
+              <div>
+                <p className="font-mono text-base font-semibold text-foreground">
+                  &lt;IAMGate minTrustScore=&#123;N&#125;&gt;
+                </p>
+                <p className="mt-1 text-sm text-muted">
+                  Route guard. Wrap any content, set a threshold, the gate
+                  handles wallet connection, identity lookup, and verification
+                  prompts.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/gate-demo"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm text-cyan hover:text-foreground transition-colors"
+            >
+              Live demo + source <ArrowRight className="h-4 w-4" />
+            </Link>
+          </GlowCard>
         </div>
       </section>
 

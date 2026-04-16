@@ -71,38 +71,18 @@ try {
   },
   {
     title: "Gate access on Trust Score",
-    description: "Require a minimum trust score to interact with your protocol.",
-    code: `import { PublicKey } from '@solana/web3.js';
-import { PROGRAM_IDS } from '@iam-protocol/pulse-sdk';
+    description:
+      "Drop-in React component. Renders children only if the connected wallet meets your Trust Score threshold. Source and live preview at /gate-demo.",
+    code: `import { IAMGate } from "@/components/ui/iam-gate";
 
-async function checkTrustThreshold(walletAddress, connection, minScore = 50) {
-  try {
-    const pubkey = new PublicKey(walletAddress);
-    const programId = new PublicKey(PROGRAM_IDS.iamAnchor);
-    const [identityPda] = PublicKey.findProgramAddressSync(
-      [new TextEncoder().encode("identity"), pubkey.toBuffer()],
-      programId
-    );
-
-    // Bypasses SDK IDL dependencies to avoid network timeout/cors issues
-    const account = await connection.getAccountInfo(identityPda);
-    
-    if (!account || account.data.length < 62) {
-      throw new Error("No IAM Anchor found");
-    }
-
-    const view = new DataView(account.data.buffer, account.data.byteOffset, account.data.byteLength);
-    const trustScore = view.getUint16(60, true);
-    
-    if (trustScore < minScore) {
-      throw new Error(\`Trust score too low: \${trustScore}\`);
-    }
-    
-    return true;
-  } catch (e) {
-    console.error("Trust threshold validation failed:", e);
-    return false;
-  }
+export function PremiumPage() {
+  return (
+    <IAMGate minTrustScore={100}>
+      {/* Children render only when the connected wallet
+          has an IAM Anchor with trust score >= 100 */}
+      <h1>Welcome, verified human.</h1>
+    </IAMGate>
+  );
 }`
   },
   {
