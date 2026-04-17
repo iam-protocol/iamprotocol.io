@@ -6,9 +6,9 @@ Running log of resolved bugs, hardening items, and known limitations across
 the protocol's repositories.
 
 **Continuous adversarial testing methodology and current aggregate results**
-are published at [iam-human.io/security](https://iam-human.io/security).
+are published at [iamprotocol.io/security](https://iamprotocol.io/security).
 
-**Vulnerability reports:** contact@iam-human.io (see Responsible Disclosure
+**Vulnerability reports:** contact@iamprotocol.io (see Responsible Disclosure
 below).
 
 ---
@@ -168,7 +168,7 @@ not fix these in isolation.
 
 ---
 
-## Website (`iam-human.io`)
+## Website (`iamprotocol.io`)
 
 ### High
 
@@ -225,7 +225,7 @@ generative techniques. Attack code, per-attempt telemetry, and specific
 parameter values are kept private per responsible-disclosure convention.
 
 Public methodology, tier taxonomy, and current aggregate results are
-published at [iam-human.io/security](https://iam-human.io/security).
+published at [iamprotocol.io/security](https://iamprotocol.io/security).
 
 A public baseline test suite at `pulse-sdk/test/pentest.test.ts` exercises
 trivial attacker capability (procedural sine-wave synthesis) and is retained
@@ -236,7 +236,7 @@ private harness addresses.
 
 ## Responsible Disclosure
 
-Report vulnerabilities to contact@iam-human.io. We aim to acknowledge within
+Report vulnerabilities to contact@iamprotocol.io. We aim to acknowledge within
 48 hours and provide initial triage within 5 business days. Good-faith
 security research is welcome within the scope of the security program. We do
 not pursue legal action against researchers acting in good faith.

@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://iam-human.io"),
+  metadataBase: new URL("https://iamprotocol.io"),
   title: {
     default: "IAM Protocol — Proof of Humanity on Solana",
     template: "%s | IAM Protocol",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: "IAM Protocol — Proof of Humanity on Solana",
     description:
       "Solana-native identity verification through behavioral liveness. Privacy by architecture.",
-    url: "https://iam-human.io",
+    url: "https://iamprotocol.io",
     siteName: "IAM Protocol",
     type: "website",
   },

@@ -65,7 +65,7 @@ export function generateOGImage() {
             letterSpacing: "0.05em",
           }}
         >
-          iam-human.io
+          iamprotocol.io
         </div>
       </div>
     ),
