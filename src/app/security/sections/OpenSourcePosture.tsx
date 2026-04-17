@@ -30,10 +30,10 @@ export function OpenSourcePosture() {
       </h2>
       <p className="mt-8 text-foreground/80 leading-relaxed">
         IAM Protocol is open-source where open-source matters for user trust,
-        and deliberately private where privacy protects users. This split is
-        standard practice across Ethereum Foundation, Uniswap, Aztec, MakerDAO,
-        and professional security-program norms. Not a departure from
-        crypto&apos;s open-source values. A mature implementation of them.
+        and deliberately private where privacy protects users. This follows
+        the same disclosure convention used across crypto infrastructure
+        projects. Not a departure from crypto&apos;s open-source values. A
+        mature implementation of them.
       </p>
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">

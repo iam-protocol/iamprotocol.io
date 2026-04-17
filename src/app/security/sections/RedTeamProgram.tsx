@@ -98,10 +98,8 @@ export function RedTeamProgram() {
       <p className="mt-8 text-foreground/80 leading-relaxed">
         Attack implementation code, per-attempt telemetry, and specific
         parameter values that produce elevated pass rates are kept in a private
-        repository per responsible-disclosure convention. This matches the
-        posture of comparable infrastructure projects (Ethereum Foundation,
-        Uniswap, Aztec, MakerDAO) and professional security programs (NCC
-        Group, Trail of Bits): methodology public, weapons private.
+        repository. This follows the same disclosure convention used by
+        infrastructure security programs: methodology public, weapons private.
       </p>
     </section>
   );

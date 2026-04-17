@@ -10,31 +10,31 @@ export const campaignResults: CampaignResult[] = [
     tier: "T1",
     passRate: "0%",
     costPerSuccess: "N/A",
-    status: "Defended (500 varied attempts blocked)",
+    status: "Defended (2,000 attempts)",
   },
   {
     tier: "T2",
     passRate: "0%",
     costPerSuccess: "N/A",
-    status: "Defended (500 varied attempts blocked)",
+    status: "Defended (4,000 attempts)",
   },
   {
     tier: "T3",
-    passRate: "pending",
-    costPerSuccess: "pending",
-    status: "Not yet tested",
+    passRate: "0%",
+    costPerSuccess: "N/A",
+    status: "Defended (8,000 attempts)",
   },
   {
     tier: "T4",
     passRate: "pending",
     costPerSuccess: "pending",
-    status: "Log-only measurement",
+    status: "Not yet tested",
   },
   {
     tier: "T5",
     passRate: "pending",
     costPerSuccess: "pending",
-    status: "Log-only measurement",
+    status: "Not yet tested",
   },
   {
     tier: "T6",
@@ -56,4 +56,4 @@ export const campaignResults: CampaignResult[] = [
   },
 ];
 
-export const lastUpdated = "April 17, 2026";
+export const lastUpdated = "April 18, 2026";
