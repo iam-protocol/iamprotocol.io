@@ -45,7 +45,7 @@ export function FallingPattern({ className }: { className?: string }) {
     // Grid state
     let cols = 0;
     let rows = 0;
-    let squares: Uint8Array;
+    let squares: Uint8Array = new Uint8Array(0);
     let dpr = 1;
 
     const setup = () => {
@@ -74,14 +74,34 @@ export function FallingPattern({ className }: { className?: string }) {
 
     const isMobile = window.matchMedia("(max-width: 767px)").matches;
 
+    // On mobile, render one static frame and stop. The flicker effect
+    // is imperceptible at mobile sizes and the continuous rAF loop
+    // causes scroll stutter by competing with the compositor.
+    if (isMobile) {
+      setup();
+      const step = (SQUARE_SIZE + GRID_GAP) * dpr;
+      const size = SQUARE_SIZE * dpr;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let b = 0; b < OPACITY_BUCKETS; b++) {
+        const indices: number[] = [];
+        for (let i = 0; i < cols * rows; i++) {
+          if (squares[i] === b) indices.push(i);
+        }
+        if (indices.length === 0) continue;
+        ctx.fillStyle = palette[b]!;
+        ctx.beginPath();
+        for (const idx of indices) {
+          const col = (idx / rows) | 0;
+          const row = idx - col * rows;
+          ctx.rect(col * step, row * step, size, size);
+        }
+        ctx.fill();
+      }
+      return;
+    }
+
     const animate = (time: number) => {
       if (!inView) return;
-
-      // Throttle to 20fps on mobile to reduce GPU contention during scroll
-      if (isMobile && time - lastTime < MOBILE_FRAME_INTERVAL) {
-        animationFrameId = requestAnimationFrame(animate);
-        return;
-      }
 
       const deltaTime = Math.min((time - lastTime) / 1000, 0.1);
       lastTime = time;
