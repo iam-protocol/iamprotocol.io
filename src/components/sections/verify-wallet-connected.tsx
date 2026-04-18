@@ -41,6 +41,7 @@ export function VerifyWalletConnected({
   const [audioLevel, setAudioLevel] = useState(0);
   const [hasMotion, setHasMotion] = useState(false);
   const [requesting, setRequesting] = useState(false);
+  const [processingStage, setProcessingStage] = useState("Extracting features...");
   const startingRef = useRef(false);
   const voicedFramesRef = useRef(0);
 
@@ -119,7 +120,9 @@ export function VerifyWalletConnected({
     dispatch({ type: "CAPTURE_DONE" });
 
     const PROOF_TIMEOUT_MS = 60_000;
-    const proofPromise = session.complete(wallet?.adapter, connection);
+    const proofPromise = session.complete(wallet?.adapter, connection, (stage) => {
+      setProcessingStage(stage);
+    });
     const timeoutPromise = new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error("Proof generation timed out. Please try again.")), PROOF_TIMEOUT_MS)
     );
@@ -234,7 +237,7 @@ export function VerifyWalletConnected({
     );
   }
 
-  if (state.step === "processing") return <ProvingView />;
+  if (state.step === "processing") return <ProvingView stage={processingStage} />;
   if (state.step === "signing") return <SigningView />;
 
   if (state.step === "verified") {

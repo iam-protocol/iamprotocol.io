@@ -2,15 +2,25 @@
 
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
-export function ProvingView() {
+const STAGE_SUBTITLES: Record<string, string> = {
+  "Extracting features...": "Analyzing voice, motion, and touch data",
+  "Validating...": "Server-side feature validation",
+  "Computing proof...": "Generating zero-knowledge proof",
+  "Submitting to Solana...": "Writing verification on-chain",
+};
+
+export function ProvingView({ stage }: { stage?: string }) {
+  const label = stage || "Processing...";
+  const subtitle = (stage && STAGE_SUBTITLES[stage]) || "Please wait";
+
   return (
     <div className="text-center space-y-4">
       <Loader2 className="mx-auto h-8 w-8 text-cyan animate-spin" />
       <p className="font-mono text-sm text-foreground">
-        Generating Groth16 proof...
+        {label}
       </p>
       <p className="text-xs text-muted">
-        Hashing features, computing Poseidon commitment, building ZK proof
+        {subtitle}
       </p>
     </div>
   );
