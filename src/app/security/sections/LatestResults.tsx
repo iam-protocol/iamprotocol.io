@@ -55,9 +55,10 @@ export function LatestResults() {
         Last updated: {lastUpdated}
       </p>
       <p className="mt-2 text-sm text-foreground/60 leading-relaxed">
-        Pass rate = fraction of bot attempts that successfully create or update
-        an on-chain Anchor. Cost estimates in devnet SOL + wall-clock time per
-        successful identity. Rounded to prevent adversarial threshold inference.
+        Pass rate = fraction of bot attempts that pass server-side Tier 1
+        validation, the gate preceding on-chain submission. Cost estimates in
+        devnet SOL + wall-clock time per successful identity. Rounded to prevent
+        adversarial threshold inference.
       </p>
     </section>
   );

@@ -22,7 +22,7 @@ export const campaignResults: CampaignResult[] = [
     tier: "T3",
     passRate: "0%",
     costPerSuccess: "N/A",
-    status: "Defended (8,000 attempts)",
+    status: "Defended (10,000 attempts)",
   },
   {
     tier: "T4",
@@ -56,4 +56,4 @@ export const campaignResults: CampaignResult[] = [
   },
 ];
 
-export const lastUpdated = "April 18, 2026";
+export const lastUpdated = "April 19, 2026";
