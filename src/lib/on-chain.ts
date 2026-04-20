@@ -24,7 +24,13 @@ const VERIFICATION_RESULT_DISC_B58 = "JU9cxeSQjfT";
 /**
  * Fetch VerificationResult PDAs from iam-verifier program.
  * Filters by discriminator (to exclude Challenge accounts) and verifier pubkey.
- * Account layout: 8 (disc) + 32 (verifier) + 32 (proof_hash) + 8 (verified_at) + 1 (is_valid) + 32 (nonce) + 1 (bump)
+ * Post-binding-patch layout (2026-04-20, 182 bytes):
+ *   8 disc + 32 verifier + 32 proof_hash + 8 verified_at + 1 is_valid +
+ *   32 nonce + 1 bump + 32 commitment_new + 32 commitment_prev +
+ *   2 threshold + 2 min_distance
+ * This parser reads only the first 80 bytes (up to verified_at), so it is
+ * forward-compatible with both pre- and post-patch layouts — the min-length
+ * check is intentionally permissive.
  */
 export async function fetchVerificationHistory(
   walletPubkey: string,
