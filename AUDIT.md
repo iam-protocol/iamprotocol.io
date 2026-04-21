@@ -1,6 +1,6 @@
 # IAM Protocol — Security & Quality Audit Tracker
 
-Last updated: 2026-04-16
+Last updated: 2026-04-21
 
 Running log of resolved bugs, hardening items, and known limitations across
 the protocol's repositories.
@@ -66,7 +66,7 @@ deployment. All have documented implementation paths in the blueprint folder.
 
 ### Tier 2 Hardening (added 2026-04-16)
 
-- [x] **Additional server-side verification signal live** — pulse-sdk 0.7.12 surfaces extra sensor data alongside the 134-feature vector. Validation service computes a per-verification metric, empirically calibrated and enforced at the validation gate. Backward-compat with older SDK versions verified. Fail-closed coverage (non-finite inputs, short captures) in place. Enabled 2026-04-20.
+- [x] **Additional server-side verification signal live** — pulse-sdk 0.7.12+ surfaces extra sensor data alongside the 134-feature vector. Validation service computes a per-verification metric, empirically calibrated and enforced at the validation gate. Backward-compat with older SDK versions verified. Fail-closed coverage (non-finite inputs, short captures) in place. Enabled 2026-04-20.
 
 ### Baseline Reset Flow (added 2026-04-21)
 
@@ -157,7 +157,7 @@ not fix these in isolation.
 ### SAS Integration (added 2026-04-06)
 
 - [x] **`/attest` endpoint verifies wallet ownership** — SDK signs a timestamped attestation message with the connected wallet. Executor verifies ed25519 signature, validates message format and 60-second timestamp window before issuing attestation. Wallets without `signMessage` support fall back to current behavior. Fixed 2026-04-15.
-- [~] **SAS credential authority is the relayer keypair** — Code now supports separate `SAS_AUTHORITY_KEYPAIR` env var on executor. Falls back to relayer keypair when not set (current devnet behavior). Before mainnet, generate a dedicated SAS authority keypair, store it in HSM or separate secrets manager, re-create the SAS credential with the new authority, and set `SAS_AUTHORITY_KEYPAIR` on the executor.
+- [x] **SAS credential authority — code complete, key rotation deferred to mainnet** — Executor supports separate `SAS_AUTHORITY_KEYPAIR` env var. Falls back to relayer keypair when not set (current devnet behavior). Before mainnet: generate dedicated SAS authority keypair, store in HSM or separate secrets manager, re-create the SAS credential with the new authority, set `SAS_AUTHORITY_KEYPAIR` on the executor. Fixed (code) 2026-04-15.
 - [x] **Agent Anchor hardcodes devnet program ID** — Both `attestAgentOperator` and `getAgentHumanOperator` now accept optional `cluster` parameter and select program ID accordingly. Defaults to devnet for backward compatibility. Fixed 2026-04-15.
 - [x] **No rate limiting specific to `/attest`** — Attestation endpoint now has its own rate limiter at 10 requests/min per API key, separate from the general 60/min limit. Fixed 2026-04-15.
 
@@ -165,7 +165,7 @@ not fix these in isolation.
 
 - [x] **`/status` endpoint exposes relayer SOL balance publicly** — Unauthenticated requests now return only `{"status": "ok"}`. Full metrics require valid API key. Fixed 2026-04-15.
 - [x] **`/status` makes an RPC call on every request** — Balance cached with 30-second TTL. Fixed 2026-04-09.
-- [ ] **`.unwrap()` in StatusMetrics::new()** — Should use `.unwrap_or_default()` per repo conventions. Review feedback sent.
+- [x] **`.unwrap()` in StatusMetrics::new()** — Replaced with `.unwrap_or_default()`. Audited 2026-04-21.
 
 ### Body Limit (added 2026-04-16)
 
