@@ -45,18 +45,24 @@ export function VerifiedView({
   txSignature,
   subtitle,
   onReset,
+  title = "Verified",
+  tryAgainLabel = "Verify again",
 }: {
   commitment: string;
   txSignature?: string;
   subtitle: string;
   onReset: () => void;
+  /** Success headline. Pass "Baseline reset" for reset flows. */
+  title?: string;
+  /** Label for the action that starts a new verification cycle. */
+  tryAgainLabel?: string;
 }) {
   return (
     <div className="text-center space-y-6">
       <CheckCircle className="mx-auto h-12 w-12 text-solana-green" />
       <div>
         <p className="font-sans text-xl font-semibold text-foreground">
-          Verified
+          {title}
         </p>
         <p className="mt-1 text-sm text-muted">{subtitle}</p>
       </div>
@@ -84,7 +90,7 @@ export function VerifiedView({
         onClick={onReset}
         className="text-sm text-muted hover:text-foreground transition-colors"
       >
-        Verify again
+        {tryAgainLabel}
       </button>
     </div>
   );
@@ -99,26 +105,46 @@ function isRelayerError(error: string): boolean {
   );
 }
 
+/**
+ * Detects the "on-chain anchor exists, local baseline is gone" failure
+ * surfaced from `pulse-sdk/src/pulse.ts:278-285`. The stable substring is
+ * "baseline is missing" — guarded by a reset.test.ts assertion in the SDK
+ * to prevent silent copy drift.
+ */
+function isMissingBaselineError(error: string): boolean {
+  return error.includes("baseline is missing");
+}
+
 export function FailedView({
   error,
   onReset,
+  onResetBaseline,
 }: {
   error: string;
   onReset: () => void;
+  onResetBaseline?: () => void;
 }) {
   const relayerDown = isRelayerError(error);
+  const missingBaseline = !relayerDown && isMissingBaselineError(error);
+  const canResetBaseline = missingBaseline && typeof onResetBaseline === "function";
 
   return (
     <div className="text-center space-y-6">
       <AlertCircle className="mx-auto h-12 w-12 text-danger" />
       <div>
         <p className="font-sans text-xl font-semibold text-foreground">
-          {relayerDown ? "Relayer not connected" : "Verification failed"}
+          {relayerDown
+            ? "Relayer not connected"
+            : missingBaseline
+              ? "Baseline missing on this device"
+              : "Verification failed"}
         </p>
         <p className="mt-1 text-sm text-muted">
           {relayerDown
             ? "The IAM relayer service is not running. Verification requires a live relayer connected to Solana devnet."
-            : error}
+            : missingBaseline
+              ? "Your IAM Anchor exists on-chain, but the encrypted baseline that proves continuity is not on this device. You can reset your baseline to re-enroll from this device."
+              : error}
         </p>
         {relayerDown && (
           <p className="mt-2 text-xs text-muted">
@@ -126,12 +152,22 @@ export function FailedView({
           </p>
         )}
       </div>
-      <button
-        onClick={onReset}
-        className="rounded-full border border-border px-6 py-2 text-sm text-muted hover:text-foreground hover:border-border-hover transition-colors"
-      >
-        Try again
-      </button>
+      <div className="flex flex-col-reverse gap-2 items-center sm:flex-row sm:justify-center">
+        <button
+          onClick={onReset}
+          className="rounded-full border border-border px-6 py-2 text-sm text-muted hover:text-foreground hover:border-border-hover transition-colors"
+        >
+          {canResetBaseline ? "Cancel" : "Try again"}
+        </button>
+        {canResetBaseline && (
+          <button
+            onClick={onResetBaseline}
+            className="rounded-full border border-danger/30 bg-danger/10 px-6 py-2 text-sm font-medium text-danger hover:bg-danger/20 transition-colors"
+          >
+            Reset baseline
+          </button>
+        )}
+      </div>
     </div>
   );
 }

@@ -140,10 +140,17 @@ export function PulseChallenge({
   }, [handlePointer, captureStarted]);
 
   useEffect(() => {
-    if (touchRef && "current" in touchRef && svgContainerRef.current) {
-      const mutableRef = touchRef as React.MutableRefObject<HTMLDivElement | null>;
+    if (!touchRef || !("current" in touchRef)) return;
+    const mutableRef = touchRef as React.MutableRefObject<HTMLDivElement | null>;
+    if (svgContainerRef.current) {
       mutableRef.current = svgContainerRef.current;
     }
+    return () => {
+      // Null the parent ref on unmount. React only auto-nulls refs attached
+      // via the `ref={}` prop; manually-assigned refs must clean themselves
+      // up or the parent keeps pointing at detached DOM nodes.
+      mutableRef.current = null;
+    };
   }, [touchRef, captureStarted]);
 
   // --- Countdown screen ---

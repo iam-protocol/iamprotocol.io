@@ -8,21 +8,24 @@ export function verifyReducer(
 ): VerifyState {
   switch (action.type) {
     case "START_CAPTURE":
-      if (state.step !== "idle") return state;
-      return { step: "capturing" };
+      // Allow starting from idle, or re-entering from the failed state when
+      // the user chose to reset their baseline after a baseline-missing error.
+      if (state.step !== "idle" && state.step !== "failed") return state;
+      return { step: "capturing", intent: action.intent };
 
     case "CAPTURE_DONE":
       if (state.step !== "capturing") return state;
-      return { step: "processing" };
+      return { step: "processing", intent: state.intent };
 
     case "PROOF_COMPLETE":
       if (state.step !== "processing") return state;
-      return { step: "signing" };
+      return { step: "signing", intent: state.intent };
 
     case "VERIFICATION_SUCCESS":
       if (state.step !== "processing" && state.step !== "signing") return state;
       return {
         step: "verified",
+        intent: state.intent,
         commitment: action.commitment,
         txSignature: action.txSignature,
       };

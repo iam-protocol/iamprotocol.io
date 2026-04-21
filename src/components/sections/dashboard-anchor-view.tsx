@@ -63,6 +63,7 @@ export function DashboardAnchorView() {
         const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
 
         // IdentityState layout: 8 disc + 32 owner + 8 creation + 8 lastVerif + 4 count + 2 trust + 32 commitment + 32 mint
+        //   + 1 bump + 416 recent_timestamps + 8 last_reset_timestamp  (total 551 bytes post-reset feature)
         const creationTimestamp = Number(view.getBigInt64(40, true));
         const lastVerificationTimestamp = Number(view.getBigInt64(48, true));
         const verificationCount = view.getUint32(56, true);
@@ -70,6 +71,10 @@ export function DashboardAnchorView() {
         const currentCommitment = new Uint8Array(data.slice(62, 94));
         const mintBytes = data.slice(94, 126);
         const mintPubkey = new PublicKey(mintBytes);
+        // last_reset_timestamp is at offset 543. Accounts minted before the
+        // reset feature (or not yet realloc'd) are shorter; default to 0.
+        const lastResetTimestamp =
+          data.length >= 551 ? Number(view.getBigInt64(543, true)) : 0;
 
         setIdentity({
           owner: publicKey.toBase58(),
@@ -79,6 +84,7 @@ export function DashboardAnchorView() {
           trustScore,
           currentCommitment,
           mint: mintPubkey.toBase58(),
+          lastResetTimestamp,
         });
       })
       .catch(() => setError("Failed to fetch identity state"))

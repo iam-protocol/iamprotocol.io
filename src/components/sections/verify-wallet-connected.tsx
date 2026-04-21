@@ -12,6 +12,7 @@ import {
   VerifiedView,
   FailedView,
 } from "@/components/verify/step-views";
+import { ResetBaselineDialog } from "@/components/verify/reset-baseline-dialog";
 import { WalletConnectButton } from "@/components/ui/wallet-connect-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { usePulse } from "@/components/providers/pulse-provider";
@@ -42,22 +43,36 @@ export function VerifyWalletConnected({
   const [hasMotion, setHasMotion] = useState(false);
   const [requesting, setRequesting] = useState(false);
   const [processingStage, setProcessingStage] = useState("Extracting features...");
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const startingRef = useRef(false);
   const voicedFramesRef = useRef(0);
+  // Intent is tracked alongside the state-machine mirror so the
+  // capture-completion handler can choose between verify vs reset paths
+  // without reading the reducer state (which may race the handler).
+  const intentRef = useRef<"verify" | "reset">("verify");
 
   useEffect(() => {
     setHasMotion(navigator.maxTouchPoints > 0);
   }, []);
 
-  async function handleStart() {
+  async function handleStart(intent: "verify" | "reset" = "verify") {
     if (startingRef.current) return;
     startingRef.current = true;
+    intentRef.current = intent;
     setRequesting(true);
 
     try {
       voicedFramesRef.current = 0;
 
-      const session = pulse.createSession(touchRef.current ?? document.body);
+      // Always attach touch capture to document.body. The PulseChallenge
+      // curve DIV is only mounted AFTER we dispatch START_CAPTURE below, so
+      // touchRef.current at this point is either null (first run) or a
+      // detached node from a prior render (retained because
+      // pulse-challenge.tsx assigns the ref manually in a useEffect with
+      // no unmount cleanup). Using the detached node silently broke the
+      // reset flow: pointer events fired on the new DIV but listeners sat
+      // on the dead one, yielding 0 touch samples.
+      const session = pulse.createSession(document.body);
       sessionRef.current = session;
 
       // Motion first — DeviceMotionEvent.requestPermission() requires an active
@@ -102,11 +117,23 @@ export function VerifyWalletConnected({
 
       session.startTouch().catch(() => session.skipTouch());
 
-      dispatch({ type: "START_CAPTURE" });
+      dispatch({ type: "START_CAPTURE", intent });
     } finally {
       startingRef.current = false;
       setRequesting(false);
     }
+  }
+
+  function handleResetBaselineClick() {
+    setResetDialogOpen(true);
+  }
+
+  async function handleResetBaselineConfirm() {
+    setResetDialogOpen(false);
+    // The state machine allows START_CAPTURE from failed (see reducer).
+    // Dispatch with reset intent; handleCaptureComplete will route to
+    // session.completeReset() because intentRef is now "reset".
+    await handleStart("reset");
   }
 
   async function handleCaptureComplete() {
@@ -120,9 +147,14 @@ export function VerifyWalletConnected({
     dispatch({ type: "CAPTURE_DONE" });
 
     const PROOF_TIMEOUT_MS = 60_000;
-    const proofPromise = session.complete(wallet?.adapter, connection, (stage) => {
-      setProcessingStage(stage);
-    });
+    const proofPromise =
+      intentRef.current === "reset"
+        ? session.completeReset(wallet?.adapter, connection, (stage) => {
+            setProcessingStage(stage);
+          })
+        : session.complete(wallet?.adapter, connection, (stage) => {
+            setProcessingStage(stage);
+          });
     const timeoutPromise = new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error("Proof generation timed out. Please try again.")), PROOF_TIMEOUT_MS)
     );
@@ -215,7 +247,7 @@ export function VerifyWalletConnected({
           )}
         </div>
         <div className="flex justify-center">
-          <ShimmerButton className="text-sm font-medium" onClick={handleStart} disabled={requesting}>
+          <ShimmerButton className="text-sm font-medium" onClick={() => handleStart("verify")} disabled={requesting}>
             {requesting ? "Requesting access..." : "Start Verification"}
           </ShimmerButton>
         </div>
@@ -241,18 +273,38 @@ export function VerifyWalletConnected({
   if (state.step === "signing") return <SigningView />;
 
   if (state.step === "verified") {
+    const wasReset = state.intent === "reset";
     return (
       <VerifiedView
         commitment={state.commitment}
         txSignature={state.txSignature}
-        subtitle="Transaction confirmed on Solana devnet"
+        title={wasReset ? "Baseline reset" : "Verified"}
+        subtitle={
+          wasReset
+            ? "Fresh baseline stored on this device. Trust Score starts at 0 and rebuilds with future verifications."
+            : "Transaction confirmed on Solana devnet"
+        }
+        tryAgainLabel={wasReset ? "Verify now" : "Verify again"}
         onReset={handleReset}
       />
     );
   }
 
   if (state.step === "failed") {
-    return <FailedView error={state.error} onReset={handleReset} />;
+    return (
+      <>
+        <FailedView
+          error={state.error}
+          onReset={handleReset}
+          onResetBaseline={handleResetBaselineClick}
+        />
+        <ResetBaselineDialog
+          open={resetDialogOpen}
+          onCancel={() => setResetDialogOpen(false)}
+          onConfirm={handleResetBaselineConfirm}
+        />
+      </>
+    );
   }
 
   return null;

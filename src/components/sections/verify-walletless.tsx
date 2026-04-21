@@ -92,7 +92,7 @@ export function VerifyWalletless({
 
       session.startTouch().catch(() => session.skipTouch());
 
-      dispatch({ type: "START_CAPTURE" });
+      dispatch({ type: "START_CAPTURE", intent: "verify" });
     } finally {
       startingRef.current = false;
       setRequesting(false);
@@ -217,6 +217,10 @@ export function VerifyWalletless({
   }
 
   if (state.step === "failed") {
+    // No `onResetBaseline` passed: the "baseline missing" error path is
+    // unreachable in walletless mode (it's gated on an on-chain anchor
+    // existing for the connected wallet, and walletless has no wallet).
+    // FailedView suppresses the Reset CTA when the handler is absent.
     return <FailedView error={state.error} onReset={handleReset} />;
   }
 
