@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useConnection } from "@solana/wallet-adapter-react";
-import type { PulseSession } from "@iam-protocol/pulse-sdk";
+import { PublicKey } from "@solana/web3.js";
+import { type PulseSession, PROGRAM_IDS } from "@iam-protocol/pulse-sdk";
 import type { VerifyState, VerifyAction } from "@/components/verify/types";
 import { PulseChallenge } from "@/components/verify/pulse-challenge";
 import {
@@ -44,6 +45,13 @@ export function VerifyWalletConnected({
   const [requesting, setRequesting] = useState(false);
   const [processingStage, setProcessingStage] = useState("Extracting features...");
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  // Unix seconds of the connected wallet's most recent on-chain verification,
+  // read directly from IdentityState offset 48. Used to render a cadence hint
+  // explaining that Trust Score only increments after a 24-hour gap — the
+  // sliding-window dedup in update_anchor's recency formula collapses
+  // verifications inside the same 24h slice into one contribution, so
+  // verifying twice within 24h is a UX surprise unless we flag it.
+  const [lastVerificationTimestamp, setLastVerificationTimestamp] = useState<number | null>(null);
   const startingRef = useRef(false);
   const voicedFramesRef = useRef(0);
   // Intent is tracked alongside the state-machine mirror so the
@@ -54,6 +62,41 @@ export function VerifyWalletConnected({
   useEffect(() => {
     setHasMotion(navigator.maxTouchPoints > 0);
   }, []);
+
+  // Pull `last_verification_timestamp` from IdentityState when a wallet with
+  // an existing on-chain anchor is connected. Only used for the cadence hint
+  // below; fails silently if the account doesn't exist or the fetch errors
+  // (first-time users + network blips render the idle view without the hint).
+  useEffect(() => {
+    if (!publicKey || !connected) {
+      setLastVerificationTimestamp(null);
+      return;
+    }
+    let cancelled = false;
+    const programId = new PublicKey(PROGRAM_IDS.iamAnchor);
+    const [identityPda] = PublicKey.findProgramAddressSync(
+      [new TextEncoder().encode("identity"), publicKey.toBuffer()],
+      programId,
+    );
+    connection
+      .getAccountInfo(identityPda)
+      .then((account: { data: Uint8Array } | null) => {
+        if (cancelled || !account || account.data.length < 56) return;
+        const view = new DataView(
+          account.data.buffer,
+          account.data.byteOffset,
+          account.data.byteLength,
+        );
+        const ts = Number(view.getBigInt64(48, true));
+        if (ts > 0) setLastVerificationTimestamp(ts);
+      })
+      .catch(() => {
+        /* silent — hint just doesn't render */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [publicKey, connected, connection]);
 
   async function handleStart(intent: "verify" | "reset" = "verify") {
     if (startingRef.current) return;
@@ -208,6 +251,32 @@ export function VerifyWalletConnected({
       ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
       : "";
 
+    // 24-hour cadence hint: the Trust Score recency dedup in update_anchor
+    // collapses verifications inside a single 24h window into one bucket, so
+    // verifying sooner than 24h after the last attempt won't produce a
+    // recency bump (and older entries aging can make the score slightly
+    // dip). Surface a one-line explainer so users don't get surprised.
+    const DAY_SEC = 86400;
+    const nowSec = Math.floor(Date.now() / 1000);
+    const secondsSinceLastVerif =
+      lastVerificationTimestamp !== null ? nowSec - lastVerificationTimestamp : null;
+    const showCadenceHint =
+      secondsSinceLastVerif !== null &&
+      secondsSinceLastVerif >= 0 &&
+      secondsSinceLastVerif < DAY_SEC;
+    const hoursAgo =
+      showCadenceHint && secondsSinceLastVerif !== null
+        ? Math.floor(secondsSinceLastVerif / 3600)
+        : 0;
+    const hoursUntilNext =
+      showCadenceHint && secondsSinceLastVerif !== null
+        ? Math.max(1, Math.ceil((DAY_SEC - secondsSinceLastVerif) / 3600))
+        : 0;
+    const hoursAgoLabel =
+      hoursAgo === 0 ? "less than an hour" : `${hoursAgo} hour${hoursAgo === 1 ? "" : "s"}`;
+    const hoursUntilNextLabel =
+      hoursUntilNext === 1 ? "1 more hour" : `${hoursUntilNext} more hours`;
+
     return (
       <div className="space-y-6">
         <div className="text-center">
@@ -246,6 +315,15 @@ export function VerifyWalletConnected({
             </div>
           )}
         </div>
+        {showCadenceHint && (
+          <div className="mx-auto max-w-sm rounded-lg border border-cyan/20 bg-cyan/5 px-4 py-3">
+            <p className="text-center text-xs text-foreground/70 leading-relaxed">
+              You verified {hoursAgoLabel} ago. Trust Score increments fully
+              when verifications are spaced 24+ hours apart — wait{" "}
+              {hoursUntilNextLabel} for the next bump.
+            </p>
+          </div>
+        )}
         <div className="flex justify-center">
           <ShimmerButton className="text-sm font-medium" onClick={() => handleStart("verify")} disabled={requesting}>
             {requesting ? "Requesting access..." : "Start Verification"}
