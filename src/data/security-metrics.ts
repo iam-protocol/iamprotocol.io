@@ -95,4 +95,4 @@ export const t4aNote =
   "T4a was designed as a two-wave study to measure the cross-modal temporal coupling layer's specific contribution to the multi-layer defense. Wave 1 ran with temporal enforcement in log-only mode to establish the counterfactual baseline. Wave 2 ran with enforcement enabled. The 90 percentage-point reduction isolates that layer's contribution. The 10% Wave 2 residual motivates phrase-binding via server-side speech-to-text as the next defense layer.";
 
 export const onChainBurstNote =
-  "The 60 IAM Anchors currently visible on devnet include 57 internal red team artifacts from T4a Waves 1–2 (documented above) and a small number of legitimate team verifications. The public /stats page filters red team wallets via a blocklist; on-chain state is preserved for audit traceability.";
+  "The IAM Anchors currently visible on devnet include internal red team artifacts from T4a Waves 1–2 (documented above) alongside legitimate team and pilot-user verifications. All state is preserved on-chain for audit traceability; the public /stats page reads the full on-chain aggregate directly.";
