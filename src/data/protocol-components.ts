@@ -75,7 +75,7 @@ export const protocolComponents: ProtocolComponent[] = [
     highlights: [
       "TTS and synthetic data detection",
       "Cross-wallet fingerprint registry (Sybil detection)",
-      "Cross-modality temporal correlation enforcement",
+      "Cross-modality behavioral coupling enforcement",
       "Adaptive thresholds with zero information leakage",
     ],
     links: [],
