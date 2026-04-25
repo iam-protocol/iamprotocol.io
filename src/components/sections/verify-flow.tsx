@@ -1,7 +1,6 @@
 "use client";
 
 import { Component, useReducer, useState } from "react";
-import { AlertTriangle } from "lucide-react";
 import type { VerifyMode } from "@/components/verify/types";
 import {
   verifyReducer,
@@ -11,24 +10,6 @@ import { GlassPanel } from "@/components/ui/glass-panel";
 import { VerifyModeToggle } from "./verify-mode-toggle";
 import { VerifyWalletless } from "./verify-walletless";
 import { VerifyWalletConnected } from "./verify-wallet-connected";
-
-/**
- * Temporary banner displayed on the verify flow while the validation pipeline
- * is mid-migration. Matches the amber AlertTriangle style used by the devnet
- * and mobile hints in `ui/wallet-connect-button.tsx`. Remove once the
- * pipeline is stable and the SDK version on npm matches the site's lockfile.
- */
-function VerifyMaintenanceBanner() {
-  return (
-    <div className="mx-auto flex max-w-md items-start gap-2 text-xs text-foreground/60 leading-relaxed">
-      <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
-      <p className="text-left">
-        Verification is under maintenance — attempts may fail intermittently.
-        Try again shortly.
-      </p>
-    </div>
-  );
-}
 
 class VerifyErrorBoundary extends Component<
   { children: React.ReactNode; onError: () => void },
@@ -78,9 +59,7 @@ export function VerifyFlow() {
   }
 
   return (
-    <div className="space-y-6">
-      <VerifyMaintenanceBanner />
-
+    <div className="space-y-10">
       <div className="flex justify-center">
         <VerifyModeToggle mode={mode} onChange={handleModeChange} />
       </div>
