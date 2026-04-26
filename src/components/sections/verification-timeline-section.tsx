@@ -40,10 +40,10 @@ export function VerificationTimelineSection() {
         </TextShimmer>
 
         <h2 className="mt-6 font-sans text-2xl font-semibold text-foreground md:text-3xl">
-          Three stages, seven steps.
+          Twelve seconds. The rest is automatic.
         </h2>
         <p className="mt-3 text-muted whitespace-pre-line">
-          {"From behavioral challenge to on-chain proof.\nNo raw biometric data leaves your device. Only derived statistical features are validated server-side."}
+          {"You speak a short phrase while tracing a curve. Feature extraction, ZK proof generation, and on-chain verification run automatically.\nNo raw biometric data leaves your device."}
         </p>
       </div>
 
