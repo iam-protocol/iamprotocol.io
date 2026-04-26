@@ -8,7 +8,7 @@ export const solutionCases: SolutionCase[] = [
     problem:
       "Jupiter's 2024 airdrop was farmed by bot networks. In one presale, 1,100 of 1,530 wallets belonged to a single entity.",
     solution:
-      "Gate airdrop claims on Entros Anchor with a minimum Trust Score (e.g., 50+). Trust Score requires weeks of consistent re-verification, making bot farming slow and expensive. Progressive scoring means 100 verifications in one day scores less than weekly verifications over 3 months.",
+      "Gate airdrop claims on Entros Anchor with a minimum Trust Score (e.g., 500+). Trust Score requires weeks of consistent re-verification, making bot farming slow and expensive. Progressive scoring means 100 verifications in one day scores less than weekly verifications over 3 months.",
     example:
       "Jupiter gates JUP claims with Entros. Each wallet needs Trust Score 200+ (at least two re-verifications with recent history). Farming one identity costs time; farming thousands costs months of sustained bot operation.",
   },
