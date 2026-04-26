@@ -12,7 +12,7 @@ export function Footer() {
             Proof of Personhood on Solana
           </p>
           <p className="mt-1 text-xs text-foreground/40">
-            Entros Protocol™
+            Entros Protocol
           </p>
         </div>
 
