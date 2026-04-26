@@ -75,7 +75,7 @@ export function AgentsContent() {
                   <div className="flex-1 relative mx-3">
                     <div className="border-t-2 border-dashed border-cyan/30" />
                     <span className="absolute -top-5 left-1/2 -translate-x-1/2 font-mono text-sm text-cyan whitespace-nowrap">
-                      iam:human-operator
+                      entros:human-operator
                     </span>
                   </div>
 

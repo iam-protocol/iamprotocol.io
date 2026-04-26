@@ -174,7 +174,7 @@ export function AgentsCheckSection() {
                   <p className="text-xs text-muted mt-0.5">
                     Immutable on-chain attestation via{" "}
                     <span className="text-cyan font-mono">
-                      iam:human-operator
+                      entros:human-operator
                     </span>
                   </p>
                 </div>
