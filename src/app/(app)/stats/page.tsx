@@ -3,7 +3,7 @@ import { ProtocolStats } from "@/components/sections/protocol-stats";
 import { pageMetadata } from "@/lib/page-metadata";
 
 export const metadata = pageMetadata({
-  title: "Protocol Stats",
+  title: "Devnet Activity",
   description:
     "Live on-chain metrics for the Entros Protocol—total anchors minted, trust scores, and verification activity on Solana devnet.",
   path: "/stats",
@@ -13,8 +13,8 @@ export default function Stats() {
   return (
     <>
       <SubpageHero
-        title="Protocol Stats"
-        subtitle={"Live on-chain metrics read directly from Solana devnet.\nNo backend. No cache."}
+        title="Devnet Activity"
+        subtitle="Live on-chain metrics from Solana devnet"
       />
       <section className="mx-auto max-w-7xl px-6 pb-24">
         <ProtocolStats />

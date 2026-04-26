@@ -25,7 +25,7 @@ const sections = [
       { label: "Agent Anchor", href: "/agents" },
       { label: "Governance", href: "/governance" },
       { label: "Integrate", href: "/integrate" },
-      { label: "Stats", href: "/stats" },
+      { label: "Activity", href: "/stats" },
     ],
   },
 ];
