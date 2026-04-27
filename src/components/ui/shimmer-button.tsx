@@ -15,11 +15,11 @@ export interface ShimmerButtonProps
 const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
   (
     {
-      shimmerColor = "rgba(255, 255, 255, 0.1)",
+      shimmerColor = "var(--theme-shimmer-color)",
       shimmerSize = "0.05em",
       shimmerDuration = "3s",
       borderRadius = "100px",
-      background = "rgba(255, 255, 255, 0.04)",
+      background = "var(--theme-shimmer-bg)",
       className,
       children,
       ...props
@@ -52,10 +52,10 @@ const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
         <div
           className={cn(
             "inset-0 absolute size-full",
-            "rounded-[inherit] shadow-[inset_0_-8px_10px_#ffffff1f]",
+            "rounded-[inherit] shadow-[inset_0_-8px_10px_var(--theme-shimmer-glow-base)]",
             "transition-shadow duration-300 ease-in-out",
-            "group-[:not(:disabled)]:hover:shadow-[inset_0_-6px_10px_#ffffff3f]",
-            "group-[:not(:disabled)]:active:shadow-[inset_0_-10px_10px_#ffffff3f]"
+            "group-[:not(:disabled)]:hover:shadow-[inset_0_-6px_10px_var(--theme-shimmer-glow-hover)]",
+            "group-[:not(:disabled)]:active:shadow-[inset_0_-10px_10px_var(--theme-shimmer-glow-active)]"
           )}
         />
 

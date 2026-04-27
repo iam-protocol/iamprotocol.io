@@ -7,7 +7,7 @@ const SQUARE_SIZE = 4;
 const GRID_GAP = 6;
 const FLICKER_CHANCE = 0.3;
 const OPACITY_BUCKETS = 32;
-const MOBILE_FRAME_INTERVAL = 120; // ~8fps cap on mobile (vs 60fps desktop) — slow enough to avoid compositor contention during scroll
+const MOBILE_FRAME_INTERVAL = 120; // ~8fps cap on mobile (vs 60fps desktop)—slow enough to avoid compositor contention during scroll
 
 function buildPalette(maxOpacity: number): string[] {
   const isDark = document.documentElement.classList.contains("dark");
@@ -204,7 +204,6 @@ export function FallingPattern({ className }: { className?: string }) {
 
   return (
     <div ref={containerRef} className={cn("relative h-full w-full", className)}>
-      <div className="hero-glow" />
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
     </div>
   );

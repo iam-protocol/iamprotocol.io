@@ -63,15 +63,18 @@ export function Navbar() {
         </ul>
 
         <div className="ml-auto flex items-center gap-3">
+          {/* Dashboard + Verify — match ShimmerButton recipe (faint
+              theme-aware tint, foreground/15 border, inset bottom-glow).
+              Verify uses cyan label to mark it as the primary action. */}
           <Link
             href="/dashboard"
-            className="hidden md:inline-flex items-center rounded-full px-4 py-1.5 text-sm font-mono font-medium border border-border bg-surface/50 backdrop-blur-md text-foreground/60 hover:text-foreground hover:bg-surface-hover transition-colors duration-200"
+            className="hidden md:inline-flex items-center rounded-full px-4 py-1.5 text-sm font-mono font-medium nav-cta-plate text-foreground border border-foreground/15 hover:border-foreground/30"
           >
             Dashboard
           </Link>
           <Link
             href="/verify"
-            className="hidden md:inline-flex items-center rounded-full px-4 py-1.5 text-sm font-mono font-medium border border-border bg-surface/50 backdrop-blur-md text-cyan hover:text-foreground hover:bg-surface-hover transition-colors duration-200"
+            className="hidden md:inline-flex items-center rounded-full px-4 py-1.5 text-sm font-mono font-medium nav-cta-plate text-cyan border border-foreground/15 hover:border-foreground/30"
           >
             Verify
           </Link>
