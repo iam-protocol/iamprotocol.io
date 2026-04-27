@@ -2,12 +2,25 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-interface DropdownItem {
+export interface DropdownItem {
   label: string;
   href: string;
+  description?: string;
 }
 
+/**
+ * Hover/click navigation dropdown.
+ *
+ * - 340px panel; each row carries a label + optional one-line description.
+ * - Hover-triggered with a 150ms delay before close (forgiving when
+ *   the cursor briefly leaves the panel boundary).
+ * - Click on the trigger toggles open (touch / a11y).
+ * - Escape closes; clicks outside close.
+ * - Animated entry: opacity + 4px slide-in.
+ */
 export function NavDropdown({
   label,
   items,
@@ -45,37 +58,60 @@ export function NavDropdown({
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
-      <a
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((prev) => !prev)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen((prev) => !prev); }
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen((prev) => !prev);
+          }
           if (e.key === "Escape") setOpen(false);
         }}
-        className="text-sm text-foreground/70 transition-colors duration-200 hover:text-foreground py-2 cursor-pointer"
+        className="inline-flex items-center gap-1 py-2 text-sm text-foreground/70 transition-colors duration-200 hover:text-foreground"
       >
-        {label} <span aria-hidden="true" className="text-[8px] text-foreground/40 ml-0.5 relative -top-px">▼</span>
-      </a>
+        {label}
+        <ChevronDown
+          className={cn(
+            "h-3.5 w-3.5 text-foreground/40 transition-transform duration-200",
+            open && "rotate-180"
+          )}
+        />
+      </button>
 
-      {open && (
-        <div className="absolute left-1/2 top-full -translate-x-1/2 pt-2">
-          <div className="min-w-[160px] rounded-lg border border-border bg-background py-1.5 shadow-lg">
-            {items.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className="block px-4 py-2 text-sm text-foreground/60 transition-colors duration-150 hover:text-foreground hover:bg-foreground/5"
-              >
+      {/* Panel: a small invisible bridge above the panel keeps hover
+          alive when the cursor crosses the gap from trigger to panel. */}
+      <div
+        className={cn(
+          "absolute left-1/2 top-full -translate-x-1/2 pt-3",
+          "transition-[opacity,transform] duration-150",
+          open
+            ? "pointer-events-auto translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-1 opacity-0"
+        )}
+      >
+        <div className="w-[340px] border border-border bg-surface p-1.5 shadow-2xl shadow-black/30">
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              className="group block px-3 py-2.5 transition-colors hover:bg-foreground/5"
+            >
+              <div className="text-sm font-medium text-foreground transition-colors group-hover:text-foreground">
                 {item.label}
-              </Link>
-            ))}
-          </div>
+              </div>
+              {item.description && (
+                <div className="mt-0.5 text-xs leading-relaxed text-foreground/55">
+                  {item.description}
+                </div>
+              )}
+            </Link>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }
