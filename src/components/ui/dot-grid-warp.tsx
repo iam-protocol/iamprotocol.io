@@ -2,7 +2,7 @@
 
 /**
  * Interactive dot grid with cursor-driven warp displacement.
- * Preserved experimental hero background — not currently in use.
+ * Preserved experimental hero background—not currently in use.
  * To restore: import { DotGridWarp } from "@/components/ui/dot-grid-warp"
  * and replace FallingPattern in hero-section.tsx.
  */
@@ -84,7 +84,7 @@ export function DotGridWarp({ className }: { className?: string }) {
           if (distSq < warpRSq) {
             const dist = Math.sqrt(distSq);
             const t = dist / warpR;
-            // Smooth hermite — strong center, very long gentle tail
+            // Smooth hermite—strong center, very long gentle tail
             const eased = 1 - t * t * (3 - 2 * t);
             const push = eased * warpS;
             const angle = Math.atan2(dy, dx);

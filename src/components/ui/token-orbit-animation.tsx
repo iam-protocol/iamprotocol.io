@@ -1,4 +1,4 @@
-// @ts-nocheck — animation math with guaranteed-bounds array access
+// @ts-nocheck—animation math with guaranteed-bounds array access
 "use client";
 
 import { useRef, useEffect } from "react";
@@ -16,7 +16,7 @@ const CY = VB / 2;
 const FOV = 600;
 const BASE_RADIUS = 150;
 
-// Fixed viewing angle — looking from above at ~30°
+// Fixed viewing angle—looking from above at ~30°
 // Prevents rings from ever collapsing to a line
 const VIEW_TILT = 0.5;
 
@@ -24,7 +24,7 @@ const RING_SEGMENTS = 80;
 const ROTATION_SPEED = 0.06;
 const FADE_IN_DURATION = 1.5;
 
-// Rings at slightly different tilts and radii — galaxy disk
+// Rings at slightly different tilts and radii—galaxy disk
 const RINGS = [
   { radius: 0.65, tiltX: 0.08, tiltZ: 0, particles: 3, speed: 0.15 },
   { radius: 0.82, tiltX: -0.06, tiltZ: 0.9, particles: 3, speed: -0.10 },
@@ -72,7 +72,7 @@ export function TokenOrbitAnimation({ className }: { className?: string }) {
       ? `${parseInt(rawCyan.slice(1, 3), 16)}, ${parseInt(rawCyan.slice(3, 5), 16)}, ${parseInt(rawCyan.slice(5, 7), 16)}`
       : "34, 211, 230";
 
-    // Light mode needs higher opacity — cyan on white is faint
+    // Light mode needs higher opacity—cyan on white is faint
     let oBoost = document.documentElement.classList.contains("dark") ? 1 : 2.5;
     const observer = new MutationObserver(() => {
       oBoost = document.documentElement.classList.contains("dark") ? 1 : 2.5;
@@ -118,7 +118,7 @@ export function TokenOrbitAnimation({ className }: { className?: string }) {
           pts.push(proj(x, y, z));
         }
 
-        // Ring lines — very subtle
+        // Ring lines—very subtle
         for (let i = 0; i < RING_SEGMENTS; i++) {
           const a = pts[i];
           const b = pts[(i + 1) % RING_SEGMENTS];

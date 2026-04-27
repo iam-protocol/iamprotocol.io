@@ -2,7 +2,7 @@
  * Curated subset of the validator's word dictionary for the WALLETLESS
  * verification preview (master-list #94 follow-up, 2026-04-26).
  *
- * Walletless mode is cosmetic — it doesn't go through `/validate-features`,
+ * Walletless mode is cosmetic—it doesn't go through `/validate-features`,
  * so the displayed phrase isn't bound to anything server-side. The only
  * reason this list exists is style parity with the wallet-connected flow:
  * since #89 v3 the wallet flow shows real curated words ("trading duty
@@ -40,7 +40,7 @@ export const WALLETLESS_PHRASE_WORDS: readonly string[] = Object.freeze([
 
 /**
  * Pick `count` random words from the curated subset and join with spaces.
- * Uses `crypto.getRandomValues` for selection — overkill for cosmetic
+ * Uses `crypto.getRandomValues` for selection—overkill for cosmetic
  * output, but matches the pattern in pulse-sdk's challenge generator and
  * avoids any hot-loop bias that `Math.random` modulo selection would have.
  */

@@ -6,7 +6,7 @@ const logoSrc = `data:image/png;base64,${readFileSync(
   join(process.cwd(), "public", "logos", "Entros.png")
 ).toString("base64")}`;
 
-export const ogAlt = "Entros Protocol — Proof of Personhood on Solana";
+export const ogAlt = "Entros Protocol—Proof of Personhood on Solana";
 export const ogSize = { width: 1200, height: 630 };
 export const ogContentType = "image/png";
 

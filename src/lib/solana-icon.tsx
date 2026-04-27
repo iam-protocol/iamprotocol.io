@@ -1,7 +1,7 @@
 import type { SVGProps } from "react";
 
 /**
- * Official Solana brand mark — three parallelograms.
+ * Official Solana brand mark—three parallelograms.
  * Designed to match the LucideIcon API (className, currentColor).
  * Use `text-foreground/50` or similar to control color.
  */

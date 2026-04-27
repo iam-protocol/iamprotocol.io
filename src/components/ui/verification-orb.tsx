@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-// Icosahedron geometry — 12 vertices, 30 edges
+// Icosahedron geometry—12 vertices, 30 edges
 const PHI = (1 + Math.sqrt(5)) / 2;
 const RAW_VERTS: [number, number, number][] = [
   [0, 1, PHI], [0, -1, PHI], [0, 1, -PHI], [0, -1, -PHI],
@@ -68,7 +68,7 @@ export function VerificationOrb() {
     canvas.style.height = `${size}px`;
     ctx.scale(dpr, dpr);
 
-    // Pre-create soul orb gradient (constant — avoid allocating per frame)
+    // Pre-create soul orb gradient (constant—avoid allocating per frame)
     const soulGlow = ctx.createRadialGradient(center, center, 0, center, center, 12);
     soulGlow.addColorStop(0, `rgba(${cyanRGB}, 0.35)`);
     soulGlow.addColorStop(0.4, `rgba(${cyanRGB}, 0.08)`);
@@ -112,7 +112,7 @@ export function VerificationOrb() {
         ctx.stroke();
       }
 
-      // Soul orb — steady glowing core
+      // Soul orb—steady glowing core
       ctx.beginPath();
       ctx.arc(center, center, 12, 0, Math.PI * 2);
       ctx.fillStyle = soulGlow;

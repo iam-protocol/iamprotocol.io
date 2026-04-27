@@ -71,7 +71,7 @@ function DevnetHint() {
     <div className="mt-3 flex max-w-xs items-start gap-2 text-xs text-foreground/60 leading-relaxed">
       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
       <p className="text-left">
-        Devnet pilot — switch your wallet to Devnet and grab free SOL from the{" "}
+        Devnet pilot—switch your wallet to Devnet and grab free SOL from the{" "}
         <a
           href="https://faucet.solana.com/"
           target="_blank"

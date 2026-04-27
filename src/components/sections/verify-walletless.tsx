@@ -37,7 +37,7 @@ export function VerifyWalletless({
   const voicedFramesRef = useRef(0);
   // Cosmetic phrase for the walletless preview. Walletless mode doesn't
   // hit `/validate-features` so the phrase isn't bound to anything
-  // server-side — but since #89 v3 the wallet-connected flow shows real
+  // server-side—but since #89 v3 the wallet-connected flow shows real
   // curated words, showing nonsense here would create a jarring style
   // mismatch for researchers comparing the two modes. Refreshed at the
   // top of every handleStart() so a Try-again gives a new phrase, and
@@ -65,7 +65,7 @@ export function VerifyWalletless({
       const session = pulse.createSession(touchRef.current ?? document.body);
       sessionRef.current = session;
 
-      // Motion first — DeviceMotionEvent.requestPermission() requires an active
+      // Motion first—DeviceMotionEvent.requestPermission() requires an active
       // user gesture on iOS. getUserMedia does not. If audio goes first, the gesture
       // token is consumed by the mic dialog and motion is silently denied.
       if (hasMotion) {
@@ -89,7 +89,7 @@ export function VerifyWalletless({
         session.skipMotion();
       }
 
-      // Audio second — getUserMedia works without a gesture on secure origins
+      // Audio second—getUserMedia works without a gesture on secure origins
       try {
         let audioFrameCount = 0;
         await session.startAudio((rms) => {

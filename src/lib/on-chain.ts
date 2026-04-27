@@ -29,7 +29,7 @@ const VERIFICATION_RESULT_DISC_B58 = "JU9cxeSQjfT";
  *   32 nonce + 1 bump + 32 commitment_new + 32 commitment_prev +
  *   2 threshold + 2 min_distance
  * This parser reads only the first 80 bytes (up to verified_at), so it is
- * forward-compatible with both pre- and post-patch layouts — the min-length
+ * forward-compatible with both pre- and post-patch layouts—the min-length
  * check is intentionally permissive.
  */
 export async function fetchVerificationHistory(

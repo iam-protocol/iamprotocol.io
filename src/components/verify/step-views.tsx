@@ -101,7 +101,7 @@ export function VerifiedView({
  * safe reason label (`pulse-sdk` `VerificationResult.reason`). Hint copy
  * intentionally avoids technique names ("phrase content binding", "temporal
  * coupling", "Whisper", "SimHash", etc.) per the public-copy specificity
- * rule — we describe what the user can DO, not what we measured.
+ * rule—we describe what the user can DO, not what we measured.
  *
  * Keys must stay in sync with `entros-validation::ReasonCode::safe_label`.
  */
@@ -111,7 +111,7 @@ const SOFT_HINT: Record<string, string> = {
   entropy_bounds:
     "Your gestures and speech were a bit too uniform. Try varying both naturally.",
   temporal_coupling_low:
-    "Speak and move at the same time — they were a bit out of sync.",
+    "Speak and move at the same time—they were a bit out of sync.",
   phrase_content_mismatch:
     "Read the phrase clearly at a normal pace, exactly as shown.",
 };
@@ -120,7 +120,7 @@ const SOFT_HINT_FALLBACK =
   "Something didn't come through cleanly. Give it another shot with natural movement and clear speech.";
 
 /**
- * Soft-rejected verification — the validator returned a user-recoverable
+ * Soft-rejected verification—the validator returned a user-recoverable
  * reason and the parent's retry budget is non-zero. Distinct from
  * `FailedView` so the visual treatment signals "retry" rather than
  * "stop." Cyan accent + RefreshCcw icon match the soft tone.
@@ -180,7 +180,7 @@ function isRelayerError(error: string): boolean {
 /**
  * Detects the "on-chain anchor exists, local baseline is gone" failure
  * surfaced from `pulse-sdk/src/pulse.ts:278-285`. The stable substring is
- * "baseline is missing" — guarded by a reset.test.ts assertion in the SDK
+ * "baseline is missing"—guarded by a reset.test.ts assertion in the SDK
  * to prevent silent copy drift.
  */
 function isMissingBaselineError(error: string): boolean {
@@ -200,7 +200,7 @@ function isInsufficientSolError(error: string): boolean {
 }
 
 // User dismissed or rejected the wallet's signature prompt. Wallet
-// adapters use slightly different wording — match the common ones.
+// adapters use slightly different wording—match the common ones.
 function isUserRejectionError(error: string): boolean {
   const e = error.toLowerCase();
   return (
@@ -212,7 +212,7 @@ function isUserRejectionError(error: string): boolean {
 }
 
 // Transaction's recent blockhash expired before landing on chain.
-// Recoverable by retrying — the SDK requests a fresh blockhash on each
+// Recoverable by retrying—the SDK requests a fresh blockhash on each
 // attempt.
 function isStaleBlockhashError(error: string): boolean {
   return (
@@ -295,7 +295,7 @@ export function FailedView({
       break;
     case "insufficient-sol":
       // MAINNET TODO (master-list #124): rewrite devnet-specific copy + CTA.
-      // Mainnet users need SOL from a CEX/DEX, not the faucet — body should
+      // Mainnet users need SOL from a CEX/DEX, not the faucet—body should
       // drop the "devnet" qualifier and the "Get devnet SOL" button should
       // either disappear or repoint to a "How to get SOL" docs page.
       title = "This wallet needs SOL";
@@ -311,7 +311,7 @@ export function FailedView({
     case "stale-blockhash":
       title = "Network was slow";
       body =
-        "Your transaction expired before reaching Solana. The network was slow — try again.";
+        "Your transaction expired before reaching Solana. The network was slow—try again.";
       break;
     case "rate-limited":
       title = "Too many attempts";

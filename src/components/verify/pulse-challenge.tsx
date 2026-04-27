@@ -36,7 +36,7 @@ export function PulseChallenge({
    * phoneme-match the transcribed audio against the authoritative phrase.
    *
    * Falls back to client-generated when absent (e.g. executor unreachable) so
-   * the capture UI still works — but phrase content binding then skips
+   * the capture UI still works—but phrase content binding then skips
    * server-side, since the server has no record of the phrase to compare.
    */
   phrase?: string;
@@ -97,7 +97,7 @@ export function PulseChallenge({
     }
   }, [countdown, captureStarted]);
 
-  // Capture timer — starts after countdown
+  // Capture timer—starts after countdown
   // onComplete is stored in a ref to avoid restarting the interval when the
   // parent re-renders (audio RMS callbacks cause rapid re-renders with a new
   // onComplete reference each time, which would clear+recreate the interval

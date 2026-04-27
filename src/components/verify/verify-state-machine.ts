@@ -12,7 +12,7 @@ export function verifyReducer(
       // user chose to reset their baseline after a baseline-missing error, or
       // re-entering from soft_failed when the user clicks "Try again" on a
       // soft-reject (master-list #94). The parent component owns the retry
-      // counter — by the time it dispatches START_CAPTURE we trust the
+      // counter—by the time it dispatches START_CAPTURE we trust the
       // attempt budget has been checked.
       if (
         state.step !== "idle" &&
@@ -41,7 +41,7 @@ export function verifyReducer(
       };
 
     case "VERIFICATION_SOFT_FAILED":
-      // Only reachable from processing/signing — capture must have completed
+      // Only reachable from processing/signing—capture must have completed
       // and validation must have happened. attemptsRemaining is the budget
       // left AFTER this attempt; the parent decrements before dispatching.
       if (state.step !== "processing" && state.step !== "signing") return state;

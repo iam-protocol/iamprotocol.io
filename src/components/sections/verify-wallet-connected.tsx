@@ -48,7 +48,7 @@ export function VerifyWalletConnected({
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   // Unix seconds of the connected wallet's most recent on-chain verification,
   // read directly from IdentityState offset 48. Used to render a cadence hint
-  // explaining that Trust Score only increments after a 24-hour gap — the
+  // explaining that Trust Score only increments after a 24-hour gap—the
   // sliding-window dedup in update_anchor's recency formula collapses
   // verifications inside the same 24h slice into one contribution, so
   // verifying twice within 24h is a UX surprise unless we flag it.
@@ -57,7 +57,7 @@ export function VerifyWalletConnected({
   // executor's /challenge endpoint during handleStart so the PulseChallenge
   // displays the authoritative phrase the validation service will
   // phoneme-match. Null when no fetch has happened yet or the executor was
-  // unreachable — PulseChallenge falls back to client-generated copy in
+  // unreachable—PulseChallenge falls back to client-generated copy in
   // that case and phrase content binding skips server-side (Tier 1 still
   // runs).
   const [challengePhrase, setChallengePhrase] = useState<string | null>(null);
@@ -68,11 +68,11 @@ export function VerifyWalletConnected({
   // without reading the reducer state (which may race the handler).
   const intentRef = useRef<"verify" | "reset">("verify");
   // Soft-reject retry budget (master-list #94). Counts attempts taken in the
-  // current session — incremented at the top of handleStart, reset to 0 on
+  // current session—incremented at the top of handleStart, reset to 0 on
   // RESET / VERIFICATION_SUCCESS. When attemptsUsed < MAX_ATTEMPTS and the
   // server returns a user-recoverable reason, we route to soft_failed (retry
   // available) instead of failed (hard stop). Capped to bound bot retry
-  // benefit per wallet — the server-side per-wallet cap (master-list #94 C4)
+  // benefit per wallet—the server-side per-wallet cap (master-list #94 C4)
   // enforces this across wallet refreshes; this client counter just drives
   // the UX inside a session.
   const MAX_ATTEMPTS = 3;
@@ -110,7 +110,7 @@ export function VerifyWalletConnected({
         if (ts > 0) setLastVerificationTimestamp(ts);
       })
       .catch(() => {
-        /* silent — hint just doesn't render */
+        /* silent—hint just doesn't render */
       });
     return () => {
       cancelled = true;
@@ -123,7 +123,7 @@ export function VerifyWalletConnected({
     // Verify and reset are different operations and must not share the
     // retry budget. If the user just exhausted 3 verify attempts and now
     // clicks "Reset baseline", the reset capture starts with a fresh
-    // budget — otherwise any borderline failure during reset would
+    // budget—otherwise any borderline failure during reset would
     // immediately route to hard-fail (because attemptsUsedRef >= MAX).
     if (intentRef.current !== intent) {
       attemptsUsedRef.current = 0;
@@ -143,7 +143,7 @@ export function VerifyWalletConnected({
       // await this before requesting motion permission: `DeviceMotionEvent
       // .requestPermission()` on iOS consumes the active user-gesture token,
       // and awaiting a network round-trip between the click and the motion
-      // prompt silently drops that token — motion permission denied.
+      // prompt silently drops that token—motion permission denied.
       // Awaiting happens after audio/motion/touch permissions resolve but
       // before START_CAPTURE, so the PulseChallenge renders with whichever
       // phrase is ready by then (server-issued, or null → client fallback).
@@ -171,7 +171,7 @@ export function VerifyWalletConnected({
       const session = pulse.createSession(document.body);
       sessionRef.current = session;
 
-      // Motion first — DeviceMotionEvent.requestPermission() requires an active
+      // Motion first—DeviceMotionEvent.requestPermission() requires an active
       // user gesture on iOS. getUserMedia does not. If audio goes first, the gesture
       // token is consumed by the mic dialog and motion is silently denied.
       if (hasMotion) {
@@ -195,7 +195,7 @@ export function VerifyWalletConnected({
         session.skipMotion();
       }
 
-      // Audio second — getUserMedia works without a gesture on secure origins
+      // Audio second—getUserMedia works without a gesture on secure origins
       try {
         let audioFrameCount = 0;
         await session.startAudio((rms) => {
@@ -317,7 +317,7 @@ export function VerifyWalletConnected({
     sessionRef.current = null;
     (touchRef as React.MutableRefObject<HTMLDivElement | null>).current = null;
     setAudioLevel(0);
-    // Wipe the retry budget when the user explicitly resets — a fresh
+    // Wipe the retry budget when the user explicitly resets—a fresh
     // session starts at 0 attempts used.
     attemptsUsedRef.current = 0;
     dispatch({ type: "RESET" });
@@ -409,7 +409,7 @@ export function VerifyWalletConnected({
           <div className="mx-auto max-w-sm rounded-lg border border-cyan/20 bg-cyan/5 px-4 py-3">
             <p className="text-center text-xs text-foreground/70 leading-relaxed">
               You verified {hoursAgoLabel} ago. Trust Score increments fully
-              when verifications are spaced 24+ hours apart — wait{" "}
+              when verifications are spaced 24+ hours apart—wait{" "}
               {hoursUntilNextLabel} for the next bump.
             </p>
           </div>

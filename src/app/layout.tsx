@@ -26,9 +26,9 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const ROOT_TITLE = `${SITE_NAME} — Proof of Personhood on Solana`;
+const ROOT_TITLE = `${SITE_NAME}—Proof of Personhood on Solana`;
 const ROOT_DESCRIPTION =
-  "Prove you're human without revealing who you are. Solana-native identity verification through the dynamic signature of liveness — voice, motion, and touch, verified with zero-knowledge proofs.";
+  "Prove you're human without revealing who you are. Solana-native identity verification through the dynamic signature of liveness—voice, motion, and touch, verified with zero-knowledge proofs.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

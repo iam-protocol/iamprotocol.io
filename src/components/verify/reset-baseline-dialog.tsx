@@ -8,7 +8,7 @@ import { AlertTriangle } from "lucide-react";
  *
  * Shown when the user's on-chain IdentityState exists but the local
  * baseline is unrecoverable. Makes the consequences of reset explicit
- * before the user signs the transaction — this is a reputation-destroying
+ * before the user signs the transaction—this is a reputation-destroying
  * operation and should not feel casual.
  */
 export function ResetBaselineDialog({
@@ -22,7 +22,7 @@ export function ResetBaselineDialog({
 }) {
   const cancelRef = useRef<HTMLButtonElement>(null);
 
-  // Focus the Cancel button on open — safer default than Confirm for a
+  // Focus the Cancel button on open—safer default than Confirm for a
   // destructive action.
   useEffect(() => {
     if (open) cancelRef.current?.focus();

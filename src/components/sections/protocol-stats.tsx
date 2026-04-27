@@ -183,7 +183,7 @@ export function ProtocolStats() {
                 Devnet pilot · open to all
               </p>
               <p className="mt-1 text-sm text-foreground/70">
-                Every metric below is on-chain truth, queried live from Solana devnet. The pilot is open — verify your humanness and join.
+                Every metric below is on-chain truth, queried live from Solana devnet. The pilot is open—verify your humanness and join.
               </p>
             </div>
             <Link

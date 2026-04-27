@@ -83,7 +83,7 @@ export function LatestResults() {
 
       <div className="mt-10 rounded-lg border border-cyan/15 bg-cyan/[0.02] p-5">
         <p className="font-mono text-xs tracking-widest uppercase text-cyan/70">
-          // T4A — TWO-WAVE STUDY
+          // T4A—TWO-WAVE STUDY
         </p>
         <p className="mt-3 text-sm text-foreground/75 leading-relaxed">
           {t4aNote}

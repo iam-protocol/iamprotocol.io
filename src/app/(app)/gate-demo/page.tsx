@@ -24,7 +24,7 @@ export function PremiumPage() {
 const COMPONENT_CODE = `"use client";
 
 /**
- * <EntrosGate> — drop-in route guard for Entros Trust Score.
+ * <EntrosGate>—drop-in route guard for Entros Trust Score.
  *
  * Renders children only when the connected wallet has an Entros Anchor with
  * trustScore >= minTrustScore. Otherwise renders a fallback (default: a
@@ -35,7 +35,7 @@ const COMPONENT_CODE = `"use client";
  *   - React + Next.js Link
  *   - @solana/web3.js (PublicKey, Connection)
  *   - @solana/wallet-adapter-react (useWallet, useConnection)
- *   - @solana/wallet-adapter-react-ui (WalletMultiButton — the universal Solana wallet UI)
+ *   - @solana/wallet-adapter-react-ui (WalletMultiButton—the universal Solana wallet UI)
  *   - @entros/pulse-sdk (PROGRAM_IDS constant)
  *   - lucide-react (icons)
  *   - Tailwind CSS for styling (no custom design system imports)

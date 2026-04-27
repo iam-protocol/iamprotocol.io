@@ -79,7 +79,7 @@ export function SpecialText({
         // Preserve spaces
         chars.push(" ");
       } else {
-        // Still garbled — keep randomizing
+        // Still garbled—keep randomizing
         chars.push(getRandomChar());
       }
     }
