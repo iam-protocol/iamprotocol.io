@@ -2,7 +2,7 @@ import { mobileRoadmapItems } from "@/data/mobile-roadmap";
 import { getIcon } from "@/lib/icons";
 
 /**
- * Coming to Mobile — three feature cells in a hairline grid.
+ * Coming to Mobile—three feature cells in a hairline grid.
  */
 export function MobileRoadmapSection() {
   return (

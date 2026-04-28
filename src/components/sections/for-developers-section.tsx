@@ -3,7 +3,7 @@ import { CodeBlock } from "@/components/ui/code-block";
 import { sdkSnippet } from "@/data/developer-snippet";
 
 /**
- * For Developers — text on the left, code block on the right.
+ * For Developers—text on the left, code block on the right.
  * Two-column split parallels the hero, signaling that the developer
  * story is a first-class part of the product narrative.
  */

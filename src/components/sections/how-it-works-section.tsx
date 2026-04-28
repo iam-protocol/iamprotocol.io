@@ -2,7 +2,7 @@ import { features } from "@/data/features";
 import { getIcon } from "@/lib/icons";
 
 /**
- * How It Works — three flat cards arranged in a hairline grid.
+ * How It Works—three flat cards arranged in a hairline grid.
  */
 export function HowItWorksSection() {
   return (

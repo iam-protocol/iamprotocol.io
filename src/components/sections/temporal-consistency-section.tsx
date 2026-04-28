@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Temporal Consistency — the conceptual heart of Entros. Two-column
+ * Temporal Consistency—the conceptual heart of Entros. Two-column
  * split: copy on the left, the bounded-drift waveform on the right.
  * Below that, three flat phase cards in a hairline grid.
  */
@@ -106,7 +106,7 @@ function DriftWaveform({ active }: { active: boolean }) {
         </filter>
       </defs>
 
-      {/* Previous session — ghost, thin, low opacity, no fill glow */}
+      {/* Previous session—ghost, thin, low opacity, no fill glow */}
       <path
         d={prevFill}
         fill="url(#prev-fill)"
@@ -123,7 +123,7 @@ function DriftWaveform({ active }: { active: boolean }) {
         style={{ opacity: active ? 1 : 0 }}
       />
 
-      {/* Current session — primary, brighter, with gradient fill and soft glow */}
+      {/* Current session—primary, brighter, with gradient fill and soft glow */}
       <path
         d={currFill}
         fill="url(#curr-fill)"

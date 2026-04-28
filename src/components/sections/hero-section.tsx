@@ -3,14 +3,14 @@ import { ArrowRight } from "lucide-react";
 import { AsciiSpiral } from "@/components/ui/ascii-spiral";
 
 /**
- * Homepage hero — split layout.
+ * Homepage hero—split layout.
  * Left:  display headline · subheading · two CTAs.
  * Right: ASCII spiral animation.
  */
 export function HeroSection() {
   return (
     <section className="relative mx-auto flex w-full max-w-7xl flex-col gap-12 px-6 pt-28 pb-6 md:pt-36 md:pb-12 lg:min-h-[calc(100vh-4rem)] lg:flex-row lg:items-center lg:gap-12 lg:pt-24 lg:pb-24">
-      {/* Left column — copy + CTAs */}
+      {/* Left column—copy + CTAs */}
       <div className="relative z-10 flex flex-col lg:w-1/2 lg:max-w-2xl">
         <h1 className="font-display text-5xl font-medium leading-[1.02] tracking-[-0.02em] text-foreground md:text-6xl lg:text-7xl">
           The temporal
@@ -25,7 +25,7 @@ export function HeroSection() {
         </p>
 
         <div className="mt-10 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-          {/* Primary CTA — solid filled, cyan label */}
+          {/* Primary CTA—solid filled, cyan label */}
           <Link
             href="/verify"
             className="
@@ -39,7 +39,7 @@ export function HeroSection() {
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
 
-          {/* Secondary CTA — outlined, neutral label */}
+          {/* Secondary CTA—outlined, neutral label */}
           <Link
             href="/integrate"
             className="
@@ -55,7 +55,7 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Right column — ASCII spiral. flex justify-center makes the pre
+      {/* Right column—ASCII spiral. flex justify-center makes the pre
           (a flex item with content-driven width) sit centered in the column
           on every breakpoint.
 

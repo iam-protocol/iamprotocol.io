@@ -1,5 +1,5 @@
 /**
- * Problem section — single statement of stakes + frame, set in the
+ * Problem section—single statement of stakes + frame, set in the
  * display register to carry the same typographic weight as the hero.
  */
 export function ProblemSection() {

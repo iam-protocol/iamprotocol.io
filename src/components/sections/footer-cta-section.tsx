@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 /**
- * Footer CTA — closing statement before the global footer. Display
+ * Footer CTA—closing statement before the global footer. Display
  * copy with two CTAs (filled primary + outlined secondary).
  */
 export function FooterCTASection() {

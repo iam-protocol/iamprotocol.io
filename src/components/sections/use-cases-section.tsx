@@ -2,7 +2,7 @@ import { useCases } from "@/data/use-cases";
 import { getIcon } from "@/lib/icons";
 
 /**
- * Use Cases — flat hairline-divided grid of three cells.
+ * Use Cases—flat hairline-divided grid of three cells.
  */
 export function UseCasesSection() {
   return (

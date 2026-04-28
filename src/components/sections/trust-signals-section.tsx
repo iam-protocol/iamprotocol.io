@@ -4,7 +4,7 @@ import { trustSignals } from "@/data/trust-signals";
 import { getIcon } from "@/lib/icons";
 
 /**
- * Status / Trust Signals — flat 2×2 hairline grid. Each cell carries
+ * Status / Trust Signals—flat 2×2 hairline grid. Each cell carries
  * an icon, the signal name, the operational state, a short detail,
  * and an arrow indicator that links to the relevant page.
  */

@@ -2,7 +2,7 @@ import { Counter } from "@/components/ui/counter";
 import { solanaStats } from "@/data/stats";
 
 /**
- * Why Solana — horizontal stat row in a hairline grid (2×2 mobile,
+ * Why Solana—horizontal stat row in a hairline grid (2×2 mobile,
  * 1×4 desktop). Each cell centers a metric and a label.
  */
 export function WhySolanaSection() {
