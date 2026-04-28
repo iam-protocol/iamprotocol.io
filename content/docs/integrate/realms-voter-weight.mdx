@@ -1,0 +1,48 @@
+---
+title: Realms voter-weight plugin
+description: Gate a Realms DAO on Entros verification with the voter-weight addin.
+---
+
+Realms supports voter-weight plugins: small programs that compute a voter's weight given their wallet, and feed that weight into governance accounting. Entros publishes a plugin that grants weight 1 to wallets that meet a configured Trust Score and recency, and 0 to wallets that don't.
+
+## Plugin program
+
+The voter-weight plugin is deployed at:
+
+```
+99nwXzcugse3x8kxE9v6mxZiq8T9gHDoznaaG6qcw534
+```
+
+The same program ID is used on devnet and mainnet.
+
+## Configuration
+
+The DAO authority creates a `Registrar` account scoped to the realm and governing token mint, with two fields:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `min_trust_score` | `u16` | Voters must have an Anchor with at least this score |
+| `max_verification_age` | `i64` | Maximum seconds since the most recent verification |
+
+A typical setting for a community DAO: `min_trust_score = 250`, `max_verification_age = 2_592_000` (30 days).
+
+## Wire-up steps
+
+1. **Create the registrar.** From the realm authority, call `create_registrar` on the plugin with the realm pubkey, governing token mint, and the two configuration values.
+2. **Add the plugin in Realms.** In the Realms UI, navigate to the realm settings and attach the voter-weight addin program ID. The Registrar PDA you just created is the plugin's account.
+3. **Confirm the wiring.** Cast a test vote from a verified wallet. The plugin's `update_voter_weight_record` instruction runs on every vote attempt and produces a `VoterWeightRecord` showing weight 1 (eligible) or 0 (rejected).
+
+## Composing with token-voter
+
+The plugin supports an optional `previous_voter_weight_plugin` field. Setting it points at another plugin (e.g. token-voter or NFT-voter) and the Entros plugin compounds onto that—a vote requires both the prior plugin's weight *and* an Entros pass. This pattern is useful when token weight should still matter, but only verified-human token holders can vote.
+
+## What this gives a DAO
+
+One person, one vote, without document upload, KYC, or face scan. The threshold is the lever: low for open communities, high for treasury-controlling sub-DAOs. The plugin reads from the same Anchor PDAs as every other Entros integration; there is no separate enrollment.
+
+The strength of the gate scales with the threshold. A DAO whose threshold is 100 (a single re-verification) is gated against casual bot pressure. A DAO whose threshold is 500 is gated against attackers willing to maintain Anchors across weeks per fake voter. The cost of attack is bounded by the number of fake voters needed times the per-Anchor cost of sustaining the score over the threshold's reachability window.
+
+## Where to look next
+
+- [Concepts: Trust Score](/docs/concepts/trust-score)—how to pick the threshold for your DAO
+- [Reference: Programs](/docs/reference/programs)—full plugin instruction set

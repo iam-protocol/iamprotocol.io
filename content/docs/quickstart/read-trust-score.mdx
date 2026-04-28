@@ -1,0 +1,83 @@
+---
+title: Read a Trust Score with no SDK
+description: Direct Solana RPC call to read a wallet's Anchor PDA. Useful for server actions, edge functions, or any non-React context.
+---
+
+Trust Scores live on-chain in the Anchor PDA. Reading one is a single `getAccountInfo` call—no SDK, no relayer, no API key.
+
+## The PDA
+
+The Anchor PDA is derived from two seeds: the literal byte string `identity` and the user's wallet pubkey, against the `entros-anchor` program.
+
+```ts
+import { PublicKey, Connection } from "@solana/web3.js";
+
+const ENTROS_ANCHOR_PROGRAM_ID = new PublicKey(
+  "GZYwTp2ozeuRA5Gof9vs4ya961aANcJBdUzB7LN6q4b2",
+);
+
+function deriveAnchorPda(wallet: PublicKey): PublicKey {
+  const [pda] = PublicKey.findProgramAddressSync(
+    [Buffer.from("identity"), wallet.toBuffer()],
+    ENTROS_ANCHOR_PROGRAM_ID,
+  );
+  return pda;
+}
+```
+
+## Read the score
+
+The `IdentityState` account stores the Trust Score as a little-endian `u16` at byte offset 60.
+
+```ts
+async function readTrustScore(
+  connection: Connection,
+  wallet: PublicKey,
+): Promise<number | null> {
+  const pda = deriveAnchorPda(wallet);
+  const account = await connection.getAccountInfo(pda);
+  if (!account) return null;
+
+  // Trust Score: u16 little-endian at offset 60 in the IdentityState struct
+  const trustScore = account.data.readUInt16LE(60);
+  return trustScore;
+}
+```
+
+Returns `null` if the wallet has never verified. Returns a number in `[0, 65535]` otherwise.
+
+## Use it server-side
+
+```ts title="app/api/check/route.ts"
+import { Connection, PublicKey } from "@solana/web3.js";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req: NextRequest) {
+  const { wallet } = await req.json();
+
+  const connection = new Connection(
+    process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com",
+  );
+  const score = await readTrustScore(connection, new PublicKey(wallet));
+
+  if (score === null || score < 100) {
+    return NextResponse.json({ allowed: false }, { status: 403 });
+  }
+  return NextResponse.json({ allowed: true, score });
+}
+```
+
+## Compute cost
+
+A `getAccountInfo` call costs nothing on the integrator side—it's a free RPC read. The protocol fee is paid by the user at verification time, not at read time. There is no usage-based billing relationship between Entros and your application.
+
+## When to use this vs the SDK
+
+| Scenario | Best fit |
+| --- | --- |
+| React component on the client | [`EntrosGate` / `EntrosBadge`](/docs/integrate/gate-a-route) |
+| Server action / edge function / cron | This direct PDA read |
+| Anchor program reading from another program | Cross-program PDA read in Rust |
+| Backend service in a non-JS language | Equivalent RPC call in your language's Solana SDK |
+
+The on-chain state is the single source of truth across all of these—same data, different access paths.

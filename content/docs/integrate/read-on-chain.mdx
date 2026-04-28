@@ -1,0 +1,101 @@
+---
+title: Read on-chain (no SDK)
+description: Direct PDA read for server actions, edge functions, Anchor programs, and any non-JS context.
+---
+
+The on-chain Anchor PDA is the source of truth for every other read path. Going directly to it removes one layer of dependency and works in any environment that can call a Solana RPC.
+
+## The TypeScript pattern
+
+The same code path as the [quickstart](/docs/quickstart/read-trust-score), shown here as a complete server action:
+
+```ts title="app/actions/check-verification.ts"
+"use server";
+
+import { Connection, PublicKey } from "@solana/web3.js";
+
+const ENTROS_ANCHOR_PROGRAM_ID = new PublicKey(
+  "GZYwTp2ozeuRA5Gof9vs4ya961aANcJBdUzB7LN6q4b2",
+);
+
+const RPC_URL = process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com";
+
+export async function checkVerification(
+  walletBase58: string,
+  minScore = 100,
+): Promise<{ verified: boolean; score: number | null }> {
+  const wallet = new PublicKey(walletBase58);
+  const [pda] = PublicKey.findProgramAddressSync(
+    [Buffer.from("identity"), wallet.toBuffer()],
+    ENTROS_ANCHOR_PROGRAM_ID,
+  );
+
+  const account = await new Connection(RPC_URL).getAccountInfo(pda);
+  if (!account) return { verified: false, score: null };
+
+  const score = account.data.readUInt16LE(60);
+  return { verified: score >= minScore, score };
+}
+```
+
+## The Rust pattern
+
+For an Anchor program that gates an instruction on Entros verification, declare the `IdentityState` PDA as a read-only account constraint and inspect the score in the instruction body:
+
+```rust
+use anchor_lang::prelude::*;
+
+declare_id!("YourProgram1111111111111111111111111111111");
+
+const ENTROS_ANCHOR: Pubkey = pubkey!("GZYwTp2ozeuRA5Gof9vs4ya961aANcJBdUzB7LN6q4b2");
+
+#[derive(Accounts)]
+pub struct DoSomething<'info> {
+    pub user: Signer<'info>,
+
+    #[account(
+        seeds = [b"identity", user.key().as_ref()],
+        bump,
+        seeds::program = ENTROS_ANCHOR,
+    )]
+    /// CHECK: PDA owned by entros-anchor; we read the trust_score field manually.
+    pub identity_state: AccountInfo<'info>,
+}
+
+pub fn do_something(ctx: Context<DoSomething>, min_score: u16) -> Result<()> {
+    let data = ctx.accounts.identity_state.try_borrow_data()?;
+    let trust_score = u16::from_le_bytes(data[60..62].try_into().unwrap());
+    require!(trust_score >= min_score, ErrorCode::InsufficientTrust);
+    Ok(())
+}
+```
+
+The PDA is owned by `entros-anchor`; your program reads its bytes but does not write to it.
+
+## The Python pattern
+
+```python
+from solders.pubkey import Pubkey
+from solana.rpc.api import Client
+
+ENTROS_ANCHOR = Pubkey.from_string("GZYwTp2ozeuRA5Gof9vs4ya961aANcJBdUzB7LN6q4b2")
+
+def read_trust_score(client: Client, wallet: Pubkey) -> int | None:
+    pda, _ = Pubkey.find_program_address([b"identity", bytes(wallet)], ENTROS_ANCHOR)
+    info = client.get_account_info(pda).value
+    if info is None:
+        return None
+    return int.from_bytes(info.data[60:62], "little")
+```
+
+## What you cannot do without the SDK
+
+- **Verification.** Submitting a new proof requires the Pulse SDK's capture and proof-generation pipeline. There is no direct path to write to the Anchor PDA without going through the verifier program.
+- **Attestation issuance.** SAS attestations are issued by the Entros executor on successful verification. Direct issuance from a client is not a supported path.
+
+The read patterns above are sufficient for any gating, scoring, or display use case. Writes go through the SDK.
+
+## Where to look next
+
+- [Reference: PDAs](/docs/reference/pdas)—every seed and derivation in one place
+- [Reference: Programs](/docs/reference/programs)—full instruction set for the on-chain programs

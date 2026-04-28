@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Geist } from "next/font/google";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { SiteChrome } from "@/components/layout/site-chrome";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { StructuredData } from "@/components/seo/structured-data";
 import {
@@ -116,9 +117,9 @@ export default function RootLayout({
       <body className="min-h-[100svh] overflow-x-clip bg-background text-foreground font-sans antialiased">
         <StructuredData />
         <ThemeProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <SiteChrome navbar={<Navbar />} footer={<Footer />}>
+            {children}
+          </SiteChrome>
         </ThemeProvider>
       </body>
     </html>

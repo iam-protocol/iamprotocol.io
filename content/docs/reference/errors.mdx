@@ -1,0 +1,80 @@
+---
+title: Errors
+description: Error codes returned by each on-chain program.
+---
+
+Every program returns custom error codes via Anchor's `#[error_code]` macro. The codes are stable across program versions; meanings are documented here.
+
+## entros-anchor errors
+
+| Code | Name | When |
+| --- | --- | --- |
+| 6000 | `InvalidProof` | The submitted proof failed verifier validation |
+| 6001 | `CommitmentMismatch` | The proof's `commitment_prev` does not match the on-chain `previous_commitment` |
+| 6002 | `BelowMinDistance` | The Hamming distance is below the anti-replay floor |
+| 6003 | `AboveThreshold` | The Hamming distance exceeds the configured threshold |
+| 6004 | `CooldownActive` | A `reset_identity_state` was attempted before the 7-day cooldown elapsed |
+| 6005 | `InsufficientFee` | The transaction did not include the protocol fee |
+| 6006 | `ScoreOverflow` | A score update would exceed `u16::MAX`; clipped to cap instead |
+
+## entros-verifier errors
+
+| Code | Name | When |
+| --- | --- | --- |
+| 6000 | `Groth16VerificationFailed` | On-chain pairing check failed |
+| 6001 | `InvalidPublicInputs` | Public input count or encoding does not match the circuit |
+| 6002 | `ChallengeExpired` | The associated challenge passed its expiry window |
+| 6003 | `ChallengeNotFound` | No challenge exists for the supplied nonce |
+| 6004 | `NonceReused` | The challenge has already been consumed |
+
+## entros-registry errors
+
+| Code | Name | When |
+| --- | --- | --- |
+| 6000 | `Unauthorized` | Caller is not the protocol authority |
+| 6001 | `InvalidConfig` | Config update violates an invariant (e.g. fee above ceiling) |
+| 6002 | `InsufficientStake` | Validator stake is below `min_stake` |
+| 6003 | `UnbondingActive` | Validator has an active unbonding period |
+| 6004 | `TreasuryUnderflow` | Withdrawal exceeds available treasury balance |
+
+## entros-voter-weight errors
+
+| Code | Name | When |
+| --- | --- | --- |
+| 6000 | `InvalidRegistrar` | The registrar does not match the realm/mint pair |
+| 6001 | `AnchorNotFound` | Voter has no Entros Anchor on file |
+| 6002 | `BelowTrustScore` | Voter's score is below the configured `min_trust_score` |
+| 6003 | `VerificationStale` | Voter's last verification is older than `max_verification_age` |
+
+## Handling errors in the SDK
+
+Every SDK submission helper returns a `SubmissionResult`:
+
+```ts
+type SubmissionResult = {
+  success: boolean;
+  txSignature?: string;
+  attestationTx?: string;
+  error?: string;
+};
+```
+
+On success, `txSignature` is the verification transaction signature and `attestationTx` (when present) is the SAS attestation write. On failure, `error` carries the user-surfaceable message; the underlying program error code, if any, is included in that string and can be matched on:
+
+```ts
+const result = await submitViaWallet(proof, commitment, options);
+if (!result.success) {
+  if (result.error?.includes("6004")) {
+    showCooldownMessage();
+  } else if (result.error?.includes("6005")) {
+    showFeePrompt();
+  } else {
+    showGenericError(result.error);
+  }
+}
+```
+
+## Where to look next
+
+- [Reference: Programs](/docs/reference/programs)—instruction documentation that defines when each error fires
+- [Reference: SDK](/docs/reference/sdk)—submission helper signatures

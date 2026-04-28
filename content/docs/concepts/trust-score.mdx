@@ -1,0 +1,59 @@
+---
+title: Trust Score
+description: What the score means, how it compounds, and how it decays.
+---
+
+Trust Score is a single `u16` on the user's Anchor PDA. The number changes only at verification time, and only by the amount the protocol's scoring function permits.
+
+## The shape of the score
+
+The score is the sum of three contributions, recomputed at every verification:
+
+1. **Recency-weighted verifications.** Each historical verification contributes a recency-decayed weight, summed across the rolling window.
+2. **Regularity bonus.** Consistent gaps between verifications add a small additional weight.
+3. **Age bonus.** The age of the oldest still-counting verification adds a square-root term, capped.
+
+The initial mint of an Anchor sets the score to 0. The first re-verification recomputes the score from the formula and lands it at 100. From there, each subsequent re-verification grows the score along the recency curve described below; the rate of growth depends on cadence, not on a fixed step.
+
+## Decay shape
+
+Decay is hyperbolic, not exponential. Older verifications are worth roughly `3000 / (30 + days)` of their original weight. After 30 days, a verification is at half its initial contribution. After a year, it is below 10%. The hyperbolic shape was chosen for two reasons:
+
+- It rewards patient, real users without ever discounting their early activity to zero.
+- It denies a fast attacker the ability to "build up" a score in days. There is no shortcut against a function that values calendar time.
+
+## What the ranges mean
+
+| Range | Profile |
+| --- | --- |
+| 0 | No Anchor minted, or Anchor minted but never re-verified |
+| 100 | One re-verification on a fresh Anchor |
+| 100–300 | A few re-verifications within the first month |
+| 300–700 | Regular re-verification across multiple weeks |
+| 700–1500 | A month-plus of consistent activity |
+| 1500–3000 | Multi-month consistent return |
+| 3000+ | Long-term, behaviorally stable Anchor |
+
+Integrators set thresholds based on stakes. The numbers above are descriptive, not normative—your application's threshold reflects your risk model, not a global standard.
+
+## How to choose a threshold
+
+Three lenses help.
+
+**Friction lens.** A threshold of 100 admits any wallet that has re-verified at least once. A threshold above 100 requires the user to have come back across at least a few days. If your action is one a real user might do soon after their first verification (commenting, joining a community), a 100 floor is the right baseline. If the action should reward sustained presence (airdrops, governance), the floor belongs higher.
+
+**Cost lens.** A bot farm spending the protocol fee per verification and weeks of cadence per Anchor to clear a 500-floor pays a real per-identity cost. Multiply that by the number of fake identities the attacker needs to extract value at your threshold—that is the cost of attack against your gate.
+
+**Reversibility lens.** Actions that are easily reversed (downvoting a comment, claiming a soulbound badge) tolerate lower thresholds. Actions that move money tolerate less.
+
+## How the score updates
+
+The score is read by `verify_proof` on the verifier program, which then calls `update_anchor` on the Anchor program. `update_anchor` performs the score recalculation in a single instruction and writes the new value to the user's `IdentityState` PDA. The protocol fee is charged in the same transaction.
+
+Reading the score from another program is a cross-program PDA read of the `IdentityState` account. No oracle, no cron, no external service.
+
+## Where to look next
+
+- [Quickstart: read a Trust Score](/docs/quickstart/read-trust-score)—the byte layout and the offset
+- [Anchor PDA](/docs/concepts/anchor-pda)—full account layout
+- [Threat model](/docs/concepts/threat-model)—what the score is and isn't a defense against

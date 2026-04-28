@@ -1,0 +1,124 @@
+---
+title: Programs reference
+description: The three Anchor programs that make up Entros, with their instructions and accounts.
+---
+
+Entros is built around three on-chain programs and one voter-weight plugin. All programs are built with Anchor 0.32.1 and deployed to Solana devnet.
+
+## entros-anchor
+
+```
+GZYwTp2ozeuRA5Gof9vs4ya961aANcJBdUzB7LN6q4b2
+```
+
+Owns the Anchor identity state. Holds per-wallet `IdentityState` PDAs and Token-2022 NonTransferable mints.
+
+### Instructions
+
+| Instruction | Purpose |
+| --- | --- |
+| `mint_anchor` | Initialize a new Anchor on first verification. Validates a ZK proof from the verifier program. Charges the protocol fee. |
+| `update_anchor` | Re-verification path. Validates a fresh proof against the current commitment, advances the score, rotates the previous commitment. |
+| `reset_identity_state` | Recovery path. Zeroes the score and clears the fingerprint commitments after a 7-day cooldown. Charges the fee. |
+
+### Accounts
+
+| Account | Seeds | Purpose |
+| --- | --- | --- |
+| `IdentityState` | `["identity", user]` | Score, fingerprint commitments, verification metadata |
+| `Mint` | `["mint", user]` | Token-2022 NonTransferable mint for the identity NFT |
+| `MintAuthority` | `["mint_authority"]` | Program-owned authority for all mints |
+
+## entros-verifier
+
+```
+4F97jNoxQzT2qRbkWpW3ztC3Nz2TtKj3rnKG8ExgnrfV
+```
+
+Verifies Groth16 proofs of the Hamming-distance circuit. Invoked by the Anchor program during `mint_anchor` and `update_anchor`.
+
+### Instructions
+
+| Instruction | Purpose |
+| --- | --- |
+| `create_challenge` | Records a client-supplied nonce for replay defense |
+| `verify_proof` | Validates a Groth16 proof against the on-chain verification key. Stores a `VerificationResult`. |
+| `close_challenge` | Releases rent on a consumed challenge |
+| `close_verification_result` | Releases rent on a consumed verification result |
+
+### Accounts
+
+| Account | Seeds | Purpose |
+| --- | --- | --- |
+| `Challenge` | `["challenge", challenger, nonce]` | Per-challenge replay record |
+| `VerificationResult` | `["verification", verifier, nonce]` | Proof outcome record |
+
+### Public inputs
+
+The Groth16 circuit takes four public inputs:
+
+| Input | Meaning |
+| --- | --- |
+| `commitment_new` | Poseidon commitment of the new behavioral fingerprint |
+| `commitment_prev` | Commitment of the previous fingerprint |
+| `threshold` | Maximum allowed Hamming distance (default 96 of 256 bits) |
+| `min_distance` | Minimum required distance, for anti-replay (default 3) |
+
+## entros-registry
+
+```
+6VBs3zr9KrfFPGd6j7aGBPQWwZa5tajVfA7HN6MMV9VW
+```
+
+Protocol-level configuration, validator stake, and treasury. Configures the protocol fee, the verification expiry windows, and the staking parameters for the Anonymity Ring.
+
+### Instructions
+
+| Instruction | Purpose |
+| --- | --- |
+| `initialize_protocol` | One-time setup of the protocol config |
+| `update_protocol_config` | Authority-only updates to fee, expiry, score caps |
+| `migrate_admin` | Emergency administrative migration of the protocol authority |
+| `register_validator` | Stake to join the Anonymity Ring (gated until ring decentralizes) |
+| `compute_trust_score` | Read-only preview of what a score would be given a verification history |
+| `unstake_validator` | Exit the validator set after the unbonding period |
+| `withdraw_treasury` | Authority-only treasury withdrawal |
+
+### Configurable fields
+
+| Field | Type | Purpose |
+| --- | --- | --- |
+| `min_stake` | `u64` | Minimum SOL stake to validate |
+| `challenge_expiry` | `i64` | Seconds before an unconsumed challenge is invalid |
+| `max_trust_score` | `u16` | Cap on the score (default 65535) |
+| `base_trust_increment` | `u16` | Per-verification increment baseline |
+| `verification_fee` | `u64` | Lamports charged per verification (default 5_000_000 = 0.005 SOL) |
+
+## entros-voter-weight
+
+```
+99nwXzcugse3x8kxE9v6mxZiq8T9gHDoznaaG6qcw534
+```
+
+Realms voter-weight plugin. Reads the voter's Entros Anchor and produces weight 1 (eligible) or 0 (rejected) given a configured threshold and recency window.
+
+See the [Realms integration guide](/docs/integrate/realms-voter-weight) for wire-up.
+
+### Instructions
+
+| Instruction | Purpose |
+| --- | --- |
+| `create_registrar` | Initialize a per-realm registrar with `min_trust_score` and `max_verification_age` |
+| `update_registrar` | Update the registrar's threshold and recency configuration |
+| `close_registrar` | Close a registrar and recover rent |
+| `create_voter_weight_record` | Initialize a voter's weight record |
+| `update_voter_weight_record` | Recompute the voter's weight against their Entros Anchor |
+| `close_voter_weight_record` | Close a voter weight record |
+| `create_max_voter_weight_record` | Initialize the realm-wide maximum-weight record |
+| `update_max_voter_weight_record` | Recompute the maximum-weight record |
+
+## Where to look next
+
+- [PDAs](/docs/reference/pdas)—every seed and derivation
+- [Costs](/docs/reference/costs)—fees and compute-unit usage
+- [Errors](/docs/reference/errors)—error codes from each program
