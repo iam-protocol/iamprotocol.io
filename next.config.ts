@@ -121,6 +121,14 @@ const nextConfig: NextConfig = {
     return config;
   },
   async headers() {
+    // Dev mode skips CSP and the rest of the hardening headers. Next.js
+    // Fast Refresh + Turbopack chunk loading rely on eval() and dynamic
+    // blob/CSS chunk URLs that a strict CSP blocks; HSTS would also force
+    // HTTPS on localhost. These headers are production hardening — apply
+    // them only when actually serving production traffic.
+    if (process.env.NODE_ENV !== "production") {
+      return [];
+    }
     return [
       {
         source: "/:path*",
