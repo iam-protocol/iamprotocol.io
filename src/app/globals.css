@@ -77,10 +77,22 @@
   /* Animation keyframes */
   --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
   --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+  --animate-ripple: ripple 3.6s ease-out infinite;
 
   @keyframes shimmer-slide {
     to {
       transform: translate(calc(100cqw - 100%), 0);
+    }
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(0.7);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(1.25);
+      opacity: 0;
     }
   }
 
@@ -152,7 +164,7 @@ body {
    it doesn't fight the warm cream bg; dark uses the brighter cyan
    against the void. (Earlier the override used `:root .text-glow-cyan`
    which has the same specificity as `.dark .text-glow-cyan` but appears
-   later — silently clobbering the dark variant. Replaced with the
+   later—silently clobbering the dark variant. Replaced with the
    conventional light/dark order so .dark wins via specificity.) */
 .text-glow-cyan {
   text-shadow: 0 0 20px rgba(0, 196, 212, 0.1);
@@ -162,7 +174,7 @@ body {
 }
 
 /* ----------------------------------------------------------------
-   Hero — cyan period delayed enter (after typewriter completes)
+   Hero—cyan period delayed enter (after typewriter completes)
    ---------------------------------------------------------------- */
 @keyframes cyan-period-pop {
   0%   { opacity: 0; transform: scale(0); }
@@ -177,7 +189,7 @@ body {
 }
 
 /* ----------------------------------------------------------------
-   ShimmerButton — theme-aware fill + inset glow.
+   ShimmerButton—theme-aware fill + inset glow.
    Default rgba whites in the component invert badly in light mode
    (white-on-white = invisible). These vars flip with theme so the
    button reads as a subtle filled pill in both modes.
@@ -204,34 +216,30 @@ body {
 }
 
 /* ----------------------------------------------------------------
-   ASCII spiral — light-mode-only glyph thickening.
+   ASCII spiral—light-mode-only glyph thickening.
    At 4-6px font-size, the box-drawing characters (▪ ▫ ·) anti-alias
    thinly and wash out against the warm cream background. A sub-pixel
    text-shadow stack thickens each glyph without changing its color
    or layout. Reset to none in dark mode where the void already
    provides enough contrast.
    ---------------------------------------------------------------- */
-.ascii-spiral {
-  /* Reserve the eventual rendered footprint before the async payload
-     decodes, so the hero doesn't snap into place when the spiral fills
-     its column. 80 rows × 1em line-height = 80em tall; ~80 cols at a
-     monospace 0.6em char width ≈ 48em wide. em units scale with the
-     responsive font-size, so the box matches at every breakpoint. */
-  min-height: 80em;
-  min-width: 48em;
-
-  /* Light-mode-only glyph thickening (see comment block above). */
+/* Shared light-mode glyph thickening for any ASCII-art canvas
+   (spiral, icosahedron, future shapes). At 4-8px font-size the box-
+   drawing characters anti-alias thinly and wash out on the cream bg;
+   a sub-pixel text-shadow stack adds visual weight. No-op in dark
+   mode where the void already provides enough contrast. */
+.ascii-art-bright {
   text-shadow:
     0 0 0.5px currentColor,
     0.3px 0 0 currentColor,
     -0.3px 0 0 currentColor;
 }
-.dark .ascii-spiral {
+.dark .ascii-art-bright {
   text-shadow: none;
 }
 
 /* ----------------------------------------------------------------
-   Navbar CTA plates (Dashboard + Verify) — match the ShimmerButton
+   Navbar CTA plates (Dashboard + Verify)—match the ShimmerButton
    ("Try the Demo") recipe so the navbar reads as the same family
    as the hero primary CTA. Theme-aware fill via the same tokens
    ShimmerButton uses: faint dark tint on cream in light mode,

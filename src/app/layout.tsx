@@ -26,7 +26,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-// Geist is Vercel's geometric sans — same family as Aeonik visually,
+// Geist is Vercel's geometric sans—same family as Aeonik visually,
 // free and Google-Fonts-served. Used for display headlines on the
 // homepage redesign; body copy continues to use Inter.
 const geist = Geist({
