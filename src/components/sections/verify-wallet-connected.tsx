@@ -153,8 +153,10 @@ export function VerifyWalletConnected({
           ? fetchChallenge(relayerUrl, publicKey.toBase58(), relayerApiKey)
               .then((c) => c.phrase)
               .catch((err: unknown) => {
-                const msg = err instanceof Error ? err.message : String(err);
-                console.warn(`[verify] challenge fetch failed: ${msg}`);
+                if (process.env.NODE_ENV === "development") {
+                  const msg = err instanceof Error ? err.message : String(err);
+                  console.warn(`[verify] challenge fetch failed: ${msg}`);
+                }
                 return null;
               })
           : Promise.resolve(null);
