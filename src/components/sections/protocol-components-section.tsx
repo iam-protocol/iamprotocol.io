@@ -1,10 +1,24 @@
-import { Placeholder } from "@/components/ui/placeholder";
+import {
+  AsciiCircuitScene,
+  AsciiRelayScene,
+  AsciiSDKScene,
+  AsciiShieldScene,
+  AsciiTriadScene,
+} from "@/components/ui/ascii-scenes";
 import { protocolComponents } from "@/data/protocol-components";
 
+const SCENES = [
+  AsciiSDKScene,
+  AsciiCircuitScene,
+  AsciiTriadScene,
+  AsciiRelayScene,
+  AsciiShieldScene,
+];
+
 /**
- * Protocol Components—five layers, one row each. Image placeholder on
- * one side, copy on the other; alternates per row so the eye walks
- * down the page in a zigzag. Numbered (01–05) for ordering.
+ * Protocol Components—five layers, one row each. ASCII scene on one
+ * side, copy on the other; alternates per row so the eye walks down
+ * the page in a zigzag. Numbered (01–05) for ordering.
  */
 export function ProtocolComponentsSection() {
   return (
@@ -22,6 +36,7 @@ export function ProtocolComponentsSection() {
           {protocolComponents.map((component, idx) => {
             const number = String(idx + 1).padStart(2, "0");
             const reverse = idx % 2 === 1;
+            const Scene = SCENES[idx] ?? AsciiSDKScene;
             return (
               <div
                 key={component.title}
@@ -29,8 +44,7 @@ export function ProtocolComponentsSection() {
                   reverse ? "lg:[&>*:first-child]:order-2" : ""
                 }`}
               >
-                {/* Image side */}
-                <Placeholder
+                <Scene
                   label={`FIGURE ${number}`}
                   aspect="4/3"
                   className="lg:aspect-[5/4]"

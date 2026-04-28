@@ -1,11 +1,11 @@
-import { Placeholder } from "@/components/ui/placeholder";
+import { AsciiDataFlowScene } from "@/components/ui/ascii-scenes";
 import { privacyGuarantees } from "@/data/privacy-guarantees";
 import { getIcon } from "@/lib/icons";
 
 /**
- * Privacy Model—2-column split: image placeholder on the left,
- * vertical list of guarantees on the right. Distinct geometry from the
- * grids elsewhere; reads like a documentation diagram + caption.
+ * Privacy Model—2-column split: the data-flow scene on the left,
+ * vertical list of guarantees on the right. Distinct geometry from
+ * the grids elsewhere; reads like a documentation diagram + caption.
  */
 export function PrivacySection() {
   return (
@@ -20,7 +20,7 @@ export function PrivacySection() {
         </h2>
 
         <div className="mt-16 grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-start lg:gap-16">
-          <Placeholder label="DATA FLOW" aspect="4/5" />
+          <AsciiDataFlowScene label="DATA FLOW" aspect="4/5" />
 
           <ul className="flex flex-col divide-y divide-border border-y border-border">
             {privacyGuarantees.map((guarantee) => {

@@ -1,10 +1,24 @@
-import { Placeholder } from "@/components/ui/placeholder";
+import {
+  AsciiAirdropScene,
+  AsciiBotScene,
+  AsciiCreatorScene,
+  AsciiMintScene,
+  AsciiVoteScene,
+} from "@/components/ui/ascii-scenes";
 import { solutionCases } from "@/data/solution-cases";
+
+const SCENES = [
+  AsciiAirdropScene,
+  AsciiVoteScene,
+  AsciiMintScene,
+  AsciiCreatorScene,
+  AsciiBotScene,
+];
 
 /**
  * Solution Cases — five editorial spreads. Each case is a full row
- * with a number badge + title + category at top, an image placeholder
- * on one side (alternating L/R), and the Problem · Solution · Example
+ * with a number badge + title + category at top, an ASCII scene on
+ * one side (alternating L/R), and the Problem · Solution · Example
  * triplet on the other. Reads as a magazine feature spread.
  */
 export function SolutionCasesSection() {
@@ -23,6 +37,7 @@ export function SolutionCasesSection() {
           {solutionCases.map((c, idx) => {
             const number = String(idx + 1).padStart(2, "0");
             const reverse = idx % 2 === 1;
+            const Scene = SCENES[idx] ?? AsciiAirdropScene;
             return (
               <article
                 key={c.title}
@@ -30,12 +45,7 @@ export function SolutionCasesSection() {
                   reverse ? "lg:[&>*:first-child]:order-2" : ""
                 }`}
               >
-                {/* Image side — aspect ratio sets the mobile shape; on
-                    desktop lg:h-full overrides the inline aspect-ratio
-                    so the placeholder stretches to match the text
-                    column's height exactly (top of row to end of last
-                    sentence). */}
-                <Placeholder
+                <Scene
                   label={`CASE ${number}`}
                   aspect="4/5"
                   className="lg:col-span-5 lg:h-full"
