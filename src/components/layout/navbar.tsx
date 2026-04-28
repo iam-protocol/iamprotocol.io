@@ -2,6 +2,7 @@ import Link from "next/link";
 import { mainNav } from "@/data/navigation";
 import { MobileNav } from "./mobile-nav";
 import { NavDropdown, type DropdownItem } from "./nav-dropdown";
+import { NavbarWordmark } from "./navbar-wordmark";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const technologyDropdown: DropdownItem[] = [
@@ -51,13 +52,9 @@ export function Navbar() {
   return (
     <nav className="fixed top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center px-6">
-        {/* Wordmark — locked. Don't change without explicit instruction. */}
-        <Link
-          href="/"
-          className="font-mono text-xl font-bold tracking-tight text-foreground"
-        >
-          entros<span className="text-cyan">.</span>
-        </Link>
+        {/* Wordmark—client component, runs a one-shot hash-shuffle reveal
+            on first mount when entering on the home route. */}
+        <NavbarWordmark />
 
         {/* Center navigation */}
         <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-7 md:flex">

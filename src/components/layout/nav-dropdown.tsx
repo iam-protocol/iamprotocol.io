@@ -11,6 +11,8 @@ export interface DropdownItem {
   description?: string;
 }
 
+const OPEN_EVENT = "entros:nav-dropdown-open";
+
 /**
  * Hover/click navigation dropdown.
  *
@@ -20,6 +22,10 @@ export interface DropdownItem {
  * - Click on the trigger toggles open (touch / a11y).
  * - Escape closes; clicks outside close.
  * - Animated entry: opacity + 4px slide-in.
+ * - Sibling coordination: when one dropdown opens, it broadcasts an
+ *   event so other dropdowns close instantly. Without this the 150ms
+ *   close delay overlaps with the new dropdown's open animation when
+ *   the cursor moves quickly between triggers.
  */
 export function NavDropdown({
   label,
@@ -42,10 +48,30 @@ export function NavDropdown({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  // Listen for siblings opening; close instantly if it isn't us.
+  useEffect(() => {
+    function handleSiblingOpen(e: Event) {
+      const detail = (e as CustomEvent<{ label: string }>).detail;
+      if (detail?.label !== label) {
+        if (leaveTimer.current) clearTimeout(leaveTimer.current);
+        setOpen(false);
+      }
+    }
+    document.addEventListener(OPEN_EVENT, handleSiblingOpen);
+    return () => document.removeEventListener(OPEN_EVENT, handleSiblingOpen);
+  }, [label]);
+
+  const announceOpen = useCallback(() => {
+    document.dispatchEvent(
+      new CustomEvent(OPEN_EVENT, { detail: { label } })
+    );
+  }, [label]);
+
   const handleEnter = useCallback(() => {
     if (leaveTimer.current) clearTimeout(leaveTimer.current);
     setOpen(true);
-  }, []);
+    announceOpen();
+  }, [announceOpen]);
 
   const handleLeave = useCallback(() => {
     leaveTimer.current = setTimeout(() => setOpen(false), 150);
@@ -62,11 +88,21 @@ export function NavDropdown({
         type="button"
         aria-expanded={open}
         aria-haspopup="true"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => {
+          setOpen((prev) => {
+            const next = !prev;
+            if (next) announceOpen();
+            return next;
+          });
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            setOpen((prev) => !prev);
+            setOpen((prev) => {
+              const next = !prev;
+              if (next) announceOpen();
+              return next;
+            });
           }
           if (e.key === "Escape") setOpen(false);
         }}
@@ -82,14 +118,17 @@ export function NavDropdown({
       </button>
 
       {/* Panel: a small invisible bridge above the panel keeps hover
-          alive when the cursor crosses the gap from trigger to panel. */}
+          alive when the cursor crosses the gap from trigger to panel.
+          Open uses a short opacity-only fade (75ms, no slide) so it
+          appears almost in place; close uses duration-0 so a
+          sibling-triggered handoff snaps away the same frame the next
+          panel begins opening—no overlapping animation. */}
       <div
         className={cn(
-          "absolute left-1/2 top-full -translate-x-1/2 pt-3",
-          "transition-[opacity,transform] duration-150",
+          "absolute left-1/2 top-full -translate-x-1/2 pt-3 transition-opacity",
           open
-            ? "pointer-events-auto translate-y-0 opacity-100"
-            : "pointer-events-none -translate-y-1 opacity-0"
+            ? "pointer-events-auto opacity-100 duration-75"
+            : "pointer-events-none opacity-0 duration-0"
         )}
       >
         <div className="w-[340px] border border-border bg-surface p-1.5 shadow-2xl shadow-black/30">
