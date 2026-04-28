@@ -1,0 +1,84 @@
+---
+title: Anchor PDA
+description: The on-chain identity record and how to read it.
+---
+
+Each verified human has exactly one Anchor on Solana. The Anchor consists of two pieces of state: a non-transferable Token-2022 identity NFT held in the user's wallet, and a Program Derived Address called `IdentityState` that stores the score, fingerprint commitment, and verification metadata.
+
+## Program identity
+
+The `entros-anchor` program owns the Anchor state. Devnet and mainnet share the same program ID:
+
+```
+GZYwTp2ozeuRA5Gof9vs4ya961aANcJBdUzB7LN6q4b2
+```
+
+## PDA derivation
+
+The `IdentityState` PDA is derived from two seeds: the literal `identity` and the user's wallet:
+
+```ts
+const [identityState] = PublicKey.findProgramAddressSync(
+  [Buffer.from("identity"), wallet.toBuffer()],
+  ENTROS_ANCHOR_PROGRAM_ID,
+);
+```
+
+The associated mint PDA, which holds the non-transferable token, is derived from the seed `mint` plus the wallet:
+
+```ts
+const [mint] = PublicKey.findProgramAddressSync(
+  [Buffer.from("mint"), wallet.toBuffer()],
+  ENTROS_ANCHOR_PROGRAM_ID,
+);
+```
+
+## IdentityState layout
+
+The account stores ownership, score, fingerprint commitments, and verification metadata. The Trust Score lives at offset 60 as a little-endian `u16`. For a one-line read of just the score, see the [quickstart](/docs/quickstart/read-trust-score).
+
+| Field | Type | Offset | Purpose |
+| --- | --- | --- | --- |
+| Anchor discriminator | `u64` | 0 | Account-type tag |
+| `owner` | `Pubkey` | 8 | Wallet that owns the Anchor |
+| `creation_timestamp` | `i64` | 40 | Unix timestamp of first verification |
+| `last_verification_timestamp` | `i64` | 48 | Unix timestamp of most recent verification |
+| `verification_count` | `u32` | 56 | Monotonic count of successful verifications |
+| `trust_score` | `u16` | 60 | Current Trust Score |
+| `current_commitment` | `[u8; 32]` | 62 | Latest behavioral fingerprint commitment |
+| `mint` | `Pubkey` | 94 | Address of the Anchor's Token-2022 mint |
+| `bump` | `u8` | 126 | PDA bump seed |
+| `recent_timestamps` | `[i64; 52]` | 127 | Rolling window of recent verification timestamps used by the score formula |
+| `last_reset_timestamp` | `i64` | 543 | Unix timestamp of the most recent `reset_identity_state` |
+
+Field offsets are documented for direct deserialization. For typed access from a Rust client, the canonical IDL is published with the `entros-anchor` program.
+
+## Token-2022 identity NFT
+
+The Anchor mint uses the Token-2022 `NonTransferable` extension. It is a one-supply, one-decimal token held in the user's associated token account. There is no transfer hook, no royalty extension, no metadata pointer to off-chain content. The mint exists to make the Anchor visible in any Token-2022-aware wallet UI; the authoritative score and metadata live in `IdentityState`.
+
+## Three instructions
+
+The `entros-anchor` program exposes three public instructions.
+
+- **`mint_anchor`**—Initializes a new Anchor on first verification. Caller must supply a valid ZK proof from `entros-verifier`. Charges the protocol fee.
+- **`update_anchor`**—Re-verification path. Validates a proof against the current commitment, advances the score, charges the fee, and rotates `previous_commitment` ← `current_commitment`.
+- **`reset_identity_state`**—Recovery path. Zeroes the score and clears the fingerprint commitments after a 7-day cooldown, allowing a user who has lost their device drift envelope to start fresh. Charges the fee.
+
+## Reading the Anchor
+
+Three idiomatic patterns:
+
+| Context | Pattern |
+| --- | --- |
+| React component | [`EntrosGate`](/docs/integrate/gate-a-route) or [`EntrosBadge`](/docs/integrate/show-a-badge) |
+| Server / edge function | Direct `getAccountInfo` on the PDA |
+| Anchor program | Cross-program account constraint with `seeds = [b"identity", wallet.key().as_ref()]` |
+
+All three read the same canonical state.
+
+## Where to look next
+
+- [Programs reference](/docs/reference/programs)—full instruction signatures and account constraints
+- [PDAs reference](/docs/reference/pdas)—every seed, every derivation
+- [Threat model](/docs/concepts/threat-model)—what the Anchor protects against

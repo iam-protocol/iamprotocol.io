@@ -1,0 +1,49 @@
+---
+title: Changelog
+description: SDK and program version history.
+---
+
+The protocol publishes the SDK as `@entros/pulse-sdk` on npm. Programs are deployed in place—program IDs do not change between versions. Material changes to instructions, PDAs, or scoring functions are documented here.
+
+## Pulse SDK
+
+### 1.3.0
+
+Current published version.
+
+### 1.2.x
+
+- Added `attestAgentOperator` and `getAgentHumanOperator` for the Agent Anchor integration
+- Added `verifyEntrosAttestation` for the SAS attestation read path
+- Added Lissajous challenge generation for touch capture
+- Hardened circuit input preparation against malformed fingerprint inputs
+
+### 1.1.x
+
+- Re-export of `PROGRAM_IDS` and capture-window constants
+- `submitViaRelayer` for walletless mode
+
+### 1.0.0
+
+Initial public release. Capture, feature extraction, hashing, proof generation, wallet submission.
+
+## Programs
+
+### entros-anchor
+
+- Current deployment includes the cross-program binding patch (`update_anchor` against verifier program). Discovered and fixed in the same sprint as the T4a security wave.
+- Reset path (`reset_identity_state`) gated behind a 7-day cooldown.
+
+### entros-verifier
+
+- Groth16 verification key matches the published Hamming circuit at ~1,996 constraints.
+- `verify_proof` writes a `VerificationResult` account that the Anchor program reads in the same transaction.
+
+### entros-registry
+
+- `ProtocolConfig` initialized on devnet. Validator registration is gated until the Anonymity Ring transitions to permissionless operation.
+
+## Where to look next
+
+- [Roadmap: Near-term](/docs/roadmap/near-term)—what lands next
+- [Reference: Programs](/docs/reference/programs)—current instruction set

@@ -1,0 +1,55 @@
+---
+title: Costs
+description: Fees, compute units, and rent—the canonical numbers.
+---
+
+Two cost surfaces matter: the user pays a small fee per verification, and each on-chain operation consumes compute units against Solana's block budget.
+
+## Protocol fee
+
+| Operation | Default | Configurable | Where |
+| --- | --- | --- | --- |
+| `mint_anchor` | 0.005 SOL | `verification_fee` in `ProtocolConfig` | Charged to the user |
+| `update_anchor` | 0.005 SOL | same | Charged to the user |
+| `reset_identity_state` | 0.005 SOL | same | Charged to the user |
+
+The fee is charged to the user in wallet-connected mode. In walletless mode (relayer), the integrator funds the fee through the executor's relayer escrow.
+
+The fee accumulates in the `Treasury` PDA owned by `entros-registry`. The protocol authority (currently the team, decentralizing post-audit) draws from the treasury for protocol operations.
+
+## Compute units
+
+The dominant on-chain cost is the Groth16 proof verification, which runs as part of the verification transaction alongside the `update_anchor` PDA write. The SDK pre-bundles a `ComputeBudgetProgram.setComputeUnitLimit(200_000)` instruction so the transaction fits inside Solana's default budget.
+
+| Operation | Measured CU |
+| --- | --- |
+| Full verification transaction (proof verify + Anchor PDA update) | ~124,000 |
+| Reading `IdentityState` (off-chain RPC) | 0 |
+| Cross-program PDA read of `IdentityState` | under 1,000 |
+| Voter-weight plugin `update_voter_weight_record` | ~5,000 |
+
+The 124K figure is the measured cost across the on-chain test suite (entros-anchor + entros-verifier + entros-registry integration tests). It includes both the proof verification and the PDA write in the same transaction, leaving roughly 76K headroom against the 200K default budget.
+
+## Rent
+
+Each new account on Solana requires rent-exempt funding. Numbers below are queried directly from devnet RPC against the canonical struct sizes declared in the program source.
+
+| Account | Size | Rent | Refundable |
+| --- | --- | --- | --- |
+| `IdentityState` | 551 bytes | 0.004726 SOL | No (held while Anchor is active) |
+| `Mint` (Token-2022 NonTransferable) | 170 bytes | 0.002074 SOL | No |
+| Associated Token Account | 165 bytes | 0.002039 SOL | No |
+| `Challenge` | 90 bytes | 0.001517 SOL | Yes, via `close_challenge` |
+| `VerificationResult` | 182 bytes | 0.002158 SOL | Yes, via `close_verification_result` |
+| Agent metadata entry | governed by Solana Agent Registry | ~0.003 SOL | If marked mutable; immutable entries are permanent |
+
+Total user-side cost on first verification: protocol fee (0.005 SOL) plus rent for `IdentityState` + `Mint` + ATA (~0.0089 SOL one-time) ≈ **0.0139 SOL** total. Subsequent re-verifications pay only the 0.005 SOL protocol fee—the persistent accounts are already funded, and the temporary `Challenge` and `VerificationResult` accounts are closed for rent recovery in the same transaction.
+
+## Economic notes
+
+The fee is set deliberately low for individual users—about a quarter of a US cent at SOL = $50—and high enough to create real cumulative cost for an attacker maintaining many Anchors. The fee schedule is configurable through `update_protocol_config` and may evolve as the protocol decentralizes.
+
+## Where to look next
+
+- [Concepts: Trust Score](/docs/concepts/trust-score)—how the score's economics interact with the fee
+- [Reference: Programs](/docs/reference/programs)—full configurable surface of `ProtocolConfig`

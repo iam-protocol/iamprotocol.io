@@ -1,0 +1,96 @@
+---
+title: Agent Anchor
+description: Link a registered AI agent on the Solana Agent Registry to its verified human operator.
+---
+
+The Solana Agent Registry (the Solana implementation of the ERC-8004 agent identity spec) gives autonomous agents a canonical on-chain record. Agent Anchor extends that record with a metadata entry pointing to the operator's Entros Anchor—turning anonymous agent registrations into "Know Your Agent."
+
+## What it does
+
+A registered agent on the registry has an `agentAsset` PDA. Agent Anchor writes a metadata entry against that PDA with three fields:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `anchorPda` | `Pubkey` | Operator's Entros Anchor PDA |
+| `trustScore` | `u16` | Operator's Trust Score at the time of attestation |
+| `verifiedAt` | `i64` | When the operator was last verified |
+
+The metadata is keyed under the canonical key `entros:human-operator` and marked immutable—once written, the operator linkage is permanent.
+
+## Attest a human operator
+
+```ts
+import { attestAgentOperator } from "@entros/pulse-sdk";
+import { PublicKey } from "@solana/web3.js";
+
+const agentAsset = new PublicKey("YourAgentAssetPubkey...");
+const result = await attestAgentOperator(agentAsset, { wallet, connection });
+
+if (!result.success) {
+  console.error(result.error);
+}
+```
+
+`attestAgentOperator` does four things in sequence:
+
+1. Reads the operator's Entros Anchor PDA from `entros-anchor`.
+2. Extracts `trustScore` and `lastVerificationTimestamp`.
+3. Borsh-serializes the three fields into a 42-byte metadata payload.
+4. Calls the registry's `set_metadata_pda` instruction to write the payload.
+
+The wallet calling `attestAgentOperator` must be both the agent's owner on the registry and the holder of the operator Anchor.
+
+## Read the operator metadata
+
+Any program—or any client—can read the operator linkage:
+
+```ts
+import { getAgentHumanOperator } from "@entros/pulse-sdk";
+
+const operator = await getAgentHumanOperator(agentAsset, connection);
+if (operator) {
+  console.log(`Trust Score: ${operator.trustScore}`);
+  console.log(`Verified at: ${new Date(operator.verifiedAt * 1000)}`);
+}
+```
+
+Returns `null` if no operator metadata is set, or `{ anchorPda, trustScore, verifiedAt }` otherwise.
+
+## Gate a platform on operator score
+
+Platforms accepting agent registrations can require a minimum operator Trust Score:
+
+```ts
+const operator = await getAgentHumanOperator(agentAsset, connection);
+if (!operator || operator.trustScore < 500) {
+  return rejectAgent("operator must be a verified human with Trust Score 500+");
+}
+```
+
+This pattern turns "anyone can register an agent" into "any verified human with a sustained track record can register an agent." It does not stop a determined operator from registering many agents; combined with rate limits or per-operator caps, it stops the cheap-to-mass-register attacks.
+
+## Program IDs
+
+| Network | Registry program ID |
+| --- | --- |
+| Devnet | `8oo4J9tBB3Hna1jRQ3rWvJjojqM5DYTDJo5cejUuJy3C` |
+| Mainnet | `8oo4dC4JvBLwy5tGgiH3WwK4B9PWxL9Z4XjA2jzkQMbQ` |
+
+The metadata PDA is derived from the agent asset and the SHA256 hash prefix of the metadata key:
+
+```ts
+const META_KEY = "entros:human-operator";
+const [metaPda] = PublicKey.findProgramAddressSync(
+  [
+    Buffer.from("agent_meta"),
+    agentAsset.toBuffer(),
+    sha256(META_KEY).slice(0, 16),
+  ],
+  REGISTRY_PROGRAM_ID,
+);
+```
+
+## Where to look next
+
+- [Concepts: Anchor PDA](/docs/concepts/anchor-pda)—the operator's Entros Anchor that this metadata points at
+- [Reference: SDK](/docs/reference/sdk)—full signatures of `attestAgentOperator` and `getAgentHumanOperator`

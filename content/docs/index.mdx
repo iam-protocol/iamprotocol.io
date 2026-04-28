@@ -1,0 +1,30 @@
+---
+title: Entros Developer Docs
+description: Build with proof of personhood on Solana.
+---
+
+Entros is a Solana protocol that proves a wallet is operated by a returning human, with the raw biometric signal never leaving the device.
+
+These docs cover the integration paths: drop-in React components, on-chain reads, SAS attestations, Realms voter-weight, and Agent Anchor. They also publish the technical reference for the SDK and on-chain programs, and the public roadmap for what comes next.
+
+## Where to start
+
+- New to Entros? Begin with [Concepts → Proof of Personhood](/docs/concepts/proof-of-personhood).
+- Building an integration? Jump to the [Quickstart](/docs/quickstart/next-js).
+- Looking up an API? Open the [Reference](/docs/reference/sdk).
+- Curious where this is going? See the [Roadmap](/docs/roadmap/current).
+
+## The shape of an integration
+
+Most integrations read one piece of on-chain state: a Trust Score on the user's Anchor PDA, or an attestation issued through SAS. There is no API key, no billing relationship, no off-chain dependency. The user pays a small protocol fee at verification time. Integrators read for free.
+
+```ts
+import { verifyEntrosAttestation } from "@entros/pulse-sdk";
+
+const attestation = await verifyEntrosAttestation(walletAddress, connection);
+if (attestation && attestation.isHuman && attestation.trustScore >= 100) {
+  // proceed
+}
+```
+
+That's the entire shape. The rest of the docs is what's in the box, what each number means, and how to set thresholds that fit your use case.

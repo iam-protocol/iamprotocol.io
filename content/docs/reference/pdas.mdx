@@ -1,0 +1,71 @@
+---
+title: PDAs
+description: Every seed and Program Derived Address used by the protocol.
+---
+
+Each PDA is derived deterministically from its seeds. Knowing the program ID and the seeds is enough to compute the address client-side.
+
+## entros-anchor
+
+Program: `GZYwTp2ozeuRA5Gof9vs4ya961aANcJBdUzB7LN6q4b2`
+
+| PDA | Seeds | Owner | Purpose |
+| --- | --- | --- | --- |
+| `IdentityState` | `["identity", user]` | entros-anchor | Per-wallet score and commitment record |
+| `Mint` | `["mint", user]` | entros-anchor | Token-2022 NonTransferable mint |
+| `MintAuthority` | `["mint_authority"]` | entros-anchor | Program-wide mint authority |
+
+## entros-verifier
+
+Program: `4F97jNoxQzT2qRbkWpW3ztC3Nz2TtKj3rnKG8ExgnrfV`
+
+| PDA | Seeds | Owner | Purpose |
+| --- | --- | --- | --- |
+| `Challenge` | `["challenge", challenger, nonce]` | entros-verifier | Per-challenge anti-replay |
+| `VerificationResult` | `["verification", verifier, nonce]` | entros-verifier | Proof outcome record |
+
+## entros-registry
+
+Program: `6VBs3zr9KrfFPGd6j7aGBPQWwZa5tajVfA7HN6MMV9VW`
+
+| PDA | Seeds | Owner | Purpose |
+| --- | --- | --- | --- |
+| `ProtocolConfig` | `["protocol_config"]` | entros-registry | Fee, expiry, score caps |
+| `ValidatorState` | `["validator", validator]` | entros-registry | Per-validator stake |
+| `Vault` | `["vault"]` | entros-registry | Stake vault |
+| `Treasury` | `["protocol_treasury"]` | entros-registry | Protocol fee accumulation |
+
+## entros-voter-weight
+
+Program: `99nwXzcugse3x8kxE9v6mxZiq8T9gHDoznaaG6qcw534`
+
+| PDA | Seeds | Owner | Purpose |
+| --- | --- | --- | --- |
+| `Registrar` | `["registrar", realm, governing_token_mint]` | entros-voter-weight | Per-realm plugin config |
+| `VoterWeightRecord` | `["voter_weight_record", realm, governing_token_mint, voter]` | entros-voter-weight | Per-voter weight |
+| `MaxVoterWeightRecord` | `["max_voter_weight_record", realm, governing_token_mint]` | entros-voter-weight | Realm-wide max-weight cap |
+
+## SAS
+
+The Solana Attestation Service program owns the credential, schema, and per-wallet attestation accounts.
+
+| PDA | Seeds | Owner | Purpose |
+| --- | --- | --- | --- |
+| Entros credential | hardcoded `GaPTkZC6JEGds1G5h645qyUrogx7NWghR2JgjvKQwTDo` | SAS | Issuer record |
+| Entros schema | hardcoded `EPkajiGQjycPwcc3pupqExVdAmSfxWd31tRYZezd8c5g` | SAS | Schema definition |
+| Attestation | `["attestation", credential, schema, user]` | SAS | Per-wallet attestation |
+
+## Solana Agent Registry
+
+Program: `8oo4J9tBB3Hna1jRQ3rWvJjojqM5DYTDJo5cejUuJy3C` (devnet) / `8oo4dC4JvBLwy5tGgiH3WwK4B9PWxL9Z4XjA2jzkQMbQ` (mainnet)
+
+| PDA | Seeds | Owner | Purpose |
+| --- | --- | --- | --- |
+| Agent metadata entry | `["agent_meta", agent_asset, sha256(key)[0..16]]` | Agent registry | Metadata entry against an agent asset |
+
+For the `entros:human-operator` metadata key, the metadata payload is 42 bytes Borsh-serialized: `{ anchorPda: Pubkey (32B), trustScore: u16 (2B), verifiedAt: i64 (8B) }`.
+
+## Where to look next
+
+- [Programs](/docs/reference/programs)—each program's instructions
+- [Read on-chain](/docs/integrate/read-on-chain)—code examples for deriving and reading PDAs

@@ -1,0 +1,45 @@
+---
+title: Threat Model
+description: What Entros defends against, and what falls outside the protocol's surface.
+---
+
+The threat model is structured by the kind of adversary, not by the kind of attack. Each tier is what a different class of adversary can do, and what the protocol's response is.
+
+## Tier 1—Naive automation
+
+A scripted attempt to bypass the device-side capture flow. Replays a stored signal, calls the SDK with synthetic inputs, fakes the wallet adapter handshake.
+
+The capture pipeline is a sealed flow inside the SDK. Inputs that don't pass through the live sensor pipeline don't produce valid feature vectors. Replays don't pass the Anonymity Ring's distribution checks. The verifier program rejects proofs that don't match the on-chain commitments.
+
+Public adversarial test count at this tier: more than 14,000 attempts across T1–T3 combined, all rejected.
+
+## Tier 2—Coordinated bot farm
+
+Multiple wallets, a script library, modest budget. Tries to mass-mint Anchors and farm low Trust Scores at scale.
+
+The device-fingerprinting layer makes single-device farming visible. Re-using captured signals across wallets is detected by the ring's cross-Anchor analysis. The protocol fee per verification creates a per-Anchor floor cost; the time decay on the Trust Score makes "rush a high score" infeasible. Sustained high scores require sustained, distinct activity per Anchor.
+
+## Tier 3—Human-in-the-loop farms
+
+Real humans behind multiple wallets, performing real captures. The hardest tier of farming because it bypasses any synthesis detection—the signals are genuine human signals.
+
+The protocol's response is economic. A human who runs N Anchors must do N captures every re-verification window. Each capture is twelve seconds plus the protocol fee. The Trust Score per Anchor decays without that work. The cost of maintaining N high-score Anchors scales linearly in N, while the value an attacker can extract from each Anchor is bounded by the gates the Anchor is meant to clear.
+
+What this means in practice: human-in-the-loop farming is not technically impossible, but it ceases to be economically rational at integrator-set thresholds calibrated to the value being protected.
+
+## Tier 4—Behavioral synthesis
+
+Adversarial models that attempt to synthesize the full 134-feature vector convincingly enough to pass the ring's checks and the device's pipeline.
+
+This is the active research surface. The Anonymity Ring's check stack is the layer designed to make synthesis hard. T4a was structured as a four-wave study against one canonical attack class—pre-recorded human voice paired with procedural motion and touch—to measure each defense layer's specific contribution. Wave 1 (50 attempts, 100% pass) established the counterfactual with cross-modal temporal coupling running in log-only mode. Wave 2 (10 attempts, 10% pass) enabled temporal enforcement. Wave 3 (20 attempts, 0% pass) added phrase content binding. Wave 4 (1,000 attempts, 0% pass, 95% CI [0%, 0.37%]) confirmed the result at scale. The closure is one canonical class; the program continues against new classes.
+
+## What is out of scope
+
+- **Wallet compromise.** If an attacker controls the user's keypair, the Anchor follows. The protocol assumes the wallet is held by the legitimate user.
+- **Coercion.** A human verifying under duress produces a real verification. Protocol-level defense against coerced participation is a research question; the practical response is per-application thresholds and rate limits.
+
+## Where to look next
+
+- [Anonymity Ring](/docs/concepts/anonymity-ring)—the validator set that runs Tier 4 defenses
+- [Trust Score](/docs/concepts/trust-score)—how the score's decay shape is itself a defense
+- [Roadmap: Near-term](/docs/roadmap/near-term)—the external audit and what's next after Tier 4

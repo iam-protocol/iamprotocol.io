@@ -1,0 +1,37 @@
+---
+title: How to influence the roadmap
+description: Where feedback lands and how priorities are set.
+---
+
+The roadmap reflects the team's current best judgment plus integrator-pilot signal. It is not a contract. The protocol's priorities shift in response to evidence—adversarial findings, integrator pain, ecosystem changes. This page documents the channels that produce evidence.
+
+## Three channels
+
+**GitHub issues.** Bugs, missing features, and concrete requests live on `github.com/entros-protocol`. Issues with reproducible cases get triaged faster than abstract feature requests. Pull requests land directly against the relevant repo.
+
+**RFCs for protocol-level changes.** Anything that touches scoring, fees, validator economics, or the threat model goes through a written proposal. RFCs live in the protocol-core repository as numbered markdown files. The format: motivation, proposed change, alternatives, security considerations, deployment plan. RFCs that reach implementation always pass through review by the active validators (when the ring is decentralized) or by the team (until then).
+
+**Direct integrator conversations.** Production integrators with a real use case get a direct line. The pilot program is one path; an existing integration in production with material usage is another. The signal from "your gate is in production and we're seeing X" is more valuable than any other input the protocol receives.
+
+## What changes the roadmap
+
+Three things, in order of weight:
+
+- **A demonstrated security finding** that requires a protocol-level response. These never wait for a quarterly cycle.
+- **An integrator blocked on a missing primitive.** If three production integrations want the same primitive, the primitive moves up.
+- **Validator signal**, once the ring decentralizes. Validators see the protocol's operational shape from the inside; their feedback weighs heavily on operational decisions.
+
+What does not change the roadmap, on its own:
+
+- Trend speculation
+- Marketing requests
+- Single-integrator preferences without production usage behind them
+
+## What you can expect from the team
+
+Public commits, public tests, public benchmarks. The protocol's research paper, the security program, this documentation, the audit reports—every load-bearing claim should have a public artefact behind it. If something can't be verified externally, it shouldn't carry weight in a roadmap decision.
+
+## Where to look next
+
+- [Current state](/docs/roadmap/current)—what's verifiable today
+- [Concepts: Threat Model](/docs/concepts/threat-model)—what counts as a security finding

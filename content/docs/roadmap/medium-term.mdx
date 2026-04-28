@@ -1,0 +1,51 @@
+---
+title: Medium-term
+description: Six to twelve months out—decentralization, economics, the validator set.
+---
+
+The medium-term arc is decentralization. Today the protocol is operated by the team; the work in this window is making it stop needing the team.
+
+## Anonymity Ring decentralization
+
+The validation engine that runs all four tiers of checks is implemented and live today. What's deferred is the multi-validator deployment topology around that engine. The decentralization plan:
+
+- **Validator entry.** Stake against the registry program, run the validator binary, sign verification outcomes.
+- **Slashable stake.** Validators that sign off on verifications later proven to be synthesized lose stake. Slashing conditions are defined in the registry program and enforced by an independent challenge process.
+- **Aggregated signatures.** A threshold of validator signatures is required for a verification to settle. The threshold and validator set size are configurable through the registry.
+- **Economic incentives.** A share of protocol fees flows to validators based on participation and accuracy.
+
+The transition is gated on the external audit landing and on the check stack reaching a maturity bar where iteration can happen on a slower cadence than current operation supports.
+
+### The validator distribution question
+
+How a third-party validator gets the check engine to run on their machine is a real architectural decision, not just an engineering one. Three patterns are on the table:
+
+- **Open-source the engine.** Anyone runs it. Maximum legitimacy; the cost is that the exact check thresholds and synthesis-detection signatures become public knowledge that adversaries can game.
+- **Attestable binary in a TEE.** Validators run a sealed binary inside Intel SGX, AWS Nitro, or similar; the chip's attestation vouches for "this is the official engine," and the check internals stay private. Operationally heavier but preserves the obscurity layer.
+- **Permissioned ring.** A curated set of operators each runs the private binary, with on-chain coordination but no permissionless entry. Cheapest path; familiar pattern (Wormhole guardians, Pyth publishers); least credentialed as "decentralized."
+
+The choice is a tradeoff between trust assumption and adversarial cost. The protocol's current preference is the TEE path, with a permissioned ring as the practical fallback if attestation tooling adds too much operational friction at the validator-onboarding stage. The decision is finalized as part of the post-mainnet validator-economics rollout.
+
+## Validator economics
+
+The fee waterfall has three eventual phases:
+
+- **Bootstrap.** Months 0–6 of post-mainnet operation. 100% of fees flow to the protocol treasury for ecosystem and security work.
+- **Burn signal.** Months 6–12. 70% to treasury, 30% burned as a deflationary signal on the Entros utility token, while validators are still being onboarded.
+- **Steady state.** Month 12+. 50% to treasury, 30% to validators, 20% burned. Validator share scales with the size and activity of the ring.
+
+Numbers above are the current public plan. They are subject to the audit findings and the integrator-pilot data and may be updated through the [RFC process](/docs/roadmap/how-to-influence) before steady state begins.
+
+## Multi-chain reads
+
+The Anchor PDA lives on Solana. Other chains can verify a wallet's status via cross-chain attestation relay (the same pattern as Wormhole-relayed price feeds). The work in this window: a documented relay path for the SAS attestation, a reference reader contract on a major EVM chain, and tooling for cross-chain protocols to gate on Entros without a Solana RPC integration.
+
+## Reputation portability
+
+Reputation today is wallet-bound. A user who needs to migrate wallets—for security reasons, hardware change, or otherwise—must currently rebuild from a fresh Anchor. The medium-term path is a controlled migration instruction: the user proves a single fresh capture from the new wallet, plus a signature from the old wallet's keypair, and the score transfers. The protocol-level discussion is when to allow this and how to prevent score-laundering attacks.
+
+## Where to look next
+
+- [Long-term](/docs/roadmap/long-term)—the protocol as public infrastructure
+- [Concepts: Anonymity Ring](/docs/concepts/anonymity-ring)—what decentralizes
+- [How to influence](/docs/roadmap/how-to-influence)—the RFC process

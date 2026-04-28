@@ -1,0 +1,120 @@
+---
+title: SDK reference
+description: Public API surface of @entros/pulse-sdk.
+---
+
+`@entros/pulse-sdk` is the client SDK. It captures behavioral signals on-device, extracts statistical features, hashes the result, generates a zero-knowledge proof, and submits to Solana. This page lists every public export, grouped by purpose.
+
+The current published version is `1.3.0`. Install with `npm install @entros/pulse-sdk`.
+
+## Top-level
+
+| Export | Type | Purpose |
+| --- | --- | --- |
+| `PulseSDK` | `class` | High-level entry point. Construct once with config, call `verify()` per session. |
+| `PulseSession` | `class` | Lower-level session for fine-grained capture control. |
+
+## Constants
+
+| Export | Value | Purpose |
+| --- | --- | --- |
+| `PROGRAM_IDS` | `{ entrosAnchor, entrosVerifier, entrosRegistry }` | Devnet program IDs |
+| `MIN_AUDIO_SAMPLES` | `16000` | Minimum audio samples per capture |
+| `MIN_MOTION_SAMPLES` | `10` | Minimum motion samples |
+| `MIN_TOUCH_SAMPLES` | `10` | Minimum touch samples |
+| `MIN_CAPTURE_MS` | `2000` | Minimum capture duration |
+| `MAX_CAPTURE_MS` | `60000` | Maximum capture duration |
+| `DEFAULT_CAPTURE_MS` | `7000` | Default capture duration |
+| `DEFAULT_THRESHOLD` | `96` | Default Hamming distance threshold |
+| `DEFAULT_MIN_DISTANCE` | `3` | Default minimum distance for replay defense |
+| `FINGERPRINT_BITS` | `256` | Behavioral fingerprint width in bits |
+| `SPEAKER_FEATURE_COUNT` | `44` | Number of voice features extracted |
+
+## Capture and feature extraction
+
+| Export | Signature | Purpose |
+| --- | --- | --- |
+| `extractSpeakerFeatures` | `(audio) => Promise<number[]>` | 44 voice prosody features |
+| `extractSpeakerFeaturesDetailed` | `(audio) => Promise<{ features, f0Contour }>` | Voice features plus pitch contour |
+| `extractMotionFeatures` | `(samples) => number[]` | 54 motion features from IMU samples |
+| `extractTouchFeatures` | `(samples) => number[]` | 36 touch features |
+| `extractMouseDynamics` | `(samples) => number[]` | Pointer-based touch dynamics |
+| `extractAccelerationMagnitude` | `(samples, frameCount) => number[]` | Frame-aligned acceleration magnitudes |
+| `fuseFeatures` | `(audio, motion, touch) => number[]` | Concatenate the three feature streams |
+| `fuseRawFeatures` | `(audio, motion, touch) => number[]` | Same, without pre-aggregation |
+
+Statistics utilities also exported: `mean`, `variance`, `skewness`, `kurtosis`, `condense`, `entropy`, `autocorrelation`.
+
+## Hashing
+
+| Export | Signature | Purpose |
+| --- | --- | --- |
+| `simhash` | `(features) => TemporalFingerprint` | 256-bit SimHash of the feature vector |
+| `hammingDistance` | `(fp1, fp2) => number` | Bit-distance between two fingerprints |
+| `generateTBH` | `(fingerprint) => Promise<TBH>` | Temporal Behavioral Hash with Poseidon commitment |
+| `generateSalt` | `() => bigint` | Cryptographic salt for the commitment |
+| `packBits` | `(fingerprint) => PackedFingerprint` | Pack the 256-bit fingerprint for circuit input |
+| `computeCommitment` | `(fingerprint, salt) => bigint` | Poseidon commitment over BN254 |
+| `bigintToBytes32` | `(n) => Uint8Array` | BigInt to 32-byte big-endian array |
+
+## Proof generation
+
+| Export | Signature | Purpose |
+| --- | --- | --- |
+| `prepareCircuitInput` | `(tbhNew, tbhPrev, threshold) => CircuitInput` | Format the inputs for the Hamming circuit |
+| `generateProof` | `(input, wasmUrl, zkeyUrl) => Promise<ProofResult>` | Run Groth16 proving |
+| `serializeProof` | `(proof, publicSignals) => SolanaProof` | Serialize to the verifier program's expected layout |
+| `toBigEndian32` | `(decStr) => Uint8Array` | Decimal-string to big-endian bytes |
+
+## Submission
+
+| Export | Signature | Purpose |
+| --- | --- | --- |
+| `submitViaWallet` | `(proof, commitment, options) => Promise<SubmissionResult>` | Submit through a connected wallet |
+| `submitResetViaWallet` | `(commitment, options) => Promise<SubmissionResult>` | Submit a recovery reset |
+| `submitViaRelayer` | `(proof, commitment, options) => Promise<SubmissionResult>` | Submit through the executor's relayer (walletless mode) |
+
+## Challenge generation
+
+| Export | Signature | Purpose |
+| --- | --- | --- |
+| `generatePhrase` | `(wordCount?) => string` | Random phrase prompt for voice capture |
+| `generatePhraseSequence` | `(count) => string[]` | Multiple phrase prompts |
+| `randomLissajousParams` | `() => LissajousParams` | Lissajous figure parameters for touch capture |
+| `generateLissajousPoints` | `(params) => Point2D[]` | Render the curve |
+| `generateLissajousSequence` | `(count) => Point2D[][]` | Multiple curves |
+| `fetchChallenge` | `(walletAddress, relayerUrl, apiKey?) => Promise<ChallengeResponse>` | Fetch a challenge from the executor |
+
+## Audio encoding
+
+| Export | Signature | Purpose |
+| --- | --- | --- |
+| `encodeAudioAsBase64` | `(samples) => string` | Base64-encode audio for transport (relayer mode) |
+
+## Attestation and on-chain reads
+
+| Export | Signature | Purpose |
+| --- | --- | --- |
+| `verifyEntrosAttestation` | `(walletAddress, connection) => Promise<EntrosAttestation \| null>` | Read a wallet's SAS attestation |
+| `attestAgentOperator` | `(agentAsset, options) => Promise<AttestResult>` | Write the human-operator metadata for a registered agent |
+| `getAgentHumanOperator` | `(agentAsset, connection) => Promise<AgentHumanOperator \| null>` | Read the human-operator metadata. `AgentHumanOperator` fields: `{ anchorPda, trustScore, verifiedAt, wallet }` |
+| `fetchIdentityState` | `(wallet, connection) => Promise<IdentityState \| null>` | Read the full Anchor PDA |
+| `storeVerificationData` | `(data) => Promise<void>` | Persist verification state to local storage |
+| `loadVerificationData` | `() => Promise<StoredVerificationData \| null>` | Load persisted state |
+
+## Peer dependencies
+
+The SDK declares the following as optional peers:
+
+- `@coral-xyz/anchor ^0.32.1`
+- `@solana/wallet-adapter-base ^0.9.0`
+- `@solana/web3.js ^1.98.0`
+- `@solana/spl-token ^0.4.0`
+
+Install whichever you need for your integration path. For pure read flows (`verifyEntrosAttestation`, `fetchIdentityState`), only `@solana/web3.js` is required.
+
+## Where to look next
+
+- [Programs reference](/docs/reference/programs)—what the SDK talks to on-chain
+- [Costs](/docs/reference/costs)—fee and compute-unit numbers
+- [Changelog](/docs/reference/changelog)—version history

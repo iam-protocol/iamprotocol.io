@@ -1,0 +1,95 @@
+---
+title: SAS attestation
+description: Look up a wallet's Entros attestation through the Solana Attestation Service.
+---
+
+SAS is the recommended composability surface. Reading an attestation is one function call; the function does the PDA derivation, account fetch, and schema deserialization for you.
+
+## Lookup
+
+```ts
+import { verifyEntrosAttestation } from "@entros/pulse-sdk";
+import { Connection } from "@solana/web3.js";
+
+const connection = new Connection("https://api.devnet.solana.com");
+const attestation = await verifyEntrosAttestation(walletBase58, connection);
+
+if (!attestation) {
+  // wallet has no Entros attestation
+}
+
+if (attestation.expired) {
+  // attestation exists but has expired
+}
+
+if (attestation.isHuman && attestation.trustScore >= 250) {
+  // pass the gate
+}
+```
+
+The function returns `null` if the wallet has no attestation. Otherwise it returns:
+
+```ts
+type EntrosAttestation = {
+  isHuman: boolean;
+  trustScore: number;
+  verifiedAt: number;
+  mode: "wallet-connected" | "walletless";
+  expired: boolean;
+};
+```
+
+## When to read the attestation versus the Anchor PDA
+
+The attestation is a snapshot of the Anchor at verification time. The Anchor is the live source. They are usually identical; the difference matters in two cases.
+
+**The attestation has expired but the user has re-verified.** A 30-day-old attestation is stale; a fresh re-verification updates the Anchor immediately and produces a fresh attestation moments later. If your application needs the most recent state, prefer the Anchor PDA directly.
+
+**The attestation says the user is verified, but the score has decayed.** Trust Scores decay. The attestation snapshots the score at verification time; the live Anchor reflects the decayed score. For applications where the snapshot is the meaningful number (e.g. "did this user pass our threshold at the time of attestation"), the attestation is correct. For applications where the live score matters, read the Anchor.
+
+A reasonable default: read the attestation for membership checks, read the Anchor for live thresholds.
+
+## Schema fields
+
+The Entros schema, registered on SAS, has four fields:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `isHuman` | `bool` | Whether the attestation issuer believes the wallet is operated by a verified human |
+| `trustScore` | `u16` | The Trust Score recorded at attestation time |
+| `verifiedAt` | `i64` | Unix timestamp of the verification this attestation snapshots |
+| `mode` | `string` | `"wallet-connected"` or `"walletless"` |
+
+The schema is deployed at:
+
+```
+EPkajiGQjycPwcc3pupqExVdAmSfxWd31tRYZezd8c5g
+```
+
+The credential issuing the attestations:
+
+```
+GaPTkZC6JEGds1G5h645qyUrogx7NWghR2JgjvKQwTDo
+```
+
+## Reading from another program
+
+For an Anchor program that gates on the attestation rather than the underlying Anchor PDA, pass the attestation account as a constraint and deserialize the four fields. The schema layout is documented in the SAS specification; the Entros credential and schema PDAs are the two values your program needs to know.
+
+## Walletless vs wallet-connected
+
+Walletless verifications produce attestations under the same schema, with `mode: "walletless"`. The attestation is the only on-chain record—there is no Anchor PDA, no Trust Score, no persistent identity. The mode is built for low-stakes filtering (CAPTCHA-equivalent) where a one-shot human signal is sufficient.
+
+For any gate that depends on the temporal-identity claim—re-verification cadence, accumulated score, or the ability to reason about a returning operator—require `mode === "wallet-connected"`:
+
+```ts
+if (attestation.mode !== "wallet-connected") {
+  // route to walletless-tier handling, or require a wallet-connected verification
+}
+```
+
+## Where to look next
+
+- [Concepts: SAS Attestations](/docs/concepts/sas-attestations)—why attestations are the recommended composability surface
+- [Read on-chain](/docs/integrate/read-on-chain)—when to read the Anchor directly instead
+- [Reference: SDK](/docs/reference/sdk)—the full `verifyEntrosAttestation` signature

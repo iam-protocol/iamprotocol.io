@@ -1,0 +1,25 @@
+---
+title: Verification flow component (in progress)
+description: Drop-in component for the 12-second capture sequence. Coming soon.
+---
+
+The verification capture flow—twelve seconds of voice, motion, and touch capture, with progress UI, prompts, and proof submission—currently lives at `entros.io/verify`. Integrators wanting their users to verify in-app today either link to that route via `verifyHref`, or build their own flow on top of the lower-level Pulse SDK primitives.
+
+A standalone, themeable `<EntrosCapture>` component is on the [near-term roadmap](/docs/roadmap/near-term). It will package the existing flow as a self-contained npm component with theme overrides so integrators can match their own brand without forking the SDK.
+
+## Why this isn't shipped yet
+
+The capture flow has UX state—recording prompts, sensor permission handshakes, audio level feedback, motion calibration—that's currently entangled with the entros.io route. Extracting it as a standalone component is a refactor, not a fresh build, but it requires careful decoupling from app-specific styling and the verify-page's wallet adapter setup.
+
+## What integrators can do today
+
+Two paths.
+
+**Link to the canonical flow.** Set `verifyHref="https://entros.io/verify"` on `<EntrosGate>`. Users who fail the gate are redirected to the canonical verification surface; on completion they return to your app.
+
+**Build on the SDK.** Use `PulseSDK` and `PulseSession` directly. The lower-level primitives—sensor capture, feature extraction, hashing, proof generation, wallet submission—are all public. The work is the UI: prompts, progress, and copy to walk a user through the capture.
+
+## Where to look next
+
+- [Reference: SDK](/docs/reference/sdk)—the lower-level primitives `PulseSDK`, `PulseSession`, `extractSpeakerFeatures`, `simhash`, `generateProof`
+- [Roadmap: Near-term](/docs/roadmap/near-term)—when the standalone component lands

@@ -1,0 +1,91 @@
+---
+title: Next.js—gate a route in five lines
+description: Drop EntrosGate into a Next.js app and require a verified human Trust Score before a page renders.
+---
+
+The shortest path to a verified-human gate. Wrap any component in `<EntrosGate>`, set a `minTrustScore`, and the page renders only for wallets whose on-chain Anchor meets the threshold.
+
+## Install
+
+```bash
+npm install @entros/pulse-sdk @solana/wallet-adapter-react @solana/web3.js
+```
+
+The SDK is published as `@entros/pulse-sdk` on npm. It declares `@solana/wallet-adapter-react`, `@solana/web3.js`, and `@coral-xyz/anchor` as optional peers.
+
+## Add the gate component
+
+`EntrosGate` is published as a single-file React component you copy into your project. The canonical source is in the entros.io repo at [`src/components/ui/entros-gate.tsx`](https://github.com/entros-protocol/entros.io/blob/main/src/components/ui/entros-gate.tsx)—copy it into your own `components/` directory. A standalone npm package is on the [near-term roadmap](/docs/roadmap/near-term).
+
+## Wrap your protected component
+
+```tsx title="app/protected/page.tsx"
+import { EntrosGate } from "@/components/ui/entros-gate";
+
+export default function ProtectedPage() {
+  return (
+    <EntrosGate minTrustScore={100}>
+      <h1>You're verified.</h1>
+      <p>This view only renders for wallets above the threshold.</p>
+    </EntrosGate>
+  );
+}
+```
+
+That's the integration. `EntrosGate` does three things:
+
+1. Reads the wallet's Anchor PDA on Solana.
+2. Compares the on-chain Trust Score against `minTrustScore`.
+3. Renders children if the score passes, otherwise a fallback prompt linking to `/verify`.
+
+## Required app providers
+
+`EntrosGate` reads from a `useWallet()` and `useConnection()` hook upstream. If your app already has the standard Solana wallet adapter setup, you're done. Otherwise add the providers once at your app root.
+
+```tsx title="app/providers.tsx"
+"use client";
+import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { useMemo } from "react";
+
+export function SolanaProviders({ children }: { children: React.ReactNode }) {
+  const endpoint = useMemo(
+    () => process.env.NEXT_PUBLIC_SOLANA_RPC ?? "https://api.devnet.solana.com",
+    [],
+  );
+  return (
+    <ConnectionProvider endpoint={endpoint}>
+      <WalletProvider wallets={[]} autoConnect>
+        <WalletModalProvider>{children}</WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
+  );
+}
+```
+
+## Setting the threshold
+
+`minTrustScore` is a `number` between 0 and 65535 (the on-chain Trust Score is stored as `u16`). The right value depends on the stakes of the gated action.
+
+| Stakes | Suggested floor | Reasoning |
+| --- | --- | --- |
+| Comment / vote / join | 100 | Admits any wallet that has re-verified at least once |
+| Mint allowlist / referral reward | 300 | A handful of re-verifications across the first month |
+| Airdrop claim / governance | 700+ | Sustained behavior across multiple weeks |
+| High-value access | 1500+ | Months of consistent activity |
+
+Higher thresholds shift the cost curve more steeply against bot farms; lower thresholds keep the protocol open to first-time humans. Pick deliberately.
+
+## What the user sees
+
+If the connected wallet has no Anchor: a prompt linking to `/verify` (configurable via the `verifyHref` prop).
+If the wallet has an Anchor below threshold: a re-verify prompt.
+If the wallet meets the threshold: your component, no further interaction.
+
+The component doesn't open wallet adapter modals on its own. Wallet connection is the user's responsibility, then `<EntrosGate>` handles the rest.
+
+## Next steps
+
+- [Show a Trust Score badge](/docs/integrate/show-a-badge) without gating
+- [Read the Anchor PDA without the SDK](/docs/quickstart/read-trust-score)—useful for server-side checks
+- [Configure SAS attestations](/docs/integrate/sas-attestation) for cross-program composability

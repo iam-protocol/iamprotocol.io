@@ -1,0 +1,50 @@
+---
+title: Near-term
+description: The next two quarters—Q2 and Q3 2026.
+---
+
+Near-term work is structured around three milestones: external audit, mainnet deployment, and the integrator-facing surface area filling out.
+
+## External security audit
+
+A full audit of the three on-chain programs by an established Solana auditor (OtterSec, Neodyme, or Asymmetric Research). The audit gates mainnet deployment. Expected timeline: 6–10 weeks engagement, plus remediation.
+
+The pre-audit hardening work is captured in the protocol's internal AUDIT.md and the public security program. Findings discovered during internal red-teaming are remediated and re-tested before the external engagement begins.
+
+## Standalone EntrosCapture component
+
+The 12-second capture flow currently lives at `entros.io/verify`. Extracting it as a self-contained npm component lets integrators host the verification flow inside their own apps without redirecting users to the canonical site.
+
+The component will:
+
+- Package sensor permissions, capture orchestration, and proof submission as one drop-in
+- Accept theme overrides for color tokens and typography
+- Expose a `onComplete` callback so the parent app can act on a fresh verification immediately
+- Maintain feature parity with the canonical flow on every release
+
+This component pairs with the existing `EntrosGate` and `EntrosBadge` to complete the React surface area.
+
+## Native Solana Mobile build
+
+A React Native package and platform-specific native builds for iOS and Android. The capture quality on mobile is materially higher than desktop—IMU at higher sampling rates, native microphone access, authentic touch dynamics.
+
+The Solana Mobile (Seeker) integration is the central piece: Mobile Wallet Adapter for the wallet connection, Seed Vault for keypair handling, and a notifications path for re-verification reminders aligned to the score decay curve.
+
+## Integrator pilots
+
+Three production integrator pilots, one each across the three composability surfaces:
+
+- A Realms DAO using the voter-weight plugin
+- An airdrop or referral protocol using SAS attestations
+- An AI-agent platform gating registrations on operator Trust Score
+
+These pilots inform the threshold-setting documentation and surface real-world edge cases that internal testing misses.
+
+## Mainnet deployment
+
+After the external audit lands and remediations are in place, the three programs deploy to mainnet. Devnet remains live for development; mainnet is the production surface. Program IDs are immutable across the deployment—devnet IDs and mainnet IDs match where the deployment authority chooses, with documented exceptions for any program-id-derived PDA surface.
+
+## Where to look next
+
+- [Medium-term](/docs/roadmap/medium-term)—what lands after the audit
+- [How to influence](/docs/roadmap/how-to-influence)—the RFC process and where feedback lands
