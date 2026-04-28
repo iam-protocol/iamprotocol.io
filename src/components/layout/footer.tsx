@@ -41,7 +41,7 @@ export function Footer() {
             GitHub
           </a>
           <a
-            href="https://discord.gg/b3UrxXTF"
+            href="https://discord.gg/dWBYJ6Dc"
             target="_blank"
             rel="noopener noreferrer"
             className="transition-colors hover:text-foreground"
