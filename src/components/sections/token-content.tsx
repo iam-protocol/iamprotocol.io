@@ -16,17 +16,19 @@ export function TokenContent() {
       {/* Protocol Fee */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
-          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-16">
-            <div className="lg:col-span-5">
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-foreground/40">
-                // PROTOCOL FEE
-              </span>
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-5 lg:flex lg:flex-col lg:justify-center">
+              <div className="lg:relative">
+                <span className="font-mono text-xs uppercase tracking-[0.2em] text-foreground/40 lg:absolute lg:bottom-full lg:left-0 lg:mb-6 lg:whitespace-nowrap">
+                  // PROTOCOL FEE
+                </span>
 
-              <h2 className="mt-6 font-display text-3xl font-medium tracking-tight text-foreground md:text-5xl md:leading-[1.05]">
-                Every verification<span className="text-cyan">.</span>
-                <br />
-                On-chain revenue<span className="text-cyan">.</span>
-              </h2>
+                <h2 className="mt-6 font-display text-3xl font-medium tracking-tight text-foreground md:text-5xl md:leading-[1.05] lg:mt-0">
+                  Every verification<span className="text-cyan">.</span>
+                  <br />
+                  On-chain revenue<span className="text-cyan">.</span>
+                </h2>
+              </div>
             </div>
 
             <div className="lg:col-span-7">
@@ -64,7 +66,7 @@ export function TokenContent() {
             // REVENUE FLYWHEEL
           </span>
 
-          <h2 className="mt-6 max-w-3xl font-display text-3xl font-medium tracking-tight text-foreground md:text-5xl md:leading-[1.05]">
+          <h2 className="mt-6 max-w-5xl font-display text-3xl font-medium tracking-tight text-foreground md:text-5xl md:leading-[1.05]">
             Verification volume drives token value<span className="text-cyan">.</span>
           </h2>
 
@@ -182,15 +184,17 @@ export function TokenContent() {
       {/* Launch */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
-          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-16">
-            <div className="lg:col-span-5">
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-foreground/40">
-                // LAUNCH
-              </span>
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-5 lg:flex lg:flex-col lg:justify-center">
+              <div className="lg:relative">
+                <span className="font-mono text-xs uppercase tracking-[0.2em] text-foreground/40 lg:absolute lg:bottom-full lg:left-0 lg:mb-6 lg:whitespace-nowrap">
+                  // LAUNCH
+                </span>
 
-              <h2 className="mt-6 font-display text-3xl font-medium tracking-tight text-foreground md:text-5xl md:leading-[1.05]">
-                Verified humans only<span className="text-cyan">.</span>
-              </h2>
+                <h2 className="mt-6 font-display text-3xl font-medium tracking-tight text-foreground md:text-5xl md:leading-[1.05] lg:mt-0">
+                  Verified humans only<span className="text-cyan">.</span>
+                </h2>
+              </div>
             </div>
 
             <div className="lg:col-span-7">

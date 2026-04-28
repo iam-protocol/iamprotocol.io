@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { AsciiTorus } from "@/components/ui/ascii-torus";
+import { AsciiFlow } from "@/components/ui/ascii-flow";
 import { TokenContent } from "@/components/sections/token-content";
 import { pageMetadata } from "@/lib/page-metadata";
 
@@ -62,7 +62,7 @@ export default function Token() {
         </div>
 
         <div className="flex h-[225px] items-start justify-center pb-4 sm:h-[270px] md:h-[300px] md:pb-6 lg:h-[330px] xl:h-[360px]">
-          <AsciiTorus className="text-[5px] sm:text-[6px] md:text-[7px] lg:text-[8px] xl:text-[9px]" />
+          <AsciiFlow className="text-[5px] sm:text-[6px] md:text-[7px] lg:text-[8px] xl:text-[9px]" />
         </div>
       </section>
 
