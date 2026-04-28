@@ -17,14 +17,19 @@ interface TimelineEntry {
 
 /**
  * Single stage marker. Hollow grey by default. Fills cyan once the
- * scroll-driven line has descended past this circle's y-position
+ * scroll-driven line has descended past this square's y-position
  * within the timeline container, signalling that the previous step
- * has handed off to this one.
+ * has handed off to this one. Rotates clockwise in place as the
+ * user scrolls through the section.
  */
 const TimelineNode = forwardRef<
   HTMLDivElement,
-  { heightMV: MotionValue<number>; threshold: number }
->(({ heightMV, threshold }, ref) => {
+  {
+    heightMV: MotionValue<number>;
+    rotateMV: MotionValue<number>;
+    threshold: number;
+  }
+>(({ heightMV, rotateMV, threshold }, ref) => {
   const [filled, setFilled] = useState(false);
 
   useMotionValueEvent(heightMV, "change", (h) => {
@@ -34,11 +39,12 @@ const TimelineNode = forwardRef<
   return (
     <div
       ref={ref}
-      className="absolute left-3 flex h-10 w-10 items-center justify-center rounded-full bg-background md:left-3"
+      className="absolute left-3 flex h-10 w-10 items-center justify-center bg-background md:left-3"
     >
-      <div
+      <motion.div
+        style={{ rotate: rotateMV }}
         className={cn(
-          "h-4 w-4 rounded-full border transition-all duration-300",
+          "h-4 w-4 border transition-[background-color,border-color,box-shadow] duration-300",
           filled
             ? "border-cyan bg-cyan shadow-[0_0_12px_rgba(34,211,230,0.55)]"
             : "border-border bg-surface"
@@ -103,6 +109,7 @@ export function Timeline({ data }: { data: TimelineEntry[] }) {
 
   const heightTransform = useTransform(scrollYProgress, [0, 1], [0, height]);
   const opacityTransform = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
+  const rotateTransform = useTransform(scrollYProgress, [0, 1], [0, 720]);
 
   return (
     <div className="w-full font-sans md:px-10" ref={containerRef}>
@@ -118,6 +125,7 @@ export function Timeline({ data }: { data: TimelineEntry[] }) {
                   circleRefs.current[index] = el;
                 }}
                 heightMV={heightTransform}
+                rotateMV={rotateTransform}
                 threshold={thresholds[index] ?? Infinity}
               />
               <h3 className="hidden font-mono text-xl font-bold text-muted md:block md:pl-20 md:text-3xl lg:text-4xl">
