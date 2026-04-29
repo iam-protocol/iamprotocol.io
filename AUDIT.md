@@ -1,6 +1,13 @@
 # Entros Protocol — Security & Quality Audit Tracker
 
-Last updated: 2026-04-28
+Last updated: 2026-04-29
+
+**Recent activity (2026-04-29):** First-mint receipt binding shipped to
+devnet in log-only mode. The on-chain identity program now inspects the
+preceding instruction in any mint transaction to validate the
+verification-service signature on a (wallet, commitment, timestamp)
+receipt. Enforcement flip pending an SDK release + a soak window. No
+public API or wire-protocol breaking changes.
 
 **Recent activity (2026-04-28):** Cross-repo internal hardening pass shipped
 across five repositories (validator, executor, circuits, governance plugin,
@@ -109,7 +116,7 @@ not fix these in isolation.
 - [x] **Vault PDA has no unstake instruction** — Added `unstake_validator` instruction. Transfers staked SOL from vault back to validator via System Program CPI with PDA signing. Closes ValidatorState account (returns rent, allows re-registration). Authority constraint prevents unauthorized unstaking. Fixed 2026-03-25.
 - [x] **Trust score rewarded burst over consistency** — Same-day verifications inflated recency score linearly. Fixed by deduplicating `recent_timestamps` by calendar day before computing recency and regularity scores. Fixed 2026-04-10.
 - [x] **`create_challenge` accepts zero nonces** — Added `require!(nonce != [0u8; 32])` check matching the commitment validation pattern in entros-anchor. Fixed 2026-04-10.
-- [ ] **No integration tests for trust score or nonce validation** — Trust score deduplication and nonce zero-check have no anchor test coverage. Assigned to contributor.
+- [x] **No integration tests for trust score or nonce validation — Closed 2026-04-21.** Trust score deduplication covered in Pluto's PR #24 (same-day case, asserts `trustScore == trustScorePrev` after a 3rd same-day verification) and PR #28 (cross-day case via LiteSVM clock warp, trust score 100 → 198 → 311 across unique days). Nonce zero-check covered in PR #25 (asserts error 6006 `InvalidNonce` on `create_challenge` with `new Array(32).fill(0)`).
 - [x] **3 entros-registry tests failing due to test ordering** — `initializes protocol config` wrapped in try/catch for idempotent initialization. Trust score tests updated to match current instruction signature. Fixed 2026-03-25.
 
 ### Medium
