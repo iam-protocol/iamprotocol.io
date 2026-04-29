@@ -40,7 +40,6 @@ export function PartnersSection() {
                       width={28}
                       height={28}
                       className="rounded-full"
-                      unoptimized
                     />
                   ) : (
                     <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border">

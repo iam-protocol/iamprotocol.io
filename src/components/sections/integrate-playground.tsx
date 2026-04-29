@@ -198,7 +198,7 @@ export function IntegratePlayground() {
                   Verifications
                 </p>
                 <p className="mt-2 font-display text-3xl font-medium tracking-tight text-foreground">
-                  {result.verificationCount}
+                  {result.verificationCount + 1}
                 </p>
               </div>
               <div>
