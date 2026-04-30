@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Geist } from "next/font/google";
+import { Inter, JetBrains_Mono, Geist, VT323 } from "next/font/google";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { SiteChrome } from "@/components/layout/site-chrome";
@@ -33,6 +33,16 @@ const jetbrainsMono = JetBrains_Mono({
 const geist = Geist({
   variable: "--font-geist",
   subsets: ["latin"],
+  display: "swap",
+});
+
+// VT323 — wordmark only. Single-weight CRT terminal pixel font.
+// Distinguishes the logo from the body monospace (JetBrains) with
+// raw 80s-terminal character. OFL, free for commercial use.
+const wordmark = VT323({
+  variable: "--font-wordmark",
+  subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
@@ -111,7 +121,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} ${geist.variable} overflow-x-hidden`}
+      className={`${inter.variable} ${jetbrainsMono.variable} ${geist.variable} ${wordmark.variable} overflow-x-hidden`}
       suppressHydrationWarning
     >
       <body className="min-h-[100svh] overflow-x-clip bg-background text-foreground font-sans antialiased">

@@ -52,11 +52,15 @@ export function NavbarWordmark() {
   return (
     <Link
       href="/"
-      className="font-mono text-xl font-bold tracking-tight text-foreground"
+      style={{ fontFamily: "var(--font-wordmark)" }}
+      className="inline-flex items-baseline text-3xl tracking-tight text-foreground"
       aria-label="entros — home"
     >
       <span aria-hidden>{display}</span>
-      <span className="text-cyan">.</span>
+      <span
+        aria-hidden
+        className="ml-1 inline-block size-[4px] bg-cyan"
+      />
     </Link>
   );
 }
