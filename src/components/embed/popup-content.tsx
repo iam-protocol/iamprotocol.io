@@ -164,7 +164,7 @@ function categorizeError(error: string): EmbedErrorReason {
  * surfaces auto-close so the user re-triggers from the integrator.
  */
 export function PopupContent({ params }: { params: ParsedEmbedParams }) {
-  const { connected, wallet, publicKey } = useWallet();
+  const { connected, wallet, publicKey, disconnect } = useWallet();
   const { connection } = useConnection();
   const pulse = usePulse();
 
@@ -420,6 +420,13 @@ export function PopupContent({ params }: { params: ParsedEmbedParams }) {
           <span className="font-mono text-xs text-cyan">
             {truncatedAddress}
           </span>
+          <button
+            onClick={() => disconnect()}
+            className="ml-1 text-xs text-foreground/40 transition-colors hover:text-foreground"
+            aria-label="Disconnect wallet"
+          >
+            &times;
+          </button>
         </div>
         <p className="font-mono text-base font-semibold text-foreground">
           Verify with Entros
@@ -445,8 +452,9 @@ export function PopupContent({ params }: { params: ParsedEmbedParams }) {
         </button>
       </div>
       <p className="text-center text-xs text-muted">
-        Raw data stays on your device. Only the proof and a statistical
-        summary leave.
+        Raw data stays on your device.
+        <br />
+        Only the proof and a statistical summary leave.
       </p>
     </div>
   );
