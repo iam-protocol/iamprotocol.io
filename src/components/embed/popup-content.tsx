@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import type { Connection } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import { Wallet } from "lucide-react";
 import {
   type PulseSession,
+  PROGRAM_IDS,
   fetchChallenge,
-  fetchIdentityState,
 } from "@entros/pulse-sdk";
 
 import type { ParsedEmbedParams } from "@/lib/embed/url-params";
@@ -44,6 +46,70 @@ const PROOF_TIMEOUT_MS = 60_000;
  * surfaces as `network_error` rather than `validation_failed`.
  */
 const VALIDATION_UNAVAILABLE_REASON = "validation_unavailable";
+
+/**
+ * Reads `trust_score` directly from the IdentityState PDA via a byte
+ * parse, matching the pattern used in `verify-wallet-connected.tsx`,
+ * `dashboard-anchor-view.tsx`, and pulse-sdk's own `agent/anchor.ts`.
+ *
+ * Account layout (canonical, mirrored across the codebase):
+ *   bytes  0..7  Anchor discriminator
+ *   bytes  8..39 owner pubkey (32)
+ *   bytes 40..47 creation_timestamp (i64 LE)
+ *   bytes 48..55 last_verification_timestamp (i64 LE)
+ *   bytes 56..59 verification_count (u32 LE)
+ *   bytes 60..61 trust_score (u16 LE)
+ *
+ * Avoids the SDK's `fetchIdentityState` because that helper performs a
+ * runtime IDL fetch which (a) is unnecessary now that the on-chain
+ * layout is stable and (b) silently fails on transient RPC issues,
+ * collapsing the integrator-facing trust_score to 0 even when the
+ * wallet's on-chain score is non-zero.
+ *
+ * Retries on a fresh `getAccountInfo` call to absorb the RPC's
+ * read-after-write lag — a tx that just confirmed on the validator is
+ * not always immediately readable from the same connection's RPC.
+ */
+// Linear backoff for the IdentityState read after a successful chain
+// submit. Total cumulative wait across attempts: 800 + 1600 + 2400 = 4.8s,
+// comfortably exceeding typical devnet RPC propagation lag (~1–2s) without
+// pushing the popup's perceived close timing past the success surface.
+const TRUST_SCORE_RETRY_BACKOFF_MS = 800;
+const TRUST_SCORE_MAX_ATTEMPTS = 4;
+
+async function readTrustScoreFromChain(
+  walletPubkey: string,
+  connection: Connection,
+): Promise<number> {
+  const programId = new PublicKey(PROGRAM_IDS.entrosAnchor);
+  const [identityPda] = PublicKey.findProgramAddressSync(
+    [
+      new TextEncoder().encode("identity"),
+      new PublicKey(walletPubkey).toBuffer(),
+    ],
+    programId,
+  );
+
+  for (let attempt = 0; attempt < TRUST_SCORE_MAX_ATTEMPTS; attempt++) {
+    const account = await connection
+      .getAccountInfo(identityPda)
+      .catch(() => null);
+    if (account && account.data.length >= 62) {
+      const view = new DataView(
+        account.data.buffer,
+        account.data.byteOffset,
+        account.data.byteLength,
+      );
+      return view.getUint16(60, true);
+    }
+    if (attempt < TRUST_SCORE_MAX_ATTEMPTS - 1) {
+      await new Promise((r) =>
+        setTimeout(r, TRUST_SCORE_RETRY_BACKOFF_MS * (attempt + 1)),
+      );
+    }
+  }
+  return 0;
+}
 
 /**
  * Maps a free-form error string from the SDK / wallet adapter / RPC layer
@@ -269,11 +335,10 @@ export function PopupContent({ params }: { params: ParsedEmbedParams }) {
         const walletPubkey = publicKey.toBase58();
         const attestationPda = deriveAttestationPda(walletPubkey);
 
-        const identity = await fetchIdentityState(
+        const trustScore = await readTrustScoreFromChain(
           walletPubkey,
           connection,
-        ).catch(() => null);
-        const trustScore = identity?.trustScore ?? 0;
+        );
 
         const payload: VerifiedPayload = {
           wallet_pubkey: walletPubkey,
