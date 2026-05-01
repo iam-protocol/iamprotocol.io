@@ -23,14 +23,11 @@ export function ForDevelopersSection() {
             </h2>
 
             <p className="mt-6 max-w-md text-base leading-relaxed text-foreground/65 md:text-lg">
-              One SDK, one function call. The Pulse SDK runs the
-              behavioral capture, generates the ZK proof, and returns
-              an on-chain verification you can read for free from any
-              Solana program.
+              One React component, one callback. <code className="font-mono text-cyan">{`<EntrosVerify />`}</code> opens the verification popup, runs the behavioral capture, mints the on-chain Anchor, and hands you a verified payload. Any Solana program can read the result for free.
             </p>
 
             <a
-              href="/integrate"
+              href="/docs"
               className="
                 group mt-8 inline-flex items-center gap-2
                 rounded-full border border-foreground/20 px-5 py-2.5

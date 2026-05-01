@@ -63,7 +63,7 @@ Program: `8oo4J9tBB3Hna1jRQ3rWvJjojqM5DYTDJo5cejUuJy3C` (devnet) / `8oo4dC4JvBLw
 | --- | --- | --- | --- |
 | Agent metadata entry | `["agent_meta", agent_asset, sha256(key)[0..16]]` | Agent registry | Metadata entry against an agent asset |
 
-For the `entros:human-operator` metadata key, the metadata payload is 42 bytes Borsh-serialized: `{ anchorPda: Pubkey (32B), trustScore: u16 (2B), verifiedAt: i64 (8B) }`.
+For the `entros:human-operator` metadata key, the SDK writes the payload as JSON-encoded UTF-8 wrapped in the Agent Registry's standard Borsh `Vec<u8>` envelope. The decoded JSON shape is `{ anchorPda: string, trustScore: number, verifiedAt: number, wallet: string }`. Read it via `getAgentHumanOperator` from `@entros/pulse-sdk` rather than parsing manually.
 
 ## Where to look next
 

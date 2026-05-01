@@ -5,6 +5,8 @@ description: Drop EntrosGate into a Next.js app and require a verified human Tru
 
 The shortest path to a verified-human gate. Wrap any component in `<EntrosGate>`, set a `minTrustScore`, and the page renders only for wallets whose on-chain Anchor meets the threshold.
 
+This is the **Tier 3 read-only path** — you're gating access against existing on-chain Anchors, not running verification yourself. If you instead want a button that takes a user from "unverified wallet" to "verified human" in one click, that's the **Tier 1 path** — see [Verification flow](/docs/integrate/verification-flow) for the `<EntrosVerify />` drop-in component.
+
 ## Install
 
 ```bash

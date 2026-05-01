@@ -1,25 +1,96 @@
 ---
-title: Verification flow component (in progress)
-description: Drop-in component for the 12-second capture sequence. Coming soon.
+title: Verification flow component
+description: Drop in <EntrosVerify /> to take a user from unverified wallet to on-chain Anchor in one click. Five lines of JSX.
 ---
 
-The verification capture flow—twelve seconds of voice, motion, and touch capture, with progress UI, prompts, and proof submission—currently lives at `entros.io/verify`. Integrators wanting their users to verify in-app today either link to that route via `verifyHref`, or build their own flow on top of the lower-level Pulse SDK primitives.
+The verification flow ships as `@entros/verify` — a React component that opens a popup window to entros.io, runs the 12-second capture, signs the wallet transaction, and posts the verified payload back via the `onVerified` callback. Your app never touches the wallet adapter or the SDK directly until the result arrives.
 
-A standalone, themeable `<EntrosCapture>` component is on the [near-term roadmap](/docs/roadmap/near-term). It will package the existing flow as a self-contained npm component with theme overrides so integrators can match their own brand without forking the SDK.
+This is the Tier 1 path. It's the right choice for ~90% of integrations. Tier 2 (custom UX with the Pulse SDK directly) is documented at [Reference → SDK](/docs/reference/sdk).
 
-## Why this isn't shipped yet
+## Install
 
-The capture flow has UX state—recording prompts, sensor permission handshakes, audio level feedback, motion calibration—that's currently entangled with the entros.io route. Extracting it as a standalone component is a refactor, not a fresh build, but it requires careful decoupling from app-specific styling and the verify-page's wallet adapter setup.
+```bash
+npm install @entros/verify
+```
 
-## What integrators can do today
+The package declares `react ^19` and `react-dom ^19` as peer dependencies. No Solana adapter, no SDK, no web3.js install — those live behind the popup boundary on entros.io.
 
-Two paths.
+## Five-line usage
 
-**Link to the canonical flow.** Set `verifyHref="https://entros.io/verify"` on `<EntrosGate>`. Users who fail the gate are redirected to the canonical verification surface; on completion they return to your app.
+```tsx
+import { EntrosVerify } from "@entros/verify";
 
-**Build on the SDK.** Use `PulseSDK` and `PulseSession` directly. The lower-level primitives—sensor capture, feature extraction, hashing, proof generation, wallet submission—are all public. The work is the UI: prompts, progress, and copy to walk a user through the capture.
+<EntrosVerify
+  integratorKey="your-integrator-key"
+  onVerified={(result) => grantAccess(result.walletPubkey)}
+/>
+```
 
-## Where to look next
+What this does on click:
 
-- [Reference: SDK](/docs/reference/sdk)—the lower-level primitives `PulseSDK`, `PulseSession`, `extractSpeakerFeatures`, `simhash`, `generateProof`
-- [Roadmap: Near-term](/docs/roadmap/near-term)—when the standalone component lands
+1. Opens a popup window to `https://entros.io/embed/verify-popup` with your integrator key and origin
+2. The popup hosts wallet connect (Phantom, Solflare, Backpack)
+3. The user completes the 12-second voice + motion + touch capture
+4. The Pulse SDK extracts features, generates a Groth16 proof, submits to Solana
+5. On success, the popup posts back to your page; `onVerified` fires with the verified payload
+
+## The verified payload
+
+```ts
+interface EntrosVerifyResult {
+  walletPubkey: string;       // Base58 Solana wallet address
+  attestationPda: string;     // SAS attestation PDA — readable by any Solana program
+  txSig: string;              // Confirmed transaction signature
+  trustScore: number;         // On-chain Trust Score after this verification
+  cluster: "devnet" | "mainnet-beta";
+}
+```
+
+Use `walletPubkey` to identify the user. Use `trustScore` if you want a higher gate than "verified once" (e.g., require 100+ for airdrop eligibility). Use `attestationPda` and `txSig` for audit trails.
+
+## Optional props
+
+```tsx
+<EntrosVerify
+  integratorKey="my-app"
+  cluster="devnet"                            // defaults to "devnet"
+  minTrustScore={100}                          // optional gate enforced inside the popup
+  onVerified={(result) => grantAccess(result)}
+  onError={(err) => console.warn(err.reason)}  // wallet_rejected | validation_failed | network_error | timeout | popup_blocked | unknown
+  onProgress={(p) => setStatus(p.status)}      // capturing → proving → submitting → attesting
+  popupWidth={520}                             // defaults to 480
+  popupHeight={760}                            // defaults to 720
+  timeoutMs={5 * 60 * 1000}                    // defaults to 5 minutes
+  popupBlockedFallback                         // defaults to true — renders a manual retry button when the browser blocks the popup
+>
+  Verify with Entros
+</EntrosVerify>
+```
+
+`children` overrides the button label. The component renders a single `<button>` element with whatever children you pass; style it with `className` or `style`.
+
+## Error handling
+
+Every failure routes to `onError` with an opaque category. The popup shows a brief failure surface (or, for stale-baseline cases, a recovery surface linking to the reset path) before closing itself.
+
+| Reason | Meaning | Recovery |
+|---|---|---|
+| `wallet_rejected` | User canceled the wallet signature, or the wallet had insufficient SOL | User retries from your button |
+| `validation_failed` | Validator rejected the capture (variance, entropy, phrase mismatch, sybil match, or stale baseline) | User retries — for stale-baseline cases the popup itself surfaces the reset option |
+| `network_error` | Validator unreachable, blockhash expired, RPC error | Transient — user retries |
+| `user_canceled` | User closed the popup window before completing | User retries |
+| `popup_blocked` | Browser blocked `window.open` | Component renders an inline retry button (set `popupBlockedFallback={false}` to disable) |
+| `timeout` | Popup stayed open longer than `timeoutMs` | User retries |
+| `unknown` | Anything else | Log and retry |
+
+## Integrator key registration
+
+Each integrator key is registered with the popup-host's allowlist along with the production origins it's allowed to be opened from. To register, open an issue at [github.com/entros-protocol/entros-verify](https://github.com/entros-protocol/entros-verify) or reach out via Discord. Keys are added to a JSON allowlist on the entros.io deployment within a deploy cycle.
+
+For local development, the popup-host accepts any `localhost` origin without registration so you can iterate before formal registration.
+
+## Custom UX
+
+If you need to own the verification UX — capture inline, branded prompts, mobile-native — install `@entros/pulse-sdk` directly. See [Reference → SDK](/docs/reference/sdk) for the lower-level primitives (`PulseSDK`, `PulseSession`, `extractSpeakerFeatures`, `simhash`, `generateProof`, `submitViaWallet`).
+
+The Pulse SDK is what `@entros/verify` uses internally on the popup-host side, so the two paths produce identical on-chain state.

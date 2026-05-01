@@ -30,9 +30,10 @@ The schema fields:
 The attestation PDA is derived from the credential, schema, and user wallet:
 
 ```ts
+// SAS_PROGRAM_ID = new PublicKey("22zoJMtdu4tQc2PzL74ZUT7FrwgB1Udec8DdW4yw4BdG")
 const [attestationPda] = PublicKey.findProgramAddressSync(
   [
-    Buffer.from("attestation"),
+    new TextEncoder().encode("attestation"),
     credentialPda.toBuffer(),
     schemaPda.toBuffer(),
     userWallet.toBuffer(),

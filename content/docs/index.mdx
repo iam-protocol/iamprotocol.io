@@ -7,14 +7,25 @@ Entros is a Solana protocol that proves a wallet is operated by a returning huma
 
 These docs cover the integration paths: drop-in React components, on-chain reads, SAS attestations, Realms voter-weight, and Agent Anchor. They also publish the technical reference for the SDK and on-chain programs, and the public roadmap for what comes next.
 
+## Three integration paths
+
+Pick the path that matches your use case. Each integrator only needs one.
+
+**Tier 1 — Drop-in trigger.** You want a button that takes a user from "unverified wallet" to "verified human" with a single click. The popup hosts the wallet connect, the 12-second behavioral capture, the proof, and the on-chain mint. Your app stays wallet-adapter-free until a verified payload arrives on the callback. Install: `@entros/verify`. Five lines of JSX.
+
+**Tier 2 — Programmatic SDK.** You want to own the verification UX — custom capture canvas, branded loading states, inline rather than popup, mobile-native. The Pulse SDK exposes the lower-level primitives the popup is built on. Install: `@entros/pulse-sdk`. Same package powers Tier 1 internally.
+
+**Tier 3 — Read-only.** You don't run verification yourself. You just need to gate access or display a Trust Score based on existing on-chain Anchors. One function call, free reads, no API key. Install: `@entros/pulse-sdk`.
+
 ## Where to start
 
 - New to Entros? Begin with [Concepts → Proof of Personhood](/docs/concepts/proof-of-personhood).
-- Building an integration? Jump to the [Quickstart](/docs/quickstart/next-js).
-- Looking up an API? Open the [Reference](/docs/reference/sdk).
+- Most integrators (Tier 1)? Drop in `<EntrosVerify />` — see the [verification flow](/docs/integrate/verification-flow).
+- Custom UX (Tier 2)? See the [Pulse SDK reference](/docs/reference/sdk).
+- Read-only (Tier 3)? Jump to the [gate-a-route quickstart](/docs/quickstart/next-js) or [read-on-chain](/docs/integrate/read-on-chain).
 - Curious where this is going? See the [Roadmap](/docs/roadmap/current).
 
-## The shape of an integration
+## The shape of a Tier 3 read
 
 Most integrations read one piece of on-chain state: a Trust Score on the user's Anchor PDA, or an attestation issued through SAS. There is no API key, no billing relationship, no off-chain dependency. The user pays a small protocol fee at verification time. Integrators read for free.
 

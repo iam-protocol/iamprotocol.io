@@ -6,7 +6,7 @@ import { pageMetadata } from "@/lib/page-metadata";
 export const metadata = pageMetadata({
   title: "Integrate",
   description:
-    "Drop the Pulse SDK into any Solana app. Two verification modes, one consistent API. Read on-chain attestations for free—no escrow, no API keys, no billing.",
+    "Drop the EntrosVerify component into any Solana app in five lines, or wire the Pulse SDK directly for custom UX. Read on-chain attestations for free—no escrow, no API keys, no billing.",
   path: "/integrate",
 });
 
@@ -27,14 +27,12 @@ export default function Integrate() {
           </h1>
 
           <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-foreground/70 md:mt-8 md:text-lg">
-            Drop the Pulse SDK into any Solana app. Two verification modes,
-            one consistent API. Read on-chain attestations for free—no
-            escrow, no API keys, no billing relationship.
+            Drop in <code className="font-mono text-cyan">{`<EntrosVerify />`}</code> for the five-line path, or wire the Pulse SDK directly for custom UX. Read on-chain attestations for free—no escrow, no API keys, no billing relationship.
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <a
-              href="https://github.com/entros-protocol/pulse-sdk"
+              href="https://github.com/entros-protocol/entros-verify"
               target="_blank"
               rel="noopener noreferrer"
               className="
@@ -72,7 +70,8 @@ export default function Integrate() {
 
             <span className="text-foreground/40">$</span>
             <span className="ml-3 text-foreground/85">npm install </span>
-            <span className="text-cyan">@entros/pulse-sdk</span>
+            <span className="text-cyan">@entros/verify</span>
+            <span className="text-foreground/40"> # or @entros/pulse-sdk for programmatic UX</span>
           </div>
         </div>
       </section>

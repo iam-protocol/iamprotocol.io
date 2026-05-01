@@ -1,15 +1,20 @@
 import type { DeveloperSnippet } from "./types";
 
+/**
+ * Homepage hero snippet — leads with `@entros/verify`, the drop-in
+ * trigger component. The five lines in the snippet are the five lines
+ * an integrator literally writes; nothing is hidden behind unshown
+ * function wrappers, no top-level await, no fake API surface. Copy-paste
+ * compiles into a working button.
+ */
 export const sdkSnippet: DeveloperSnippet = {
-  language: "typescript",
+  language: "tsx",
   title: "5 lines to verify a human",
-  code: `import { PulseSDK } from '@entros/pulse-sdk';
+  code: `import { EntrosVerify } from '@entros/verify';
 
-const pulse = new PulseSDK({ cluster: 'devnet' });
-const result = await pulse.verify();
-
-if (result.success) {
-  grantAccess(result.commitment);
-}`,
-  installCommand: "npm install @entros/pulse-sdk",
+<EntrosVerify
+  integratorKey="my-app"
+  onVerified={(result) => grantAccess(result.walletPubkey)}
+/>`,
+  installCommand: "npm install @entros/verify",
 };

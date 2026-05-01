@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, ShieldCheck } from "lucide-react";
-import { integrationSnippets, useCaseSnippets } from "@/data/integration-snippets";
+import {
+  integrationSnippets,
+  useCaseSnippets,
+  verifyComponentSnippet,
+} from "@/data/integration-snippets";
 import { CodeBlock } from "@/components/ui/code-block";
 import { IntegratePlayground } from "./integrate-playground";
 
@@ -44,23 +48,83 @@ const ABUSE_MECHANISMS = [
 export function IntegrateGuide() {
   return (
     <>
-      {/* Quick Start—two mode panels in hairline grid */}
+      {/* Tier 1 — Drop-in component. Lead with the truly five-line path. */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-foreground/40">
-            // QUICK START
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-foreground/40">
+              // TIER 1 — DROP-IN
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan">
+              FASTEST PATH
+            </span>
+          </div>
 
           <h2 className="mt-6 max-w-3xl font-display text-3xl font-medium tracking-tight text-foreground md:text-5xl md:leading-[1.05]">
-            Two modes<span className="text-cyan">.</span> One SDK<span className="text-cyan">.</span>
+            Five lines<span className="text-cyan">.</span> One component<span className="text-cyan">.</span>
           </h2>
 
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/70 md:text-lg">
-            Wallet-connected is the primary flow—a Groth16 ZK proof, an
-            on-chain Entros Anchor, a SAS attestation, and a Trust Score
-            that compounds across re-verifications. Walletless is a
-            captcha-equivalent tier for sign-up flows—device-bound,
-            ephemeral, no on-chain identity written.
+            {verifyComponentSnippet.description}
+          </p>
+
+          <div className="mt-12 grid grid-cols-1 gap-px border-y border-border bg-border lg:grid-cols-5">
+            <div className="flex flex-col bg-background p-8 md:p-10 lg:col-span-2">
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-xs tracking-[0.2em] text-cyan">01</span>
+                <span className="h-px flex-1 bg-border" />
+                <span className="font-mono text-xs uppercase tracking-[0.15em] text-foreground/50">
+                  RECOMMENDED
+                </span>
+              </div>
+
+              <h3 className="mt-6 font-display text-xl font-medium tracking-tight text-foreground md:text-2xl">
+                {verifyComponentSnippet.title}
+              </h3>
+
+              <p className="mt-4 text-sm leading-relaxed text-foreground/65">
+                The popup hosts the wallet connection, the 12-second
+                capture, the proof, and the chain submit. Your app stays
+                wallet-adapter-free until the moment a verified payload
+                arrives on the callback.
+              </p>
+
+              <div className="mt-6 font-mono text-xs text-foreground/55">
+                <span className="text-foreground/30">$</span>{" "}
+                {verifyComponentSnippet.installCommand}
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-center bg-background p-8 md:p-10 lg:col-span-3">
+              <CodeBlock code={verifyComponentSnippet.code} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tier 2 — Programmatic SDK. For apps that want to own the UX. */}
+      <section className="border-t border-border">
+        <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-foreground/40">
+              // TIER 2 — PROGRAMMATIC SDK
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground/50">
+              CUSTOM UX
+            </span>
+          </div>
+
+          <h2 className="mt-6 max-w-3xl font-display text-3xl font-medium tracking-tight text-foreground md:text-5xl md:leading-[1.05]">
+            Two modes<span className="text-cyan">.</span> Full control<span className="text-cyan">.</span>
+          </h2>
+
+          <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/70 md:text-lg">
+            For apps that want to own the verification UX—custom capture
+            canvas, inline rather than popup, branded loading states.
+            Wallet-connected is the primary flow with a Groth16 proof, an
+            on-chain Anchor, a SAS attestation, and a Trust Score that
+            compounds. Walletless is the captcha-equivalent tier for
+            sign-up—device-bound, ephemeral, no on-chain identity.
           </p>
 
           <div className="mt-16 grid grid-cols-1 gap-px border-y border-border bg-border lg:grid-cols-2">
@@ -90,6 +154,10 @@ export function IntegrateGuide() {
               </div>
             ))}
           </div>
+
+          <div className="mt-8 font-mono text-xs text-foreground/55">
+            <span className="text-foreground/30">$</span> npm install @entros/pulse-sdk
+          </div>
         </div>
       </section>
 
@@ -116,16 +184,28 @@ export function IntegrateGuide() {
         </div>
       </section>
 
-      {/* Use cases */}
+      {/* Tier 3 — Read-only patterns. No verification flow in your app. */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-foreground/40">
-            // USE CASES
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-foreground/40">
+              // TIER 3 — READ-ONLY
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground/50">
+              GATE OR DISPLAY
+            </span>
+          </div>
 
           <h2 className="mt-6 max-w-3xl font-display text-3xl font-medium tracking-tight text-foreground md:text-5xl md:leading-[1.05]">
             Read<span className="text-cyan">.</span> Gate<span className="text-cyan">.</span> Display<span className="text-cyan">.</span>
           </h2>
+
+          <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/70 md:text-lg">
+            For apps that don&apos;t run the verification themselves but
+            need to gate or display based on existing on-chain Anchors.
+            Free reads via <code className="font-mono text-cyan">verifyEntrosAttestation()</code>,
+            optional copy-source React components for badges and gates.
+          </p>
 
           <div className="mt-16 grid grid-cols-1 gap-px border-y border-border bg-border lg:grid-cols-2">
             {useCaseSnippets.map((snippet, idx) => (
@@ -159,15 +239,15 @@ export function IntegrateGuide() {
         </div>
       </section>
 
-      {/* Drop-in components */}
+      {/* Live demos for the Tier 3 display primitives. */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
           <span className="font-mono text-xs uppercase tracking-[0.2em] text-foreground/40">
-            // DROP-IN COMPONENTS
+            // LIVE DEMOS
           </span>
 
           <h2 className="mt-6 max-w-3xl font-display text-3xl font-medium tracking-tight text-foreground md:text-5xl md:leading-[1.05]">
-            Self-contained React components<span className="text-cyan">.</span>
+            Display primitives<span className="text-cyan">.</span> Live previews<span className="text-cyan">.</span>
           </h2>
 
           <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/70 md:text-lg">
@@ -231,16 +311,20 @@ export function IntegrateGuide() {
         </div>
       </section>
 
-      {/* Configuration—hairline table */}
+      {/* Pulse SDK configuration—hairline table. */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-7xl px-6 py-24 md:py-32">
           <span className="font-mono text-xs uppercase tracking-[0.2em] text-foreground/40">
-            // CONFIGURATION
+            // PULSE SDK · CONFIGURATION
           </span>
 
           <h2 className="mt-6 max-w-3xl font-display text-3xl font-medium tracking-tight text-foreground md:text-5xl md:leading-[1.05]">
             Seven options<span className="text-cyan">.</span> Sensible defaults<span className="text-cyan">.</span>
           </h2>
+
+          <p className="mt-6 max-w-3xl text-base leading-relaxed text-foreground/70 md:text-lg">
+            Tier 2 only. The drop-in <code className="font-mono text-cyan">{`<EntrosVerify />`}</code> component takes its config from the popup-host and exposes a smaller prop surface (integrator key, cluster, optional trust-score floor).
+          </p>
 
           <div className="mt-12 overflow-x-auto border border-border">
             <table className="w-full border-collapse text-sm">

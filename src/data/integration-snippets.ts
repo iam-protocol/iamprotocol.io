@@ -1,107 +1,166 @@
 import type { IntegrationSnippet } from "./types";
 
+/**
+ * Tier 1 — drop-in trigger via the `@entros/verify` package.
+ *
+ * Five lines of JSX. The component opens a popup to entros.io, runs the
+ * full verification pipeline, posts the result back via postMessage, and
+ * fires the `onVerified` callback. Wallet connection happens inside the
+ * popup so the integrator never touches `@solana/wallet-adapter-react`.
+ *
+ * The example is copy-paste runnable. Nothing hidden behind unshown
+ * function wrappers.
+ */
+export const verifyComponentSnippet = {
+  title: "Drop-in component",
+  description:
+    "The fastest path. Render `<EntrosVerify>` as a button anywhere in your React tree—the component handles the wallet popup, the 12-second behavioral capture, the on-chain mint, and hands you a verified payload via callback. Five lines.",
+  code: `import { EntrosVerify } from '@entros/verify';
+
+<EntrosVerify
+  integratorKey="my-app"
+  onVerified={(result) => grantAccess(result.walletPubkey)}
+/>`,
+  installCommand: "npm install @entros/verify",
+};
+
+/**
+ * Tier 2 — programmatic SDK via `@entros/pulse-sdk`.
+ *
+ * For apps that want to own the verification UX (custom capture canvas,
+ * inline rather than popup, branded loading states). The snippets below
+ * are inside React component context — top-level `await` is impossible
+ * outside an async function or top-level ESM module, so we show the
+ * realistic `useEffect` / event-handler shape an integrator would
+ * actually write.
+ */
 export const integrationSnippets: IntegrationSnippet[] = [
   {
     mode: "wallet-connected",
     title: "Wallet-connected verification",
     description:
-      "The primary verification flow. The user pays a small protocol fee (~0.005 SOL) and signs a single batched transaction. An on-chain Entros Anchor is minted or updated, a SAS attestation is written, and the Trust Score recomputes—all via the same wallet prompt. Your app reads the result on-chain for free.",
-    code: `import { PulseSDK } from '@entros/pulse-sdk';
+      "The primary flow. The user pays a small protocol fee (~0.005 SOL) and signs a single transaction. An on-chain Anchor is minted or updated, a SAS attestation is written, and the Trust Score recomputes—all from one wallet prompt. Your app reads results on-chain for free.",
+    code: `"use client";
+import { useRef } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { PulseSDK } from '@entros/pulse-sdk';
 
 const pulse = new PulseSDK({ cluster: 'devnet' });
-const { wallet } = useWallet();
-const { connection } = useConnection();
 
-// User completes challenge, signs tx with wallet
-const result = await pulse.verify(
-  touchElement, wallet.adapter, connection
-);
+export function CustomVerify() {
+  const touchRef = useRef<HTMLDivElement>(null);
+  const { wallet } = useWallet();
+  const { connection } = useConnection();
 
-if (result.success) {
-  // result.txSignature—Solana transaction signature
-  // result.commitment—Poseidon commitment written on-chain
-  grantAccess(result.commitment);
+  async function handleVerify() {
+    const result = await pulse.verify(
+      touchRef.current,
+      wallet?.adapter,
+      connection,
+    );
+    if (result.success) grantAccess(result.commitment);
+  }
+
+  return (
+    <>
+      <div ref={touchRef} className="capture-canvas" />
+      <button onClick={handleVerify}>Verify</button>
+    </>
+  );
 }`,
   },
   {
     mode: "walletless",
     title: "Walletless verification",
     description:
-      "Captcha-equivalent tier for non-crypto sign-up flows. The Pulse SDK generates a Groth16 proof and submits to the Entros relayer for liveness validation. No wallet, no transaction, no on-chain Anchor—device-bound and ephemeral. The integrator optionally funds verifications via API key.",
-    code: `import { PulseSDK } from '@entros/pulse-sdk';
+      "Captcha-equivalent tier for sign-up flows. The SDK runs the capture, generates a Groth16 proof, and submits to the relayer for liveness validation. No wallet, no transaction, no on-chain Anchor—device-bound and ephemeral. The integrator funds verifications via API key.",
+    code: `"use client";
+import { useRef } from 'react';
+import { PulseSDK } from '@entros/pulse-sdk';
 
 const pulse = new PulseSDK({
   cluster: 'devnet',
-  relayerUrl: 'https://relayer.entros-protocol.org',
+  relayerUrl: 'https://relayer.entros.io',
+  relayerApiKey: process.env.NEXT_PUBLIC_ENTROS_KEY!,
 });
 
-// User completes Pulse challenge on your site
-const result = await pulse.verify();
+export function CaptchaCheck() {
+  const touchRef = useRef<HTMLDivElement>(null);
 
-if (result.success) {
-  // result.commitment—verification commitment hash
-  // No on-chain artifact; relayer-validated only.
-  grantAccess(result.commitment);
+  async function handleCheck() {
+    const result = await pulse.verify(touchRef.current);
+    if (result.success) grantAccess(result.commitment);
+  }
+
+  return (
+    <>
+      <div ref={touchRef} className="capture-canvas" />
+      <button onClick={handleCheck}>Prove I'm human</button>
+    </>
+  );
 }`,
   },
 ];
 
+/**
+ * Tier 3 — read-only patterns. No verification flow in your app; you're
+ * just gating or displaying based on existing on-chain Anchors.
+ *
+ * `verifyEntrosAttestation` is exported from `@entros/pulse-sdk`, so the
+ * import path here is real. `EntrosBadge` and `EntrosGate` are
+ * copy-source components — paste them into your project and adjust the
+ * import path to your own component tree. (Future: `@entros/react`
+ * package consolidates them; until then, copy from entros.io's repo.)
+ */
 export const useCaseSnippets = [
   {
     title: "Check if a wallet is human",
-    description: "Use this to verify if a wallet has a valid Entros attestation on-chain.",
+    description:
+      "Read the SAS attestation from chain state. No verification UI in your app, no API call, no key. Use this to gate any server route or client component.",
     code: `import { verifyEntrosAttestation } from '@entros/pulse-sdk';
-import { useConnection } from '@solana/wallet-adapter-react';
+import type { Connection } from '@solana/web3.js';
 
-// Inside your component or API route
-const { connection } = useConnection();
-
-try {
-  // attestation: { isHuman: boolean, trustScore: number, verifiedAt: number, mode: string, expired: boolean } | null
+export async function isVerifiedHuman(
+  walletAddress: string,
+  connection: Connection,
+): Promise<boolean> {
   const attestation = await verifyEntrosAttestation(walletAddress, connection);
-
-  if (!attestation || !attestation.isHuman || attestation.expired) {
-    throw new Error("Access Denied: User is not verified.");
-  }
-
-  // Proceed securely
-  grantAccess();
-} catch (e) {
-  console.error("Entros Verification failed:", e);
-}`
+  return Boolean(attestation?.isHuman && !attestation.expired);
+}`,
   },
   {
     title: "Gate access on Trust Score",
     description:
-      "Drop-in React component. Renders children only if the connected wallet meets your Trust Score threshold. Source and live preview at /gate-demo.",
-    code: `import { EntrosGate } from "@/components/ui/entros-gate";
+      "Drop-in React component. Renders children only when the connected wallet has an Anchor with Trust Score above your threshold. Source and live preview at /gate-demo — copy the file into your own components folder.",
+    code: `// Copy the EntrosGate source from entros.io/components/ui/entros-gate.tsx
+import { EntrosGate } from "./components/EntrosGate";
 
 export function PremiumPage() {
   return (
     <EntrosGate minTrustScore={100}>
-      {/* Children render only when the connected wallet
-          has an Entros Anchor with trust score >= 100 */}
+      {/* Renders only when the connected wallet has an Anchor
+          with trust_score >= 100 on devnet */}
       <h1>Welcome, verified human.</h1>
     </EntrosGate>
   );
-}`
+}`,
   },
   {
     title: "Display verification status",
-    description: "Use the drop-in React component to show identity status.",
-    code: `import { EntrosBadge } from "@/components/ui/entros-badge";
+    description:
+      "Pill component for profiles, comments, leaderboards. Reads the Anchor PDA on each render and shows the current Trust Score. Copy the source from /badge-demo.",
+    code: `// Copy the EntrosBadge source from entros.io/components/ui/entros-badge.tsx
+import { EntrosBadge } from "./components/EntrosBadge";
 import { useConnection } from "@solana/wallet-adapter-react";
 
-export function ProfileHeader({ walletAddress }) {
+export function ProfileHeader({ walletAddress }: { walletAddress: string }) {
   const { connection } = useConnection();
   return (
     <div className="flex items-center gap-4">
       <h2 className="text-xl font-bold">{walletAddress}</h2>
-      {/* Renders a verified pill with the trust score */}
       <EntrosBadge walletAddress={walletAddress} connection={connection} />
     </div>
   );
-}`
-  }
+}`,
+  },
 ];

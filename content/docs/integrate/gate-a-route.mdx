@@ -64,7 +64,7 @@ The `fallback` prop is rendered for both "below threshold" and "no Anchor on fil
 
 If you're hosting the verification flow yourself, set `verifyHref` to your route. If you're routing users to the canonical site, use `verifyHref="https://entros.io/verify"`.
 
-A standalone `<EntrosCapture>` component for in-app verification is on the [near-term roadmap](/docs/roadmap/near-term).
+For an in-app verification trigger that doesn't redirect, drop in [`<EntrosVerify />`](/docs/integrate/verification-flow) — the popup-pattern component from `@entros/verify`. The user verifies in a popup window without leaving your page; on success the gate's read of the on-chain Anchor will pass on next render.
 
 ## Server-side gating
 
