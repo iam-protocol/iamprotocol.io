@@ -10,7 +10,7 @@ export function CloseButton() {
     <button
       type="button"
       onClick={() => window.close()}
-      className="font-mono text-xs text-foreground/40 transition-colors hover:text-foreground"
+      className="font-mono text-2xl leading-none text-foreground/55 transition-colors hover:text-foreground"
       aria-label="Close"
     >
       ×
