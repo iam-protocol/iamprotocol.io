@@ -7,12 +7,15 @@ description: Render a wallet's verification state without gating any content.
 
 ## Get the component
 
-`EntrosBadge` is a single-file React component you copy into your project from the entros.io repo: [`src/components/ui/entros-badge.tsx`](https://github.com/entros-protocol/entros.io/blob/main/src/components/ui/entros-badge.tsx). It will be packaged as a standalone npm component as part of the [near-term roadmap](/docs/roadmap/near-term).
+`EntrosBadge` is a single-file React component you copy into your project from the entros.io repo: [`src/components/ui/entros-badge.tsx`](https://github.com/entros-protocol/entros.io/blob/main/src/components/ui/entros-badge.tsx). Drop it in a `components/` directory and import from there.
+
+(The shipped `@entros/verify` package covers the verification *trigger*; `EntrosBadge` is the read-only display primitive — same on-chain source, different surface. A standalone `@entros/badge` package is on the [near-term roadmap](/docs/roadmap/near-term).)
 
 ## Usage
 
 ```tsx
-import { EntrosBadge } from "@/components/ui/entros-badge";
+// after copying entros-badge.tsx into your components/ directory
+import { EntrosBadge } from "./components/EntrosBadge";
 
 <EntrosBadge walletAddress={comment.author} />
 ```

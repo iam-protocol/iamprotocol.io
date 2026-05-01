@@ -7,23 +7,23 @@ The Solana Agent Registry (the Solana implementation of the ERC-8004 agent ident
 
 ## What it does
 
-A registered agent on the registry has an `agentAsset` PDA. Agent Anchor writes a metadata entry against that PDA with three fields:
+A registered agent on the registry has an `agentAsset` PDA. Agent Anchor writes a metadata entry against that PDA with four fields:
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `anchorPda` | `Pubkey` | Operator's Entros Anchor PDA |
-| `trustScore` | `u16` | Operator's Trust Score at the time of attestation |
-| `verifiedAt` | `i64` | When the operator was last verified |
+| `anchorPda` | `string` | Operator's Entros Anchor PDA (base58) |
+| `trustScore` | `number` | Operator's Trust Score at the time of attestation |
+| `verifiedAt` | `number` | Unix timestamp when the operator was last verified |
+| `wallet` | `string` | Operator's wallet pubkey (base58) |
 
-The metadata is keyed under the canonical key `entros:human-operator` and marked immutable—once written, the operator linkage is permanent.
+The metadata is JSON-serialized inside the registry's Borsh `Vec<u8>` envelope, keyed under `entros:human-operator`, and marked immutable—once written, the operator linkage is permanent.
 
 ## Attest a human operator
 
 ```ts
 import { attestAgentOperator } from "@entros/pulse-sdk";
-import { PublicKey } from "@solana/web3.js";
 
-const agentAsset = new PublicKey("YourAgentAssetPubkey...");
+const agentAsset = "YourAgentAssetPubkey..."; // base58 string
 const result = await attestAgentOperator(agentAsset, { wallet, connection });
 
 if (!result.success) {
@@ -76,15 +76,19 @@ This pattern turns "anyone can register an agent" into "any verified human with 
 | Devnet | `8oo4J9tBB3Hna1jRQ3rWvJjojqM5DYTDJo5cejUuJy3C` |
 | Mainnet | `8oo4dC4JvBLwy5tGgiH3WwK4B9PWxL9Z4XjA2jzkQMbQ` |
 
-The metadata PDA is derived from the agent asset and the SHA256 hash prefix of the metadata key:
+The metadata PDA is derived from the agent asset and the first 16 bytes of the SHA256 hash of the metadata key. The SDK does this internally; the equivalent client-side derivation is:
 
 ```ts
 const META_KEY = "entros:human-operator";
+const keyBytes = new TextEncoder().encode(META_KEY);
+const keyHashBuffer = await crypto.subtle.digest("SHA-256", keyBytes);
+const keyHash = new Uint8Array(keyHashBuffer).slice(0, 16);
+
 const [metaPda] = PublicKey.findProgramAddressSync(
   [
-    Buffer.from("agent_meta"),
+    new TextEncoder().encode("agent_meta"),
     agentAsset.toBuffer(),
-    sha256(META_KEY).slice(0, 16),
+    keyHash,
   ],
   REGISTRY_PROGRAM_ID,
 );

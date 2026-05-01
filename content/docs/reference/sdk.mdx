@@ -83,7 +83,7 @@ Statistics utilities also exported: `mean`, `variance`, `skewness`, `kurtosis`, 
 | `randomLissajousParams` | `() => LissajousParams` | Lissajous figure parameters for touch capture |
 | `generateLissajousPoints` | `(params) => Point2D[]` | Render the curve |
 | `generateLissajousSequence` | `(count) => Point2D[][]` | Multiple curves |
-| `fetchChallenge` | `(walletAddress, relayerUrl, apiKey?) => Promise<ChallengeResponse>` | Fetch a challenge from the executor |
+| `fetchChallenge` | `(executorUrl, walletAddress, apiKey?) => Promise<ChallengeResponse>` | Fetch a challenge from the executor |
 
 ## Audio encoding
 
@@ -96,8 +96,8 @@ Statistics utilities also exported: `mean`, `variance`, `skewness`, `kurtosis`, 
 | Export | Signature | Purpose |
 | --- | --- | --- |
 | `verifyEntrosAttestation` | `(walletAddress, connection) => Promise<EntrosAttestation \| null>` | Read a wallet's SAS attestation |
-| `attestAgentOperator` | `(agentAsset, options) => Promise<AttestResult>` | Write the human-operator metadata for a registered agent |
-| `getAgentHumanOperator` | `(agentAsset, connection) => Promise<AgentHumanOperator \| null>` | Read the human-operator metadata. `AgentHumanOperator` fields: `{ anchorPda, trustScore, verifiedAt, wallet }` |
+| `attestAgentOperator` | `(agentAsset: string, options: { wallet, connection, cluster? }) => Promise<{ success: boolean; signature?: string; error?: string }>` | Write the human-operator metadata for a registered agent |
+| `getAgentHumanOperator` | `(agentAsset: string, connection?, cluster?) => Promise<AgentHumanOperator \| null>` | Read the human-operator metadata. `AgentHumanOperator` fields: `{ anchorPda, trustScore, verifiedAt, wallet }` |
 | `fetchIdentityState` | `(wallet, connection) => Promise<IdentityState \| null>` | Read the full Anchor PDA |
 | `storeVerificationData` | `(data) => Promise<void>` | Persist verification state to local storage |
 | `loadVerificationData` | `() => Promise<StoredVerificationData \| null>` | Load persisted state |
