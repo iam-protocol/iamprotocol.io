@@ -247,13 +247,13 @@ function isStaleBlockhashError(error: string): boolean {
   );
 }
 
-// Per-wallet attempt cap (master-list #94 C4) exceeded on the executor.
-// Server returns a 429 with `{reason: "rate_limited"}` and a friendly
-// `error` body string. Surfacing a distinct title prevents the
-// "Verification failed" generic page when the user is just being told
-// to wait.
+// Server returns a 429 with `{reason: "rate_limited"}` (per-wallet cap,
+// master-list #94) or `{reason: "ip_rate_limited"}` (per-IP cap, #155).
+// Both surface a friendly `error` body string starting with "Too many".
+// Surfacing a distinct title prevents the "Verification failed" generic
+// page when the user is just being told to wait.
 function isRateLimitedError(error: string): boolean {
-  return error.toLowerCase().includes("too many attempts");
+  return error.toLowerCase().includes("too many");
 }
 
 // pulse-sdk 1.5.0+ surfaces on-chain Anchor reverts as:
