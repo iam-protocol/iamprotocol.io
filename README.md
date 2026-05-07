@@ -76,8 +76,10 @@ This repo (`entros.io`) is the website, the verification dApp, and the documenta
 | [`executor-node`](https://github.com/entros-protocol/executor-node) | Off-chain relayer: feature validation, SAS attestation, on-chain submit |
 | `entros-validation` | Behavioral validator—runs as the relayer's validation backend (proprietary) |
 | `entros-redteam` | Adversarial test harness—T1–T8 attack synthesis, telemetry, regression coverage (proprietary) |
-| [`entros-mobile`](https://github.com/entros-protocol/entros-mobile) | Mobile app with native ZK proving (mopro) |
+| [`entros-mobile`](https://github.com/entros-protocol/entros-mobile) | Mobile app: capture, native ZK proving via mopro, on-chain submit via Mobile Wallet Adapter |
+| [`entros-mopro`](https://github.com/entros-protocol/entros-mopro) | Native Groth16 prover bindings (UniFFI `.so` + Swift / Kotlin) consumed by `entros-mobile` |
 | [`entros-governance-plugin`](https://github.com/entros-protocol/entros-governance-plugin) | Realms DAO voter-weight plugin |
+| [`token-contracts`](https://github.com/entros-protocol/token-contracts) | Entros utility token (SPL Token-2022 with Confidential Balances) for validator staking and aligned incentives |
 
 ### On-chain
 
