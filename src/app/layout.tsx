@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Geist, VT323 } from "next/font/google";
+import { Inter, JetBrains_Mono, Geist } from "next/font/google";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { SiteChrome } from "@/components/layout/site-chrome";
@@ -36,13 +36,13 @@ const geist = Geist({
   display: "swap",
 });
 
-// VT323 — wordmark only. Single-weight CRT terminal pixel font.
-// Distinguishes the logo from the body monospace (JetBrains) with
-// raw 80s-terminal character. OFL, free for commercial use.
-const wordmark = VT323({
+// Wordmark uses JetBrains Mono — same family as the body monospace,
+// kept as a separate CSS variable so the wordmark surface can be
+// swapped independently in the future without touching components.
+const wordmark = JetBrains_Mono({
   variable: "--font-wordmark",
   subsets: ["latin"],
-  weight: "400",
+  weight: "500",
   display: "swap",
 });
 

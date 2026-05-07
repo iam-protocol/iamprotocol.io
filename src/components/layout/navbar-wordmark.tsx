@@ -53,7 +53,7 @@ export function NavbarWordmark() {
     <Link
       href="/"
       style={{ fontFamily: "var(--font-wordmark)" }}
-      className="inline-flex items-baseline text-3xl tracking-tight text-foreground"
+      className="inline-flex items-baseline text-xl tracking-tight text-foreground"
       aria-label="entros — home"
     >
       <span aria-hidden>{display}</span>
