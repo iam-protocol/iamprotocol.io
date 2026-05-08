@@ -86,8 +86,55 @@ export function VerifyWalletConnected({
   const MAX_ATTEMPTS = 3;
   const attemptsUsedRef = useRef(0);
 
+  // Microphone permission pre-flight. Browsers that previously denied
+  // microphone access never re-prompt — the user has to manually re-enable
+  // the permission in browser settings. Without this pre-flight, the user
+  // would click Start, capture would fail mid-session, and they'd see the
+  // post-capture FailedView with no understanding that the cause is a stale
+  // browser permission state. Querying upfront lets us render an explicit
+  // banner before the click so the failure is preempted, not surfaced
+  // mid-flow. Browsers that don't support the Permissions API (older Safari,
+  // some Firefox builds) keep state at "unknown" and fall back to the
+  // post-capture failure path.
+  const [micPermissionState, setMicPermissionState] = useState<
+    "granted" | "denied" | "prompt" | "unknown"
+  >("unknown");
   useEffect(() => {
     setHasMotion(navigator.maxTouchPoints > 0);
+  }, []);
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.permissions?.query) {
+      return;
+    }
+    let cancelled = false;
+    let status: PermissionStatus | null = null;
+    const handleChange = () => {
+      if (!cancelled && status) {
+        setMicPermissionState(
+          status.state as "granted" | "denied" | "prompt",
+        );
+      }
+    };
+    navigator.permissions
+      // The "microphone" name is in the W3C Permissions API spec but missing
+      // from some older `PermissionName` type unions; cast through unknown to
+      // satisfy strict TypeScript without losing the runtime behavior.
+      .query({ name: "microphone" as unknown as PermissionName })
+      .then((s) => {
+        if (cancelled) return;
+        status = s;
+        setMicPermissionState(s.state as "granted" | "denied" | "prompt");
+        s.addEventListener("change", handleChange);
+      })
+      .catch(() => {
+        // Permissions API rejected (Firefox sometimes throws on unsupported
+        // names rather than returning a result). Leave state at "unknown"
+        // and let the post-capture FailedView handle any actual denial.
+      });
+    return () => {
+      cancelled = true;
+      if (status) status.removeEventListener("change", handleChange);
+    };
   }, []);
 
   // Pull `last_verification_timestamp` from IdentityState when a wallet with
@@ -455,10 +502,19 @@ export function VerifyWalletConnected({
             </p>
           </div>
         )}
+        {micPermissionState === "denied" && (
+          <div className="mx-auto max-w-sm rounded-lg border border-danger/30 bg-danger/5 px-4 py-3">
+            <p className="text-center text-xs text-foreground/70 leading-relaxed">
+              Microphone access is blocked for this site. Click the lock icon
+              in your address bar, set Microphone to Allow, then refresh this
+              page to verify.
+            </p>
+          </div>
+        )}
         <div className="flex justify-center">
           <button
             onClick={() => handleStart("verify")}
-            disabled={requesting}
+            disabled={requesting || micPermissionState === "denied"}
             className="
               inline-flex items-center justify-center gap-2
               rounded-full bg-foreground px-6 py-3

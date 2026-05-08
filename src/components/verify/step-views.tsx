@@ -295,6 +295,35 @@ function isProgramRevertError(error: string): boolean {
   return error.includes("InstructionError") || /"Custom":\s*\d+/.test(error);
 }
 
+// Microphone permission denied. Surface paths:
+// - verify-wallet-connected.tsx synthesizes "Microphone access denied. ..."
+//   when session.startAudio() throws (browser permissions API rejected).
+// - pulse-sdk/pulse.ts wraps captureAudio failures as
+//   "Audio capture failed: ${msg}. Ensure microphone permission is granted ..."
+// - Some browsers throw native NotAllowedError / PermissionDeniedError —
+//   message text varies by browser/OS so match the canonical substrings.
+function isMicrophonePermissionError(error: string): boolean {
+  const e = error.toLowerCase();
+  return (
+    e.includes("microphone access denied") ||
+    e.includes("microphone permission") ||
+    e.includes("audio capture failed") ||
+    e.includes("microphone unavailable") ||
+    (e.includes("notallowederror") && e.includes("audio")) ||
+    (e.includes("permission denied") && e.includes("audio"))
+  );
+}
+
+// Motion sensor permission denied. iOS 13+ requires explicit consent via
+// DeviceMotionEvent.requestPermission() — denial surfaces as our synthetic
+// "Motion permission denied" string from verify-wallet-connected.tsx.
+function isMotionPermissionError(error: string): boolean {
+  const e = error.toLowerCase();
+  return (
+    e.includes("motion permission denied") || e.includes("motion access")
+  );
+}
+
 type FailureKind =
   | { kind: "relayer-down" }
   | { kind: "missing-baseline"; canReset: boolean }
@@ -305,10 +334,20 @@ type FailureKind =
   | { kind: "user-rejection" }
   | { kind: "stale-blockhash" }
   | { kind: "rate-limited" }
+  | { kind: "permission-denied"; device: "microphone" | "motion" }
   | { kind: "generic"; message: string };
 
 function categorizeFailure(error: string, canResetBaseline: boolean): FailureKind {
   if (isRelayerError(error)) return { kind: "relayer-down" };
+  // Permission denials route before generic categories. Both surfaces are
+  // browser-state issues the user can fix directly; the generic "Verification
+  // failed" copy would misrepresent the cause and bury the actionable fix.
+  if (isMicrophonePermissionError(error)) {
+    return { kind: "permission-denied", device: "microphone" };
+  }
+  if (isMotionPermissionError(error)) {
+    return { kind: "permission-denied", device: "motion" };
+  }
   if (isMissingBaselineError(error)) {
     return { kind: "missing-baseline", canReset: canResetBaseline };
   }
@@ -426,6 +465,21 @@ export function FailedView({
       title = "Too many attempts";
       body =
         "This wallet has reached its retry limit for the current window. Please wait an hour before trying again.";
+      break;
+    case "permission-denied":
+      if (failure.device === "microphone") {
+        title = "Microphone access needed";
+        body =
+          "Your browser blocked microphone access. Verification needs to hear your voice for the 12-second capture.";
+        footnote =
+          "Click the lock icon in your address bar, set Microphone to Allow, then refresh this page and try again.";
+      } else {
+        title = "Motion sensor access needed";
+        body =
+          "Your browser blocked motion sensor access. Verification needs your device's motion data during the 12-second capture.";
+        footnote =
+          "On iOS, allow motion access when prompted (or in Safari Settings → Privacy → Motion & Orientation Access). Then refresh this page and try again.";
+      }
       break;
     case "generic":
       title = "Verification failed";
