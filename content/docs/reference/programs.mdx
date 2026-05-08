@@ -5,6 +5,8 @@ description: The three Anchor programs that make up Entros, with their instructi
 
 Entros is built around three on-chain programs and one voter-weight plugin. All programs are built with Anchor 0.32.1 and deployed to Solana devnet.
 
+> **Framework roadmap.** The protocol's three on-chain programs are written in Anchor today, prioritizing developer ergonomics and IDL-driven SDK integration. As on-chain volume scales toward mainnet, the CU-pressured paths (`mint_anchor`, `update_anchor`, `verify_proof`) are slated for selective migration to Pinocchio, the lower-overhead Solana program framework maintained by Anza. The admin-and-governance program (`entros-registry`) stays on Anchor. This hybrid approach mirrors the architecture used by Jupiter Perps and other Solana projects optimizing hot paths post-mainnet.
+
 ## entros-anchor
 
 ```
