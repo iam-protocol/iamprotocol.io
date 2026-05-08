@@ -206,14 +206,17 @@ export function VerifyWalletConnected({
     intentRef.current = intent;
     setRequesting(true);
     setChallengePhrase(null);
+    // Reset the voiced-frame counter before any await so a synchronous
+    // throw in startMotion / challenge fetch can't leak the previous
+    // attempt's count into the rejection-path override evaluation in
+    // handleCaptureComplete.
+    voicedFramesRef.current = 0;
     // Count this attempt against the (intent-scoped) session budget.
     // Soft-fail / hard-fail routing in handleCaptureComplete reads from
     // this counter.
     attemptsUsedRef.current += 1;
 
     try {
-      voicedFramesRef.current = 0;
-
       // Fire the challenge fetch in parallel with sensor setup. We do NOT
       // await this before requesting motion permission: `DeviceMotionEvent
       // .requestPermission()` on iOS consumes the active user-gesture token,
@@ -391,9 +394,27 @@ export function VerifyWalletConnected({
           });
           return;
         }
+        // Override the generic failure copy ONLY when our local observation
+        // is unambiguous: the audio callback never saw a single voiced frame
+        // across the whole 12-second capture. That binary client-side
+        // signal — "the user could not have produced audible speech" — is
+        // independent of whatever reason the server actually rejected on,
+        // so the override doesn't reveal whether the underlying server
+        // rejection was acoustic-content (TtsDetected) or
+        // identity-collision (SybilMatch). Both reasons are deliberately
+        // returned without a safe label by the validator to keep the
+        // detection layers opaque to attackers; mapping a "low but
+        // non-zero" voicing count to a mic-specific message would leak
+        // that the failure was acoustic. Strict zero keeps the override
+        // honest.
+        let errorMessage = result.error ?? "Verification failed";
+        if (!reason && voicedFramesRef.current === 0) {
+          errorMessage =
+            "Microphone audio too quiet. Check that the right microphone is selected, that it isn't muted at the OS level, and that audio is reaching the page.";
+        }
         dispatch({
           type: "VERIFICATION_FAILED",
-          error: result.error ?? "Verification failed",
+          error: errorMessage,
         });
       })
       .catch((err: Error) => {
