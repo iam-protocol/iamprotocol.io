@@ -59,7 +59,12 @@ export function VerifyFlow() {
 
   return (
     <div className="space-y-8">
-      <div className="relative mx-auto flex min-h-[460px] max-w-xl flex-col justify-center border border-border bg-surface px-8 py-10">
+      {/* Pinned-height card: sized for the tallest state (capturing) so the
+          surrounding layout doesn't shift between idle / capturing /
+          processing / failed / verified. Content centers vertically within
+          the fixed container, occasional whitespace in shorter states is
+          the deliberate trade-off for layout stability across the flow. */}
+      <div className="relative mx-auto flex h-[620px] md:h-[660px] max-w-xl flex-col justify-center border border-border bg-surface px-8 py-10">
         <span className="absolute left-0 top-0 h-3 w-3 border-l border-t border-cyan/70" aria-hidden />
         <span className="absolute right-0 top-0 h-3 w-3 border-r border-t border-cyan/70" aria-hidden />
         <span className="absolute bottom-0 left-0 h-3 w-3 border-b border-l border-cyan/70" aria-hidden />
