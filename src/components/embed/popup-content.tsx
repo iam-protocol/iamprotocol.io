@@ -8,8 +8,8 @@ import { Wallet } from "lucide-react";
 import {
   type PulseSession,
   PROGRAM_IDS,
-  fetchChallenge,
 } from "@entros/pulse-sdk";
+import { fetchChallengeViaProxy } from "@/lib/relay-challenge";
 
 import type { ParsedEmbedParams } from "@/lib/embed/url-params";
 import type { EmbedContext } from "@/lib/embed/post-message";
@@ -229,14 +229,11 @@ export function PopupContent({ params }: { params: ParsedEmbedParams }) {
       // verify-wallet-connected.tsx) prohibits awaiting network round-trips
       // before the motion prompt — we only await the challenge AFTER all
       // permissions resolve, just before transitioning to the capturing UI.
-      const relayerUrl = process.env.NEXT_PUBLIC_RELAYER_URL;
-      const relayerApiKey = process.env.NEXT_PUBLIC_RELAYER_API_KEY;
-      const challengePromise: Promise<string | null> =
-        publicKey && relayerUrl
-          ? fetchChallenge(relayerUrl, publicKey.toBase58(), relayerApiKey)
-              .then((c) => c.phrase)
-              .catch(() => null)
-          : Promise.resolve(null);
+      const challengePromise: Promise<string | null> = publicKey
+        ? fetchChallengeViaProxy(publicKey.toBase58())
+            .then((c) => c.phrase)
+            .catch(() => null)
+        : Promise.resolve(null);
 
       const session = pulse.createSession(document.body);
       sessionRef.current = session;
@@ -269,8 +266,17 @@ export function PopupContent({ params }: { params: ParsedEmbedParams }) {
 
       session.startTouch().catch(() => session.skipTouch());
 
+      // Fail the verification if no phrase came back. The previous
+      // silent fallback to client-generated nonsense produced a broken
+      // UX (gibberish syllables) and bypassed phrase content binding
+      // server-side, opening a bypass for any path that blocks the
+      // /challenge fetch.
       const phrase = await challengePromise;
-      if (phrase) setChallengePhrase(phrase);
+      if (!phrase) {
+        fail("network_error");
+        return;
+      }
+      setChallengePhrase(phrase);
 
       emitHeartbeat(ctx, "capturing");
       setState({ step: "capturing" });
@@ -401,13 +407,19 @@ export function PopupContent({ params }: { params: ParsedEmbedParams }) {
     return <PopupBaselineStale />;
   }
   if (state.step === "capturing") {
+    // Invariant: handleStart only transitions to "capturing" after the
+    // server-issued phrase is in state, so challengePhrase is non-null
+    // here. Guard kept for type safety.
+    if (!challengePhrase) {
+      return null;
+    }
     return (
       <PulseChallenge
         onComplete={handleCaptureComplete}
         touchRef={touchRef}
         audioLevel={audioLevel}
         hasMotion={hasMotion}
-        phrase={challengePhrase ?? undefined}
+        phrase={challengePhrase}
       />
     );
   }

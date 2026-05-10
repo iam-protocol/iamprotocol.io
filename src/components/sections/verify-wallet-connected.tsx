@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
-import { type PulseSession, PROGRAM_IDS, fetchChallenge, fetchIdentityState } from "@entros/pulse-sdk";
+import { type PulseSession, PROGRAM_IDS, fetchIdentityState } from "@entros/pulse-sdk";
+import { fetchChallengeViaProxy } from "@/lib/relay-challenge";
 import type { VerifyState, VerifyAction } from "@/components/verify/types";
 import { PulseChallenge } from "@/components/verify/pulse-challenge";
 import {
@@ -238,22 +239,19 @@ export function VerifyWalletConnected({
       // and awaiting a network round-trip between the click and the motion
       // prompt silently drops that token—motion permission denied.
       // Awaiting happens after audio/motion/touch permissions resolve but
-      // before START_CAPTURE, so the PulseChallenge renders with whichever
-      // phrase is ready by then (server-issued, or null → client fallback).
-      const relayerUrl = process.env.NEXT_PUBLIC_RELAYER_URL;
-      const relayerApiKey = process.env.NEXT_PUBLIC_RELAYER_API_KEY;
-      const challengePromise: Promise<string | null> =
-        publicKey && relayerUrl
-          ? fetchChallenge(relayerUrl, publicKey.toBase58(), relayerApiKey)
-              .then((c) => c.phrase)
-              .catch((err: unknown) => {
-                if (process.env.NODE_ENV === "development") {
-                  const msg = err instanceof Error ? err.message : String(err);
-                  console.warn(`[verify] challenge fetch failed: ${msg}`);
-                }
-                return null;
-              })
-          : Promise.resolve(null);
+      // before START_CAPTURE; null → fail the verification with a clear
+      // error rather than silently fall back to nonsense.
+      const challengePromise: Promise<string | null> = publicKey
+        ? fetchChallengeViaProxy(publicKey.toBase58())
+            .then((c) => c.phrase)
+            .catch((err: unknown) => {
+              if (process.env.NODE_ENV === "development") {
+                const msg = err instanceof Error ? err.message : String(err);
+                console.warn(`[verify] challenge fetch failed: ${msg}`);
+              }
+              return null;
+            })
+        : Promise.resolve(null);
 
       // Always attach touch capture to document.body. The PulseChallenge
       // curve DIV is only mounted AFTER we dispatch START_CAPTURE below, so
@@ -311,8 +309,19 @@ export function VerifyWalletConnected({
       // Await the parallel challenge fetch now that permissions have
       // resolved. The 3-second countdown inside PulseChallenge gives
       // another buffer for slow networks before the phrase appears.
+      // Fail the verification if no phrase came back: the previous
+      // silent fallback to client-generated nonsense produced a broken
+      // UX (users saw gibberish syllables) and bypassed phrase content
+      // binding server-side.
       const phrase = await challengePromise;
-      if (phrase) setChallengePhrase(phrase);
+      if (!phrase) {
+        dispatch({
+          type: "VERIFICATION_FAILED",
+          error: "Verification service unavailable. Please refresh and try again.",
+        });
+        return;
+      }
+      setChallengePhrase(phrase);
 
       dispatch({ type: "START_CAPTURE", intent });
     } finally {
@@ -590,13 +599,19 @@ export function VerifyWalletConnected({
   }
 
   if (state.step === "capturing") {
+    // Invariant: handleStart only dispatches START_CAPTURE after the
+    // server-issued phrase is in state, so challengePhrase is non-null
+    // here. Guard kept for type safety.
+    if (!challengePhrase) {
+      return null;
+    }
     return (
       <PulseChallenge
         onComplete={handleCaptureComplete}
         touchRef={touchRef}
         audioLevel={audioLevel}
         hasMotion={hasMotion}
-        phrase={challengePhrase ?? undefined}
+        phrase={challengePhrase}
       />
     );
   }
