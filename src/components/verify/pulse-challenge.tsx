@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
-  generatePhrase,
   randomLissajousParams,
   generateLissajousPoints,
 } from "@entros/pulse-sdk";
@@ -31,15 +30,14 @@ export function PulseChallenge({
   audioLevel?: number;
   hasMotion?: boolean;
   /**
-   * Server-issued challenge phrase (master-list #89). The verify flow fetches
-   * this from the executor's `/challenge` endpoint so entros-validation can
-   * phoneme-match the transcribed audio against the authoritative phrase.
-   *
-   * Falls back to client-generated when absent (e.g. executor unreachable) so
-   * the capture UI still works—but phrase content binding then skips
-   * server-side, since the server has no record of the phrase to compare.
+   * Server-issued challenge phrase. The verify flow fetches this through the
+   * `/api/relay-challenge` same-origin proxy. Required — if absent, the
+   * parent component must fail the verification before rendering this
+   * component. Earlier versions silently fell back to client-generated
+   * nonsense syllables, which produced a broken UX (gibberish words shown
+   * to users) and bypassed phrase content binding server-side.
    */
-  phrase?: string;
+  phrase: string;
 }) {
   const [countdown, setCountdown] = useState(3);
   const [captureStarted, setCaptureStarted] = useState(false);
@@ -53,12 +51,7 @@ export function PulseChallenge({
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
-  // Prefer the server-issued phrase; only generate client-side if the parent
-  // couldn't fetch one (phrase content binding then skips server-side).
-  const fallbackPhrase = useMemo(() => generatePhrase(5), []);
-  const phrase = providedPhrase && providedPhrase.trim().length > 0
-    ? providedPhrase
-    : fallbackPhrase;
+  const phrase = providedPhrase;
   const lissajousPoints = useMemo(() => {
     const params = randomLissajousParams();
     return generateLissajousPoints(params);
