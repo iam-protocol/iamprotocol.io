@@ -24,6 +24,7 @@ import { deriveAttestationPda } from "@/lib/embed/attestation-pda";
 import { PulseChallenge } from "@/components/verify/pulse-challenge";
 import { ProvingView, SigningView } from "@/components/verify/step-views";
 import { WalletConnectButton } from "@/components/ui/wallet-connect-button";
+import { ConnectedWalletPill } from "@/components/ui/connected-wallet-pill";
 import { usePulse } from "@/components/providers/pulse-provider";
 
 import { PopupBaselineStale } from "./popup-baseline-stale";
@@ -181,7 +182,7 @@ function categorizeError(error: string): EmbedErrorReason {
  * surfaces auto-close so the user re-triggers from the integrator.
  */
 export function PopupContent({ params }: { params: ParsedEmbedParams }) {
-  const { connected, wallet, publicKey, disconnect } = useWallet();
+  const { connected, wallet, publicKey } = useWallet();
   const { connection } = useConnection();
   const pulse = usePulse();
 
@@ -448,25 +449,11 @@ export function PopupContent({ params }: { params: ParsedEmbedParams }) {
     );
   }
 
-  const truncatedAddress = publicKey
-    ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
-    : "";
-
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan/30 bg-cyan/5 px-4 py-1.5">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-cyan" />
-          <span className="font-mono text-xs text-cyan">
-            {truncatedAddress}
-          </span>
-          <button
-            onClick={() => disconnect()}
-            className="ml-1 text-xs text-foreground/40 transition-colors hover:text-foreground"
-            aria-label="Disconnect wallet"
-          >
-            &times;
-          </button>
+        <div className="mb-4 inline-flex">
+          <ConnectedWalletPill size="sm" />
         </div>
         <p className="font-mono text-base font-semibold text-foreground">
           Verify with Entros

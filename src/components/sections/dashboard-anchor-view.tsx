@@ -6,6 +6,7 @@ import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { type IdentityState, PROGRAM_IDS } from "@entros/pulse-sdk";
 import { PublicKey } from "@solana/web3.js";
 import { WalletConnectButton } from "@/components/ui/wallet-connect-button";
+import { ConnectedWalletPill } from "@/components/ui/connected-wallet-pill";
 import { commitmentBytesToHex } from "@/lib/on-chain";
 import { explorerUrl } from "@/lib/explorer";
 import { ArrowRight, ExternalLink, Wallet, Loader2, ShieldAlert } from "lucide-react";
@@ -30,7 +31,7 @@ function formatDate(unixSeconds: number): string {
 }
 
 export function DashboardAnchorView() {
-  const { publicKey, connected, disconnect } = useWallet();
+  const { publicKey, connected } = useWallet();
   const { connection } = useConnection();
   const [identity, setIdentity] = useState<IdentityState | null>(null);
   const [loading, setLoading] = useState(false);
@@ -85,10 +86,6 @@ export function DashboardAnchorView() {
       .finally(() => setLoading(false));
   }, [publicKey, connected, connection]);
 
-  const truncatedAddress = publicKey
-    ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
-    : "";
-
   // Disconnected state
   if (!connected) {
     return (
@@ -114,17 +111,7 @@ export function DashboardAnchorView() {
 
   const walletPill = (
     <div className="mb-8 flex">
-      <div className="inline-flex items-center gap-3 border border-cyan/30 bg-cyan/[0.04] px-4 py-2">
-        <span className="h-1.5 w-1.5 rounded-full bg-cyan" />
-        <span className="font-mono text-xs text-cyan">{truncatedAddress}</span>
-        <button
-          onClick={() => disconnect()}
-          className="ml-1 text-xs text-foreground/40 transition-colors hover:text-foreground"
-          aria-label="Disconnect wallet"
-        >
-          &times;
-        </button>
-      </div>
+      <ConnectedWalletPill size="md" />
     </div>
   );
 

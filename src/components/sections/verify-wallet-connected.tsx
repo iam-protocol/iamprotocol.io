@@ -17,6 +17,7 @@ import {
 } from "@/components/verify/step-views";
 import { ResetBaselineDialog } from "@/components/verify/reset-baseline-dialog";
 import { WalletConnectButton } from "@/components/ui/wallet-connect-button";
+import { ConnectedWalletPill } from "@/components/ui/connected-wallet-pill";
 import { usePulse } from "@/components/providers/pulse-provider";
 import { useWalletError } from "@/components/providers/wallet-provider";
 import { Wallet } from "lucide-react";
@@ -72,7 +73,7 @@ export function VerifyWalletConnected({
   state: VerifyState;
   dispatch: React.ActionDispatch<[action: VerifyAction]>;
 }) {
-  const { connected, wallet, publicKey, disconnect } = useWallet();
+  const { connected, wallet, publicKey } = useWallet();
   const { connection } = useConnection();
   const pulse = usePulse();
   // Wallet adapter error surface (e.g., Phantom devnet mismatch, Android MWA
@@ -490,10 +491,6 @@ export function VerifyWalletConnected({
   }
 
   if (state.step === "idle") {
-    const truncatedAddress = publicKey
-      ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
-      : "";
-
     // 24-hour cadence hint: the Trust Score recency dedup in update_anchor
     // collapses verifications inside a single 24h window into one bucket, so
     // verifying sooner than 24h after the last attempt won't produce a
@@ -523,16 +520,8 @@ export function VerifyWalletConnected({
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan/30 bg-cyan/5 px-4 py-1.5 mb-4">
-            <span className="h-2 w-2 rounded-full bg-cyan animate-pulse" />
-            <span className="font-mono text-xs text-cyan">{truncatedAddress}</span>
-            <button
-              onClick={() => disconnect()}
-              className="ml-1 text-xs text-foreground/40 hover:text-foreground transition-colors"
-              aria-label="Disconnect wallet"
-            >
-              &times;
-            </button>
+          <div className="mb-4 inline-flex">
+            <ConnectedWalletPill size="sm" />
           </div>
           <p className="font-mono text-base font-semibold text-foreground">
             Behavioral Verification
