@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { AlertTriangle } from "lucide-react";
+import { ConnectedWalletPill } from "@/components/ui/connected-wallet-pill";
 
 const WalletMultiButton = dynamic(
   () =>
@@ -122,13 +123,19 @@ export function WalletConnectButton({
   className?: string;
   align?: "start" | "center";
 }) {
+  const { connected } = useWallet();
+
   return (
     <div
       className={`flex flex-col ${
         align === "start" ? "items-start" : "items-center"
       }`}
     >
-      <WalletMultiButton className={className} />
+      {connected ? (
+        <ConnectedWalletPill />
+      ) : (
+        <WalletMultiButton className={className} />
+      )}
       <MobileWalletHint />
       <DevnetHint />
     </div>

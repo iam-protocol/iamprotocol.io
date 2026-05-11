@@ -7,6 +7,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { EntrosGate } from "@/components/ui/entros-gate";
 import { CodeBlock } from "@/components/ui/code-block";
 import { WalletConnectButton } from "@/components/ui/wallet-connect-button";
+import { ConnectedWalletPill } from "@/components/ui/connected-wallet-pill";
 
 const USAGE_CODE = `import { EntrosGate } from "@/components/ui/entros-gate";
 
@@ -171,13 +172,9 @@ export function EntrosGate({
 export default function GateDemo() {
   const [thresholdInput, setThresholdInput] = useState("100");
   const [copied, setCopied] = useState(false);
-  const { publicKey, connected, disconnect } = useWallet();
+  const { connected } = useWallet();
 
   const threshold = Math.min(10000, Math.max(0, parseInt(thresholdInput, 10) || 0));
-
-  const truncatedAddress = publicKey
-    ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
-    : "";
 
   function copySource() {
     navigator.clipboard.writeText(COMPONENT_CODE);
@@ -309,19 +306,7 @@ export default function GateDemo() {
           {/* Wallet status pill */}
           <div className="mt-10 flex justify-start">
             {connected ? (
-              <div className="inline-flex items-center gap-3 border border-cyan/30 bg-cyan/[0.04] px-4 py-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-cyan" />
-                <span className="font-mono text-xs text-cyan">
-                  {truncatedAddress}
-                </span>
-                <button
-                  onClick={() => disconnect()}
-                  className="ml-1 text-xs text-foreground/40 transition-colors hover:text-foreground"
-                  aria-label="Disconnect wallet"
-                >
-                  &times;
-                </button>
-              </div>
+              <ConnectedWalletPill size="sm" />
             ) : (
               <WalletConnectButton align="start" />
             )}

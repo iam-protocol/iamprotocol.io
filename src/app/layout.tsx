@@ -48,7 +48,9 @@ const wordmark = JetBrains_Mono({
 
 const ROOT_TITLE = `${SITE_NAME}—Proof of Personhood on Solana`;
 const ROOT_DESCRIPTION =
-  "Prove you're human without revealing who you are. Solana-native identity verification through the dynamic signature of liveness—voice, motion, and touch, verified with zero-knowledge proofs.";
+  "Twelve seconds of behavioral liveness—voice, motion, and touch—anchored on chain. Read by every Solana dApp. Bind your agent, build your Trust Score. No raw biometrics, ever.";
+const SOCIAL_DESCRIPTION =
+  "Twelve seconds of behavioral liveness on Solana, private, anchored on chain, read by every dApp. Bind your agent, build your Trust Score.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -76,25 +78,29 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: ROOT_TITLE,
-    description:
-      "Solana-native identity verification through behavioral liveness. Privacy by architecture.",
+    description: SOCIAL_DESCRIPTION,
     url: "/",
     siteName: SITE_NAME,
     type: "website",
     images: [
       {
         url: OG_IMAGE_PATH,
-        width: 1200,
-        height: 630,
+        width: 500,
+        height: 500,
         alt: SITE_NAME,
       },
     ],
   },
   twitter: {
-    card: "summary_large_image",
+    // Use the small-square "summary" card layout instead of
+    // "summary_large_image" so every path on the site renders the same
+    // compact card (square logo on the left, title + description on the
+    // right). The wide hero card was inconsistent with how child paths
+    // (/verify, /docs, etc.) rendered without their own twitter:image,
+    // and squeezed the logo into a 4:3 box that looked broken.
+    card: "summary",
     title: ROOT_TITLE,
-    description:
-      "Prove you're human without revealing who you are. Built on Solana.",
+    description: SOCIAL_DESCRIPTION,
     site: TWITTER_HANDLE,
     creator: TWITTER_HANDLE,
     images: [OG_IMAGE_PATH],

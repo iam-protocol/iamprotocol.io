@@ -10,5 +10,9 @@ export const TWITTER_HANDLE = "@entros_protocol";
 export const TWITTER_URL = "https://x.com/entros_protocol";
 export const GITHUB_URL = "https://github.com/entros-protocol";
 
-export const OG_IMAGE_PATH = "/logos/og-card.png";
+// Square (500×500) logo image. Used as the og:image and twitter:image
+// across every path on the site. Twitter renders this in the "summary"
+// (small-square) card layout — same compact card whether the link is to
+// /, /verify, /docs, /paper, etc.
+export const OG_IMAGE_PATH = "/logos/Entros.png";
 export const OG_LOGO_PATH = "/logos/Entros.png";
